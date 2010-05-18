@@ -14,4 +14,11 @@
 	<natures>
 		<nature>com.powerflasher.fdt.core.FlashNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>swfaddress_2_4_AS3</name>
+			<type>2</type>
+			<locationURI>swfaddress_2_4_AS3</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>
