@@ -1,0 +1,1 @@
+package com.epologee.ui.combobox {	/**	 * @author Eric-Paul Lecluse | epologee.com (c) 2009	 */	public interface IComboData {		function getData():String;		function getLabel():String;	}}
