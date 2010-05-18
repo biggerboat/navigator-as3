@@ -1,0 +1,1 @@
+package com.epologee.ui.mouse {	/**	 * @author Eric-Paul Lecluse | epologee.com (c) 2008	 */	public class BlockLevels {		public static const LEVEL_3:String = "LEVEL_3";			public static const LEVEL_2:String = "LEVEL_2";		public static const LEVEL_1:String = "LEVEL_1";		public static const LEVEL_0:String = "LEVEL_0";	}}
