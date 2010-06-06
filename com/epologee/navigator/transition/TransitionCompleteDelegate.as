@@ -1,4 +1,6 @@
-package com.epologee.navigator {
+package com.epologee.navigator.transition {
+	import com.epologee.navigator.Navigator;
+	import com.epologee.navigator.states.IHasStateTransition;
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com

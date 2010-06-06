@@ -1,4 +1,4 @@
-package com.epologee.navigator {
+package com.epologee.navigator.transition {
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com

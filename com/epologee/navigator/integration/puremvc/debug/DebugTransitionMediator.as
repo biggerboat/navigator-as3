@@ -1,9 +1,9 @@
 package com.epologee.navigator.debug {
 	import com.epologee.development.stats.AlignStats;
-	import com.epologee.navigator.IHasStateTransition;
-	import com.epologee.navigator.TransitionStatus;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
 	import com.epologee.navigator.integration.puremvc.development;
+	import com.epologee.navigator.states.IHasStateTransition;
+	import com.epologee.navigator.transition.TransitionStatus;
 	import com.epologee.puremvc.stage.StageProxy;
 	import com.epologee.ui.text.FormattedTextBox;
 

@@ -1,5 +1,5 @@
 package com.epologee.navigator.debug {
-	import com.epologee.navigator.NavigationState;
+	import com.epologee.navigator.states.NavigationState;
 	import com.epologee.ui.buttons.DrawnStateButtonBehavior;
 	import com.epologee.ui.buttons.IHasDrawnStates;
 	import com.epologee.ui.text.FormattedTextField;

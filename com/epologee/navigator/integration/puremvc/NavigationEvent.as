@@ -1,5 +1,5 @@
 package com.epologee.navigator.integration.puremvc {
-	import com.epologee.navigator.NavigationState;
+	import com.epologee.navigator.states.NavigationState;
 
 	import flash.events.Event;
 	import flash.utils.getQualifiedClassName;

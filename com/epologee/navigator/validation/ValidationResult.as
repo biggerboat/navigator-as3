@@ -1,4 +1,4 @@
-package com.epologee.navigator {
+package com.epologee.navigator.validation {
 	import flash.utils.getQualifiedClassName;
 
 	/**

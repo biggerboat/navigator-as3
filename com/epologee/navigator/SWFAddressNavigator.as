@@ -1,5 +1,6 @@
 package com.epologee.navigator {
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
+	import com.epologee.navigator.states.NavigationState;
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com

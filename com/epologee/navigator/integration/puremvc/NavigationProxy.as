@@ -1,13 +1,13 @@
 package com.epologee.navigator.integration.puremvc {
 	import com.epologee.development.logging.warn;
-	import com.epologee.navigator.IHasStateTransition;
-	import com.epologee.navigator.IHasStateUpdate;
-	import com.epologee.navigator.IHasStateValidation;
-	import com.epologee.navigator.INavigationResponder;
-	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.SWFAddressNavigator;
+	import com.epologee.navigator.states.IHasStateTransition;
+	import com.epologee.navigator.states.IHasStateUpdate;
+	import com.epologee.navigator.states.IHasStateValidation;
+	import com.epologee.navigator.states.INavigationResponder;
+	import com.epologee.navigator.states.NavigationState;
 
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 

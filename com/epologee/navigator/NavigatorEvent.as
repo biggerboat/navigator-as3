@@ -1,4 +1,6 @@
 package com.epologee.navigator {
+	import com.epologee.navigator.states.NavigationState;
+
 	import flash.events.Event;
 	import flash.utils.Dictionary;
 	import flash.utils.getQualifiedClassName;
