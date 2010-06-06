@@ -8,7 +8,9 @@ package com.epologee.navigator {
 	import com.epologee.navigator.states.IHasStateValidation;
 	import com.epologee.navigator.states.INavigationResponder;
 	import com.epologee.navigator.states.NavigationState;
+	import com.epologee.navigator.transition.TransitionCompleteDelegate;
 	import com.epologee.navigator.transition.TransitionStatus;
+	import com.epologee.navigator.transition.transition;
 	import com.epologee.navigator.validation.ValidationResult;
 
 	import flash.events.EventDispatcher;
@@ -204,7 +206,7 @@ package com.epologee.navigator {
 			return new NavigationState(_current.path);
 		}
 
-		internal function notifyComplete(inResponder : IHasStateTransition, inStatus : int) : void {
+		transition function notifyComplete(inResponder : IHasStateTransition, inStatus : int) : void {
 			_statusByResponder[inResponder] = inStatus;
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 
@@ -324,6 +326,8 @@ package com.epologee.navigator {
 					if (TransitionStatus.HIDDEN < _statusByResponder[responder] && _statusByResponder[responder] < TransitionStatus.DISAPPEARING) {
 						_statusByResponder[responder] = TransitionStatus.DISAPPEARING;
 						waitFor.push(responder);
+						
+						use namespace transition;
 						responder.transitionOut(new TransitionCompleteDelegate(responder, TransitionStatus.HIDDEN, this).call);
 					} else {
 						// already hidden or hiding
@@ -375,6 +379,8 @@ package com.epologee.navigator {
 				if (status < TransitionStatus.APPEARING || TransitionStatus.SHOWN < status) {
 					// then continue with the transitionIn() call.
 					_statusByResponder[responder] = TransitionStatus.APPEARING;
+
+					use namespace transition;
 					responder.transitionIn(new TransitionCompleteDelegate(responder, TransitionStatus.SHOWN, this).call);				
 				}
 			}

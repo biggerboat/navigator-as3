@@ -5,7 +5,7 @@ package com.epologee.navigator.transition {
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
-	internal class TransitionCompleteDelegate {
+	public class TransitionCompleteDelegate {
 		private var _responder : IHasStateTransition;
 		private var _navigator : Navigator;
 		private var _status : int;
@@ -23,8 +23,8 @@ package com.epologee.navigator.transition {
 		 * 
 		 * The arguments are ignored.
 		 */
-		internal function call(...inAnyArgument:Array) : void {
-			_navigator.notifyComplete(_responder, _status);
+		transition function call(...inAnyArgument : Array) : void {
+			_navigator.transition::notifyComplete(_responder, _status);
 			_responder = null;
 			_navigator = null;
 		}

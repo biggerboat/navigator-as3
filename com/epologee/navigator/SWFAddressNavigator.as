@@ -1,4 +1,6 @@
 package com.epologee.navigator {
+	import com.asual.swfaddress.SWFAddress;
+	import com.asual.swfaddress.SWFAddressEvent;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
 	import com.epologee.navigator.states.NavigationState;
 
