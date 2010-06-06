@@ -8,7 +8,6 @@ package com.epologee.navigator.integration.puremvc {
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.SWFAddressNavigator;
-	import com.epologee.navigator.development;
 
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 

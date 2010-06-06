@@ -1,6 +1,6 @@
 package com.epologee.navigator.debug {
-	import com.epologee.navigator.development;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
+	import com.epologee.navigator.integration.puremvc.development;
 	import com.epologee.puremvc.view.TimelineMediator;
 
 	import org.puremvc.as3.multicore.interfaces.INotification;
