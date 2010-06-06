@@ -1,1 +1,6 @@
-This project is setup for use with FDT.
+All the ActionScript 3.0 code I consider to be reusable, I bundle in the "reusabilitee" project.
+Currently, the bulk of the project's files are still over at Google Code http://code.google.com/p/epologee
+
+However, this one particular part that I brilliantly coined the "Navigator", is my most recent package that I have been rather pleased with.
+
+So, this is the first part of my library that I'm moving over to GitHub, with the idea that I will no longer have one giant repository for everything that's useful, but rather have several repositories per functional group.
