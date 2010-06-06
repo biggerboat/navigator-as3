@@ -1,4 +1,6 @@
-package com.epologee.navigator {
+package com.epologee.navigator.integration.puremvc {
+	import com.epologee.navigator.NavigationState;
+
 	import flash.events.Event;
 	import flash.utils.getQualifiedClassName;
 

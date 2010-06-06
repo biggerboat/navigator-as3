@@ -1,5 +1,14 @@
-package com.epologee.navigator {
+package com.epologee.navigator.integration.puremvc {
 	import com.epologee.development.logging.warn;
+	import com.epologee.navigator.IHasStateTransition;
+	import com.epologee.navigator.IHasStateUpdate;
+	import com.epologee.navigator.IHasStateValidation;
+	import com.epologee.navigator.INavigationResponder;
+	import com.epologee.navigator.NavigationState;
+	import com.epologee.navigator.Navigator;
+	import com.epologee.navigator.NavigatorEvent;
+	import com.epologee.navigator.SWFAddressNavigator;
+	import com.epologee.navigator.development;
 
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 
