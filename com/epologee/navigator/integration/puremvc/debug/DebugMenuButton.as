@@ -1,4 +1,4 @@
-package com.epologee.navigator.debug {
+package com.epologee.navigator.integration.puremvc.debug {
 	import com.epologee.navigator.states.NavigationState;
 	import com.epologee.ui.buttons.DrawnStateButtonBehavior;
 	import com.epologee.ui.buttons.IHasDrawnStates;

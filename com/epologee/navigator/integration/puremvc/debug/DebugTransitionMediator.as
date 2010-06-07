@@ -1,4 +1,4 @@
-package com.epologee.navigator.debug {
+package com.epologee.navigator.integration.puremvc.debug {
 	import com.epologee.development.stats.AlignStats;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
 	import com.epologee.navigator.integration.puremvc.development;
