@@ -92,13 +92,9 @@ package com.epologee.navigator.states {
 		 */
 		public function subtract(inOperand : NavigationState) : NavigationState {
 			if (!containsState(inOperand)) return null;
-			var subtract : Array = segments;
-			var operand : Array = inOperand.segments;
-			while (operand.length) {
-				subtract.shift();
-				operand.shift();
-			}
 			var ns : NavigationState = new NavigationState();
+			var subtract : Array = segments;
+			subtract.splice(0, inOperand.segments.length);
 			ns.segments = subtract;
 			return ns;
 		}
