@@ -16,10 +16,12 @@ package com.epologee.navigator.integration.puremvc.debug {
 		public static const NAME : String = getQualifiedClassName(DebugMenuMediator);
 		//
 		private var _buttons : Array;
+		private var _manualPaths : Array;
 
-		public function DebugMenuMediator(inTimeline : Sprite) {
+		public function DebugMenuMediator(inTimeline : Sprite, ...inManualPaths : Array) {
 			super(NAME, inTimeline);
 			_buttons = [];
+			_manualPaths = inManualPaths;
 		}
 
 		override public function listNotificationInterests() : Array {
@@ -35,6 +37,9 @@ package com.epologee.navigator.integration.puremvc.debug {
 			
 			var x : int = 0;
 			var paths : Array = np.development::navigator.getKnownPaths();
+			if (_manualPaths) {
+				paths = paths.concat(_manualPaths);
+			}
 			for each (var path : String in paths) {
 				var button : DebugMenuButton = new DebugMenuButton(path);
 				button.x = x;

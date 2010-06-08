@@ -261,6 +261,11 @@ package com.epologee.navigator {
 			var state : NavigationState;
 			var path : String;
 			
+			if (inNavigationState.hasWildcard()) {
+				warn("Requested states may not contain wildcards "+NavigationState.WILDCARD);
+				return false;
+			}
+			
 			if (inNavigationState.equals(_defaultState)) {
 				return true;
 			}

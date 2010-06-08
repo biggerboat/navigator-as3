@@ -4,7 +4,8 @@ package com.epologee.navigator.states {
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public class NavigationState {
-		private static const DELIMITER : String = "/";
+		public static const WILDCARD : String = "*";
+		public static const DELIMITER : String = "/";
 		//
 		private var _path : String;
 
@@ -38,7 +39,7 @@ package com.epologee.navigator.states {
 		}
 
 		/**
-		 * @return whether the path of the foreign state is contained by this state's path
+		 * @return whether the path of the foreign state is contained by this state's path, wildcards may be used.
 		 * @example:
 		 * 
 		 * 	a = new State("/bubble/gum/");
@@ -65,7 +66,9 @@ package com.epologee.navigator.states {
 				var foreignSegment : String = foreignSegments[i];
 				var nativeSegment : String = nativeSegments[i];
 
-				if (foreignSegment != nativeSegment) {
+				if (foreignSegment == WILDCARD || nativeSegment == WILDCARD) {
+					// mathes because of the wildcard.
+				} else if (foreignSegment != nativeSegment) {
 					// native [" + nativeSegment + "] does not match foreign [" + foreignSegment + "]
 					return false;
 				} else {
@@ -95,6 +98,10 @@ package com.epologee.navigator.states {
 
 		public function add(inTrailingState : NavigationState) : NavigationState {
 			return new NavigationState(path + DELIMITER + inTrailingState.path);
+		}
+
+		public function hasWildcard() : Boolean {
+			return path.indexOf(WILDCARD) >= 0;
 		}
 
 		public function toString() : String {
