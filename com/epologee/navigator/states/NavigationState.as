@@ -110,5 +110,24 @@ package com.epologee.navigator.states {
 		public function toString() : String {
 			return "path: " + path;
 		}
+
+		public function clone() : NavigationState {
+			return new NavigationState(path);
+		}
+
+		/**
+		 * Will mask wildcards with values from the provided state.
+		 */
+		public function mask(inSource : NavigationState) : void {
+			var unmasked : Array = segments;
+			var source : Array = inSource.segments;
+			var leni : int = Math.min(source.length, unmasked.length);
+			for (var i : int = 0;i < leni ;i++) {
+				if (unmasked[i] == NavigationState.WILDCARD && source[i]) {
+					unmasked[i] = source[i];
+				}
+			}
+			segments = unmasked;
+		}
 	}
 }

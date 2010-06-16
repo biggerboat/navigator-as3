@@ -1,4 +1,5 @@
 package com.epologee.navigator {
+	import com.epologee.development.logging.debug;
 	import com.epologee.development.logging.info;
 	import com.epologee.development.logging.notice;
 	import com.epologee.development.logging.warn;
@@ -149,15 +150,19 @@ package com.epologee.navigator {
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
 		public function requestNewState(inNavigationState : NavigationState) : void {
+			debug("inNavigationState: " + inNavigationState);
 			if (_current && _current.path == inNavigationState.path) {
+				info("Already at current state: " + inNavigationState);
 				return;
 			}
 			
-			if (inNavigationState == _defaultState) {
-				// Default state bypasses validation.
+			if (inNavigationState.path == _defaultState.path) {
+				// Exact match on default state bypasses validation.
+				notice("granted default state: " + inNavigationState);
 				grantRequest(_defaultState);
 			} else if (validateState(inNavigationState)) {
 				// Any other state needs to be validated.
+				notice("granted state after validation");
 				grantRequest(inNavigationState);
 			} else if (_current) {
 				// If validation fails, the notifyStateChange() is called with the current state as a parameter,
@@ -262,8 +267,16 @@ package com.epologee.navigator {
 			var path : String;
 			
 			if (inNavigationState.hasWildcard()) {
-				warn("Requested states may not contain wildcards "+NavigationState.WILDCARD);
-				return false;
+				// substitute wildcards.
+				notice("before: " + inNavigationState);
+				inNavigationState.mask(_current);
+				notice("after: " + inNavigationState);
+				
+				// check to see if there are still wildcards left
+				if (inNavigationState.hasWildcard()) {
+					warn("Requested states may not contain wildcards " + NavigationState.WILDCARD);
+					return false;
+				}
 			}
 			
 			if (inNavigationState.equals(_defaultState)) {
@@ -378,16 +391,23 @@ package com.epologee.navigator {
 			
 			initializeIfNeccessary(toShow);
 			
+			var transitioning : Boolean = false;
 			for each (var responder : IHasStateTransition in toShow) {
 				var status : int = _statusByResponder[responder];
-				
+					
 				if (status < TransitionStatus.APPEARING || TransitionStatus.SHOWN < status) {
+					transitioning = true;
+						
 					// then continue with the transitionIn() call.
 					_statusByResponder[responder] = TransitionStatus.APPEARING;
-
+	
 					use namespace transition;
 					responder.transitionIn(new TransitionCompleteDelegate(responder, TransitionStatus.SHOWN, this).call);				
 				}
+			}
+				
+			if (!transitioning) {
+				dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 			}
 		}
 
