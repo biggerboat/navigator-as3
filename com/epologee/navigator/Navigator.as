@@ -1,5 +1,4 @@
 package com.epologee.navigator {
-	import com.epologee.development.logging.debug;
 	import com.epologee.development.logging.info;
 	import com.epologee.development.logging.notice;
 	import com.epologee.development.logging.warn;
@@ -150,7 +149,6 @@ package com.epologee.navigator {
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
 		public function requestNewState(inNavigationState : NavigationState) : void {
-			debug("inNavigationState: " + inNavigationState);
 			if (_current && _current.path == inNavigationState.path) {
 				info("Already at current state: " + inNavigationState);
 				return;
@@ -158,16 +156,13 @@ package com.epologee.navigator {
 			
 			if (inNavigationState.path == _defaultState.path) {
 				// Exact match on default state bypasses validation.
-				notice("granted default state: " + inNavigationState);
 				grantRequest(_defaultState);
 			} else if (validateState(inNavigationState)) {
 				// Any other state needs to be validated.
-				notice("granted state after validation");
 				grantRequest(inNavigationState);
 			} else if (_current) {
 				// If validation fails, the notifyStateChange() is called with the current state as a parameter,
 				// mainly for subclasses to respond to the blocked navigation (e.g. SWFAddress). 
-				warn("Reverting to previous state " + _current);
 				notifyStateChange(_current);
 				return;
 			} else {
@@ -175,7 +170,6 @@ package com.epologee.navigator {
 				// In the regular setup, this cannot happen, but if you subclass this Proxy,
 				// it might (e.g. SWFAddress starting at another address). In that case we request
 				// the default state, which always passes validation.
-				warn("Reverting to default state " + _defaultState);
 				requestNewState(_defaultState);
 			}
 		}
@@ -238,7 +232,6 @@ package com.epologee.navigator {
 
 		protected function grantRequest(inNavigationState : NavigationState) : void {
 			_current = inNavigationState;
-			info("Granted state " + _current);
 			
 			notifyStateChange(_current);
 
@@ -268,9 +261,7 @@ package com.epologee.navigator {
 			
 			if (inNavigationState.hasWildcard()) {
 				// substitute wildcards.
-				notice("before: " + inNavigationState);
 				inNavigationState.mask(_current);
-				notice("after: " + inNavigationState);
 				
 				// check to see if there are still wildcards left
 				if (inNavigationState.hasWildcard()) {
