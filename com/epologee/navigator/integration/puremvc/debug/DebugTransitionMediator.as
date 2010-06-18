@@ -1,4 +1,5 @@
 package com.epologee.navigator.integration.puremvc.debug {
+	import com.epologee.navigator.states.INavigationResponder;
 	import com.epologee.development.stats.AlignStats;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
 	import com.epologee.navigator.integration.puremvc.development;
@@ -58,7 +59,7 @@ package com.epologee.navigator.integration.puremvc.debug {
 					var statusByResponder : Dictionary = notification.getBody() as Dictionary;
 					var s : String = "Current path: " + NavigationProxy(facade.retrieveProxy(NavigationProxy.NAME)).development::navigator.getCurrentPath() + "\n";
 					for (var key:* in statusByResponder) {
-						var responder : IHasStateTransition = key as IHasStateTransition;
+						var responder : INavigationResponder = key as INavigationResponder;
 						s += TransitionStatus.toString(statusByResponder[responder]) + " " + responder + "\n";
 					}
 					_box.text = s;
