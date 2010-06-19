@@ -46,6 +46,7 @@ package com.epologee.navigator {
 		private var _respondersToValidateByPath : Dictionary;
 		private var _respondersToUpdateByPath : Dictionary;
 		private var _respondersToShowByPath : Dictionary;
+		private var _respondersToHideByPath : Dictionary;
 		private var _statusByResponder : Dictionary;
 		private var _disappearingResponders : Array;
 		private var _disappearingAsynchronously : Boolean;
@@ -54,6 +55,7 @@ package com.epologee.navigator {
 			_respondersToValidateByPath = new Dictionary();
 			_respondersToUpdateByPath = new Dictionary();
 			_respondersToShowByPath = new Dictionary();
+			_respondersToHideByPath = new Dictionary();
 			_statusByResponder = new Dictionary();
 		}
 
@@ -67,8 +69,16 @@ package com.epologee.navigator {
 			}
 		}
 
-		public function addShowResponder(inResponder : IHasStateTransition, inPath : String) : void {
-			if (!inResponder) return;
+		/**
+		 * Any responder added to the "show" list will receive transitionIn() and transitionOut() calls
+		 * when the path they're registered to activates or deactivates. Any path's segments are used
+		 * hierarchically, so if a responder should show on /gallery/, it will also show on /gallery/help/
+		 * 
+		 * If you want to hide a responder on a deeper level, use the #addResponderHide method.
+		 */
+		public function addResponderShow(inResponder : IHasStateTransition, inPath : String) : void {
+			if (!inResponder) throw new Error("addResponderShow: responder is null");
+			
 			var path : String = new NavigationState(inPath).path;
 			
 			// retrieve or create the list of responders to show for the current path:
@@ -80,13 +90,15 @@ package com.epologee.navigator {
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 		}
 
-		public function removeShowResponder(inResponder : IHasStateTransition, inPath : String) : void {
+		public function removeResponderShow(inResponder : IHasStateTransition, inPath : String) : void {
+			if (!inResponder) throw new Error("removeResponderShow: responder is null");
+			
 			var path : String = new NavigationState(inPath).path;
 						
 			// retrieve the list of responders to show for the current path:
 			var showList : Array = _respondersToShowByPath[path];
 			if (!showList) {
-				warn("path not found " + path);
+				throw new Error("removeResponderShow: path not found" + path);
 				return;
 			}
 			
@@ -107,8 +119,23 @@ package com.epologee.navigator {
 			// _statusByResponder[inResponder] = TransitionStatus.HIDDEN;
 		}
 
-		public function addUpdateResponder(inResponder : IHasStateUpdate, inPath : String) : void {
-			if (!inResponder) return;
+		public function addResponderHide(inResponder : IHasStateTransition, inPath : String) : void {
+			if (!inResponder) throw new Error("addResponderHide: responder is null");
+
+			var path : String = new NavigationState(inPath).path;
+			
+			// retrieve or create the list of responders to show for the current path:
+			var hideList : Array = _respondersToHideByPath[path] = _respondersToHideByPath[path] ? _respondersToHideByPath[path] : [];
+			hideList.push(inResponder);
+			
+			// If there is no status yet, set the initial status to UNINITIALIZED:			
+			_statusByResponder[inResponder] = _statusByResponder[inResponder] ? _statusByResponder[inResponder] : TransitionStatus.UNINITIALIZED;
+			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+		}
+
+		public function addResponderUpdate(inResponder : IHasStateUpdate, inPath : String) : void {
+			if (!inResponder) throw new Error("addResponderUpdate: responder is null");
+			
 			var path : String = new NavigationState(inPath).path;
 						
 			// retrieve or create the list of responders to update for the current path:
@@ -120,11 +147,9 @@ package com.epologee.navigator {
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 		}
 
-		public function addValidateResponder(inResponder : IHasStateValidation, inPath : String) : void {
-			if (!inResponder) {
-				warn("no responder! " + inResponder);
-				return;
-			}
+		public function addResponderValidate(inResponder : IHasStateValidation, inPath : String) : void {
+			if (!inResponder) throw new Error("addResponderValidate: responder is null");
+
 			var path : String = new NavigationState(inPath).path;
 						
 			// retrieve or create the list of responders to update for the current path:
@@ -265,7 +290,7 @@ package com.epologee.navigator {
 				
 				// check to see if there are still wildcards left
 				if (inNavigationState.hasWildcard()) {
-					warn("Requested states may not contain wildcards " + NavigationState.WILDCARD);
+					// throw new Error("validateState: Requested states may not contain wildcards " + NavigationState.WILDCARD);
 					return false;
 				}
 			}
@@ -323,7 +348,9 @@ package com.epologee.navigator {
 		}
 
 		private function startTransitionOut() : Array {
-			var toShow : Array = getResponderList(_respondersToShowByPath, _current);
+			var toShow : Array = getRespondersToShow();
+			
+			
 			var waitFor : Array = [];
 			
 			for (var key:* in _statusByResponder) {
@@ -378,7 +405,7 @@ package com.epologee.navigator {
 		}
 
 		private function startTransitionIn() : void {
-			var toShow : Array = getResponderList(_respondersToShowByPath, _current);
+			var toShow : Array = getRespondersToShow();
 			
 			initializeIfNeccessary(toShow);
 			
@@ -400,6 +427,21 @@ package com.epologee.navigator {
 			if (!transitioning) {
 				dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 			}
+		}
+
+		private function getRespondersToShow() : Array {
+			var toShow : Array = getResponderList(_respondersToShowByPath, _current);
+			var toHide : Array = getResponderList(_respondersToHideByPath, _current);
+			
+			// remove elements from the toShow list, if they are in the toHide list.
+			for each (var hide : IHasStateTransition in toHide) {
+				var hideIndex : int = toShow.indexOf(hide); 
+				if (hideIndex >= 0) {
+					toShow.splice(hideIndex, 1);
+				}
+			}
+			
+			return toShow;
 		}
 
 		private function initializeIfNeccessary(inResponderList : Array) : void {

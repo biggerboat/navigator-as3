@@ -74,7 +74,7 @@ package com.epologee.navigator.integration.puremvc {
 			var states : XMLList = inMap.child("state");
 			
 			var addMethods : Object = {
-				show: addShowResponder, update: addUpdateResponder, validate: addValidateResponder
+				show: addResponderShow, update: addResponderUpdate, validate: addResponderValidate, hide: addResponderHide
 			};
 			
 			var leni : int = states.length();
@@ -87,6 +87,7 @@ package com.epologee.navigator.integration.puremvc {
 				for (var j : int = 0;j < lenj;j++) {
 					// responders must be mediator implementing inavigationresponder
 					var node : XML = responders[j] as XML;
+					var untypedResponder : * = facade.retrieveMediator(node);
 					var responder : INavigationResponder = facade.retrieveMediator(node) as INavigationResponder;
 					try {
 						addMethods[node.name().localName](responder, path);
@@ -94,32 +95,37 @@ package com.epologee.navigator.integration.puremvc {
 						if (e.errorID == 1034 && e.message.length > 11) {
 							var type : String = e.message.split(" ").pop();
 							type = type.substr(0, type.length - 1);
-							warn(responder + " should implement [" + type + "], if you want to use it as <" + node.name().localName + " />");
+							warn(untypedResponder + " should implement [" + type + "], if you want to use it as <" + node.name().localName + " />");
 						} else {
-							warn(responder + " does not implement the correct interface to use it as <" + node.name().localName + " />");
+							warn(untypedResponder + " does not implement the correct interface to use it as <" + node.name().localName + " />");
 						}
 					}
 				}
 			}
 		}
 
-		public function addShowResponder(inResponder : IHasStateTransition, inPath : String) : void {
-			_navigator.addShowResponder(inResponder, inPath);
+		public function addResponderShow(inResponder : IHasStateTransition, inPath : String) : void {
+			_navigator.addResponderShow(inResponder, inPath);
 			sendNotification(RESPONDER_ADDED, inResponder, "show");
 		}
 
-		public function removeShowResponder(inResponder : IHasStateTransition, inPath : String) : void {
-			_navigator.removeShowResponder(inResponder, inPath);
+		public function addResponderHide(inResponder : IHasStateTransition, inPath : String) : void {
+			_navigator.addResponderHide(inResponder, inPath);
+			sendNotification(RESPONDER_ADDED, inResponder, "hide");
+		}
+
+		public function removeResponderShow(inResponder : IHasStateTransition, inPath : String) : void {
+			_navigator.removeResponderShow(inResponder, inPath);
 			sendNotification(RESPONDER_REMOVED, inResponder, "show");
 		}
 
-		public function addUpdateResponder(inResponder : IHasStateUpdate, inPath : String) : void {
-			_navigator.addUpdateResponder(inResponder, inPath);
+		public function addResponderUpdate(inResponder : IHasStateUpdate, inPath : String) : void {
+			_navigator.addResponderUpdate(inResponder, inPath);
 			sendNotification(RESPONDER_ADDED, inResponder, "update");
 		}
 
-		public function addValidateResponder(inResponder : IHasStateValidation, inPath : String) : void {
-			_navigator.addValidateResponder(inResponder, inPath);
+		public function addResponderValidate(inResponder : IHasStateValidation, inPath : String) : void {
+			_navigator.addResponderValidate(inResponder, inPath);
 			sendNotification(RESPONDER_ADDED, inResponder, "validate");
 		}
 
