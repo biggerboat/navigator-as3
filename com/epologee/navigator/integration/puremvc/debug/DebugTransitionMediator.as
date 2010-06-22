@@ -80,6 +80,10 @@ package com.epologee.navigator.integration.puremvc.debug {
 					_box.x = inWidth - _box.width - 10;
 					_box.y = 10;
 					break;
+				case "BR":
+					_box.x = inWidth - _box.width - 10;
+					_box.y = inHeight - _box.height - 10;
+					break;
 			}
 		}
 	}

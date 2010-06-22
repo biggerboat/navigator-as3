@@ -1,4 +1,5 @@
 package com.epologee.navigator {
+	import com.epologee.development.logging.debug;
 	import com.epologee.development.logging.info;
 	import com.epologee.development.logging.notice;
 	import com.epologee.development.logging.warn;
@@ -174,6 +175,8 @@ package com.epologee.navigator {
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
 		public function requestNewState(inNavigationState : NavigationState) : void {
+			info("inNavigationState: " + inNavigationState);
+			
 			if (_current && _current.path == inNavigationState.path) {
 				info("Already at current state: " + inNavigationState);
 				return;
@@ -181,13 +184,20 @@ package com.epologee.navigator {
 			
 			if (inNavigationState.path == _defaultState.path) {
 				// Exact match on default state bypasses validation.
+				notice("matches default state: " + inNavigationState);
 				grantRequest(_defaultState);
 			} else if (validateState(inNavigationState)) {
 				// Any other state needs to be validated.
+				notice("validated: " + inNavigationState + " with current: " + _current);
 				grantRequest(inNavigationState);
+			} else if (validateWildcards(inNavigationState)) {
+				// Validation passed after wildcard masking.
+				notice("validated: " + inNavigationState + " masked by current: " + _current);
+				grantRequest( inNavigationState.mask(_current));
 			} else if (_current) {
 				// If validation fails, the notifyStateChange() is called with the current state as a parameter,
 				// mainly for subclasses to respond to the blocked navigation (e.g. SWFAddress). 
+				notice("reverting to current from: " + inNavigationState);
 				notifyStateChange(_current);
 				return;
 			} else {
@@ -195,6 +205,7 @@ package com.epologee.navigator {
 				// In the regular setup, this cannot happen, but if you subclass this Proxy,
 				// it might (e.g. SWFAddress starting at another address). In that case we request
 				// the default state, which always passes validation.
+				warn("check your code a**hole");
 				requestNewState(_defaultState);
 			}
 		}
@@ -256,6 +267,7 @@ package com.epologee.navigator {
 		}
 
 		protected function grantRequest(inNavigationState : NavigationState) : void {
+			debug("inNavigationState: " + inNavigationState);
 			_current = inNavigationState;
 			
 			notifyStateChange(_current);
@@ -268,6 +280,15 @@ package com.epologee.navigator {
 			} else {
 				performUpdates();	
 			}
+		}
+
+		private function validateWildcards(inNavigationState : NavigationState) : Boolean {
+			if (inNavigationState.hasWildcard()) {
+				// run by regular validation.
+				return validateState(inNavigationState.mask(_current));
+			}
+			
+			return false;
 		}
 
 		/**
@@ -284,15 +305,10 @@ package com.epologee.navigator {
 			var state : NavigationState;
 			var path : String;
 			
+			// check to see if there are still wildcards left
 			if (inNavigationState.hasWildcard()) {
-				// substitute wildcards.
-				inNavigationState.mask(_current);
-				
-				// check to see if there are still wildcards left
-				if (inNavigationState.hasWildcard()) {
-					// throw new Error("validateState: Requested states may not contain wildcards " + NavigationState.WILDCARD);
-					return false;
-				}
+				// throw new Error("validateState: Requested states may not contain wildcards " + NavigationState.WILDCARD);
+				return false;
 			}
 			
 			if (inNavigationState.equals(_defaultState)) {
@@ -396,7 +412,7 @@ package com.epologee.navigator {
 					
 					// check for existing validators.
 					for each (var responder : IHasStateUpdate in list) {
-						responder.updateState(_current, state);
+						responder.updateState(_current.subtract(state), _current, state);
 					}
 				}
 			}

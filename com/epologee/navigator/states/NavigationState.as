@@ -1,4 +1,5 @@
 package com.epologee.navigator.states {
+	import com.epologee.development.logging.debug;
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
@@ -118,7 +119,9 @@ package com.epologee.navigator.states {
 		/**
 		 * Will mask wildcards with values from the provided state.
 		 */
-		public function mask(inSource : NavigationState) : void {
+		public function mask(inSource : NavigationState) : NavigationState {
+			
+			debug("inSource: " + inSource + " onto: "+toString());
 			var unmasked : Array = segments;
 			var source : Array = inSource.segments;
 			var leni : int = Math.min(source.length, unmasked.length);
@@ -127,7 +130,10 @@ package com.epologee.navigator.states {
 					unmasked[i] = source[i];
 				}
 			}
-			segments = unmasked;
+			
+			var masked : NavigationState = new NavigationState();
+			masked.segments = unmasked;
+			return masked;
 		}
 	}
 }
