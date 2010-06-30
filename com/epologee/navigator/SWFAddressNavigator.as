@@ -17,13 +17,16 @@ package com.epologee.navigator {
 	 */
 	public class SWFAddressNavigator extends Navigator {
 		public static const NAME:String = NavigationProxy.NAME;
-		
+		//
+		private var _startState : NavigationState;
+
 		public function SWFAddressNavigator() {
 			super();
 		}
 
 		override public function start(inDefaultState : NavigationState, inStartState:NavigationState = null) : void {
 			_defaultState = inDefaultState;
+			_startState = inStartState;
 			
 			SWFAddress.addEventListener(SWFAddressEvent.INIT, handleSWFAddressInit);
 		}
@@ -37,9 +40,14 @@ package com.epologee.navigator {
 
 		private function handleSWFAddressInit(event : SWFAddressEvent) : void {
 			var ns : NavigationState = new NavigationState(event.path);
-			if (_defaultState && ns.segments.length == 0) {
-				grantRequest(_defaultState);
+			if (ns.segments.length == 0) {
+				if (_startState) {
+					requestNewState(_startState);
+				} else {
+					grantRequest(_defaultState);
+				}
 			}
+			
 			SWFAddress.addEventListener(SWFAddressEvent.EXTERNAL_CHANGE, handleSWFAddressExternal);
 		}
 
