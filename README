@@ -1,5 +1,5 @@
 All the ActionScript 3.0 code I consider to be reusable, I bundle in the "reusabilitee" project.
-Currently, the bulk of the project's files are still over at Google Code http://code.google.com/p/epologee
+Currently, the bulk of the project's files are still over at Google Code: http://code.google.com/p/epologee
 
 However, this one particular part that I brilliantly coined the "Navigator", is my most recent package that I have been rather pleased with.
 
