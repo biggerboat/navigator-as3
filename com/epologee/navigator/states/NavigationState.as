@@ -120,6 +120,7 @@ package com.epologee.navigator.states {
 		 * Will mask wildcards with values from the provided state.
 		 */
 		public function mask(inSource : NavigationState) : NavigationState {
+			if (!inSource) return clone();
 			
 			debug("inSource: " + inSource + " onto: "+toString());
 			var unmasked : Array = segments;
