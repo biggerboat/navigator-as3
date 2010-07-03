@@ -205,8 +205,7 @@ package com.epologee.navigator {
 				// In the regular setup, this cannot happen, but if you subclass this Proxy,
 				// it might (e.g. SWFAddress starting at another address). In that case we request
 				// the default state, which always passes validation.
-				warn("check your code a**hole");
-				requestNewState(_defaultState);
+				throw new Error("Check Navigator.start() call.");
 			}
 		}
 

@@ -3,6 +3,13 @@ package com.epologee.navigator.states {
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
+	 * 
+	 * The NavigationState is the most important part of the Navigator system.
+	 * It is essentially a wrapper to substitute passing around a string for path comparisons.
+	 * Instead, you use this class and it will handle all the issues with slashes, letter case,
+	 * wildcards, path segments and comparison/manipulation of two states.
+	 * 
+	 *
 	 */
 	public class NavigationState {
 		public static const WILDCARD : String = "*";
@@ -10,13 +17,22 @@ package com.epologee.navigator.states {
 		//
 		private var _path : String;
 
-		public function NavigationState(inPath : String = "") {
-			path = inPath.toLowerCase().replace(/\s+/g, "-");
+		/**
+		 * @param ...inSegements: Pass the desired path segments as a list of arguments, or pass it all at once, as a ready-made path, it's up to you.
+		 * 
+		 * Examples:
+		 * 
+		 * 		new NavigationState("beginning/end");
+		 * 		new NavigationState("beginning", "end");
+		 */
+		public function NavigationState(...inSegments:Array) {
+			path = inSegments.join("/");
 		}
 
 		public function set path(inPath : String) : void {
-			_path = "/" + inPath + "/";
+			_path = "/" + inPath.toLowerCase() + "/";
 			_path = _path.replace(new RegExp("\/+", "g"), "/");
+			_path = _path.replace(/\s+/g, "-");
 		}
 
 		public function get path() : String {
