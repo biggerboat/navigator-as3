@@ -1,4 +1,7 @@
 package com.epologee.navigator.integration.puremvc.debug {
+	import flash.text.StyleSheet;
+	import flash.text.TextFormatAlign;
+
 	import com.epologee.navigator.states.INavigationResponder;
 	import com.epologee.development.stats.AlignStats;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
@@ -22,8 +25,9 @@ package com.epologee.navigator.integration.puremvc.debug {
 	 */
 	public class DebugTransitionMediator extends Mediator {
 		public static const NAME : String = getQualifiedClassName(DebugTransitionMediator);
-		private var _box : FormattedTextBox;
+		private var _boxLeft : FormattedTextBox;
 		private var _alignMode : String;
+		private var _boxRight : FormattedTextBox;
 
 		/**
 		 * @param inContainer pass in a Sprite, otherwise the container getter will fail.
@@ -38,14 +42,23 @@ package com.epologee.navigator.integration.puremvc.debug {
 		}
 
 		override public function onRegister() : void {
-			_box = new FormattedTextBox("Arial", 12, 0xFF9900);
-			_box.background = true;
-			_box.backgroundColor = 0x222222;
-			_box.wordWrap = false;
-			_box.autoSize = TextFieldAutoSize.LEFT;
-			_box.embedFonts = false;
+			_boxLeft = new FormattedTextBox("Arial", 12, 0xFF9900);
+			_boxLeft.background = true;
+			_boxLeft.backgroundColor = 0x222222;
+			_boxLeft.wordWrap = false;
+			_boxLeft.autoSize = TextFieldAutoSize.LEFT;
+			_boxLeft.embedFonts = false;
+
+			_boxRight = new FormattedTextBox("Arial", 12, 0xFF9900);
+			_boxRight.background = true;
+			_boxRight.backgroundColor = 0x222222;
+			_boxRight.wordWrap = false;
+			_boxRight.autoSize = TextFieldAutoSize.NONE;
+			_boxRight.width = 110;
+			_boxRight.embedFonts = false;
 			
-			timeline.addChild(_box);
+			timeline.addChild(_boxLeft);
+			timeline.addChild(_boxRight);
 			timeline.addChild(new AlignStats(AlignStats.BOTTOM_RIGHT));
 		}
 
@@ -57,32 +70,75 @@ package com.epologee.navigator.integration.puremvc.debug {
 			switch (notification.getName()) {
 				case NavigationProxy.TRANSITION_STATUS_UPDATED:
 					var statusByResponder : Dictionary = notification.getBody() as Dictionary;
-					var s : String = "Current path: " + NavigationProxy(facade.retrieveProxy(NavigationProxy.NAME)).development::navigator.getCurrentPath() + "\n";
+					var sLeft : String = "<font color=\"#AAAAAA\">Path: <font color=\"#00FF00\"><b>" + NavigationProxy(facade.retrieveProxy(NavigationProxy.NAME)).development::navigator.getCurrentPath() + "</b></font></font>\n";
+					var sRight : String = "\n";
+					
 					for (var key:* in statusByResponder) {
 						var responder : INavigationResponder = key as INavigationResponder;
-						s += TransitionStatus.toString(statusByResponder[responder]) + " " + responder + "\n";
+						sLeft += responder + " \t\n";
+						var color : String = getColorByStatus(statusByResponder[responder]);
+						sRight += "<font color=\"" + color + "\"><b>" + TransitionStatus.toString(statusByResponder[responder]) + "</b></font>\n";
 					}
-					_box.text = s;
+					_boxLeft.text = sLeft;
+					_boxRight.text = sRight;
+					_boxRight.height = _boxLeft.height;
+					
 					
 				case StageProxy.RESIZE:
-					layout(_box.stage.stageWidth, _box.stage.stageHeight);
+					layout(_boxLeft.stage.stageWidth, _boxLeft.stage.stageHeight);
 					break;
 			}
+		}
+
+		private function getColorByStatus(inStatus : int) : String {
+			var color : String = "";
+			
+			switch(inStatus) {
+				case TransitionStatus.UNINITIALIZED:
+					color = "#AAAAAA";
+					break;
+				case TransitionStatus.INITIALIZED:
+					color = "#FFFFFF";
+					break;
+				case TransitionStatus.HIDDEN:
+					color = "#FF0000";
+					break;
+				case TransitionStatus.APPEARING:
+				case TransitionStatus.DISAPPEARING:
+					color = "#FFFF00";
+					break;
+				case TransitionStatus.SHOWN:
+					color = "#00FF00";
+					break;
+			}
+			
+			
+			return color;
 		}
 
 		private function layout(inWidth : Number, inHeight : Number) : void {
 			switch (_alignMode) {
 				case "BL":
-					_box.x = 10;
-					_box.y = inHeight - _box.height - 10;
+					_boxLeft.x = 10;
+					_boxLeft.y = inHeight - _boxLeft.height - 10;
+					
+					_boxRight.x = _boxLeft.x + _boxLeft.width;
+					_boxRight.y = _boxLeft.y;
 					break;
 				case "TR":
-					_box.x = inWidth - _box.width - 10;
-					_box.y = 10;
+					_boxRight.x = inWidth - _boxRight.width - 10;
+					_boxRight.y = 10;
+
+					_boxLeft.x = _boxRight.x - _boxLeft.width;
+					_boxLeft.y = _boxRight.y;
+
 					break;
 				case "BR":
-					_box.x = inWidth - _box.width - 10;
-					_box.y = inHeight - _box.height - 10;
+					_boxRight.x = inWidth - _boxRight.width - 80;
+					_boxRight.y = inHeight - _boxRight.height - 10;
+					
+					_boxLeft.x = _boxRight.x - _boxLeft.width;
+					_boxLeft.y = _boxRight.y;
 					break;
 			}
 		}
