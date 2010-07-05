@@ -439,7 +439,7 @@ package com.epologee.navigator {
 				}
 			}
 				
-			if (!transitioning) {
+			if (transitioning) {
 				dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 			}
 		}
