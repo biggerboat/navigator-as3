@@ -25,7 +25,7 @@ package com.epologee.navigator.states {
 		 * 		new NavigationState("beginning/end");
 		 * 		new NavigationState("beginning", "end");
 		 */
-		public function NavigationState(...inSegments:Array) {
+		public function NavigationState(...inSegments : Array) {
 			path = inSegments.join("/");
 		}
 
@@ -124,10 +124,6 @@ package com.epologee.navigator.states {
 			return path.indexOf(WILDCARD) >= 0;
 		}
 
-		public function toString() : String {
-			return "path: " + path;
-		}
-
 		public function clone() : NavigationState {
 			return new NavigationState(path);
 		}
@@ -138,7 +134,7 @@ package com.epologee.navigator.states {
 		public function mask(inSource : NavigationState) : NavigationState {
 			if (!inSource) return clone();
 			
-			debug("inSource: " + inSource + " onto: "+toString());
+			debug("inSource: " + inSource + " onto: " + toString());
 			var unmasked : Array = segments;
 			var source : Array = inSource.segments;
 			var leni : int = Math.min(source.length, unmasked.length);
@@ -151,6 +147,10 @@ package com.epologee.navigator.states {
 			var masked : NavigationState = new NavigationState();
 			masked.segments = unmasked;
 			return masked;
+		}
+
+		public function toString() : String {
+			return "path: " + path;
 		}
 	}
 }

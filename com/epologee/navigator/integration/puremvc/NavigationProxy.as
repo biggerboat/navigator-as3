@@ -129,6 +129,12 @@ package com.epologee.navigator.integration.puremvc {
 			sendNotification(RESPONDER_ADDED, inResponder, "validate");
 		}
 
+		public function registerHiddenState(inState : NavigationState) : void {
+			if (_navigator is SWFAddressNavigator) {
+				SWFAddressNavigator(_navigator).registerHiddenState(inState);
+			}
+		}
+
 		/**
 		 * Use this method when you want to pass in a simple string.
 		 * If you already have a #NavigationState object, use the regular requestNewState() method.

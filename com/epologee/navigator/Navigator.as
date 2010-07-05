@@ -200,12 +200,10 @@ package com.epologee.navigator {
 				notice("reverting to current from: " + inNavigationState);
 				notifyStateChange(_current);
 				return;
+			} else if (inNavigationState.hasWildcard()) {
+				throw new Error("Check wildcard masking: " + inNavigationState);
 			} else {
-				// The _current state can only be null if there hasn't been a call to grantRequest() yet.
-				// In the regular setup, this cannot happen, but if you subclass this Proxy,
-				// it might (e.g. SWFAddress starting at another address). In that case we request
-				// the default state, which always passes validation.
-				throw new Error("Check Navigator.start() call.");
+				throw new Error("Check your code, fatal error: " + inNavigationState);
 			}
 		}
 

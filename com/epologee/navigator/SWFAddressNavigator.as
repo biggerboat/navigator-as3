@@ -1,6 +1,8 @@
 package com.epologee.navigator {
 	import com.asual.swfaddress.SWFAddress;
 	import com.asual.swfaddress.SWFAddressEvent;
+	import com.epologee.development.logging.debug;
+	import com.epologee.development.logging.warn;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
 	import com.epologee.navigator.states.NavigationState;
 
@@ -16,24 +18,33 @@ package com.epologee.navigator {
 	 * var navigator:Navigator = new SWFAddressNavigator();
 	 */
 	public class SWFAddressNavigator extends Navigator {
-		public static const NAME:String = NavigationProxy.NAME;
+		public static const NAME : String = NavigationProxy.NAME;
 		//
 		private var _startState : NavigationState;
+		private var _hiddenStates : Array;
 
 		public function SWFAddressNavigator() {
 			super();
 		}
 
-		override public function start(inDefaultState : NavigationState, inStartState:NavigationState = null) : void {
+		override public function start(inDefaultState : NavigationState, inStartState : NavigationState = null) : void {
 			_defaultState = inDefaultState;
 			_startState = inStartState;
 			
 			SWFAddress.addEventListener(SWFAddressEvent.INIT, handleSWFAddressInit);
 		}
 
+		public function registerHiddenState(inState : NavigationState) : void {
+			_hiddenStates ||= [];
+			_hiddenStates.push(inState);
+		}
+
 		override protected function notifyStateChange(inNewState : NavigationState) : void {
-			// may be used in subclassed proxies.
-			SWFAddress.setValue(inNewState.path);
+			debug("inNewState: " + inNewState);
+			
+			if (!isHidden(inNewState)) {
+				SWFAddress.setValue(inNewState.path);
+			}
 			
 			super.notifyStateChange(inNewState);
 		}
@@ -52,7 +63,22 @@ package com.epologee.navigator {
 		}
 
 		private function handleSWFAddressExternal(event : SWFAddressEvent) : void {
-			requestNewState(new NavigationState(event.path));
+			var toRequest : NavigationState = new NavigationState(event.path);
+			
+			if (!isHidden(toRequest)) {
+				requestNewState(toRequest);
+			}
 		}
+
+		private function isHidden(inState : NavigationState) : Boolean {
+			for each (var hidden : NavigationState in _hiddenStates) {
+				if (hidden.equals(inState)) {
+					warn("State is hidden: " + inState);
+					return true;
+				}
+			}
+			
+			return false;
+		}	
 	}
 }
