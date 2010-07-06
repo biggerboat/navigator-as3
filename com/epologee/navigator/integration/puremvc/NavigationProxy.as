@@ -90,7 +90,7 @@ package com.epologee.navigator.integration.puremvc {
 					var node : XML = responders[j] as XML;
 					var untypedResponder : * = facade.retrieveMediator(node);
 					if (!untypedResponder) {
-						error(node +" not registered at the facade.");
+						error("Not found in Facade: " + node);
 						continue;
 					}
 					
