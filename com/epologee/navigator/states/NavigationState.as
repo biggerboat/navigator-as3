@@ -1,5 +1,4 @@
 package com.epologee.navigator.states {
-	import com.epologee.development.logging.debug;
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
@@ -134,7 +133,6 @@ package com.epologee.navigator.states {
 		public function mask(inSource : NavigationState) : NavigationState {
 			if (!inSource) return clone();
 			
-			debug("inSource: " + inSource + " onto: " + toString());
 			var unmasked : Array = segments;
 			var source : Array = inSource.segments;
 			var leni : int = Math.min(source.length, unmasked.length);

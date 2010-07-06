@@ -31,6 +31,7 @@ package com.epologee.navigator {
 			_defaultState = inDefaultState;
 			_startState = inStartState;
 			
+			SWFAddress.setTracker(null);
 			SWFAddress.addEventListener(SWFAddressEvent.INIT, handleSWFAddressInit);
 		}
 

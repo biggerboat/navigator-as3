@@ -1,4 +1,5 @@
 package com.epologee.navigator.integration.puremvc {
+	import com.epologee.development.logging.error;
 	import com.epologee.development.logging.warn;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
@@ -88,6 +89,11 @@ package com.epologee.navigator.integration.puremvc {
 					// responders must be mediator implementing inavigationresponder
 					var node : XML = responders[j] as XML;
 					var untypedResponder : * = facade.retrieveMediator(node);
+					if (!untypedResponder) {
+						error(node +" not registered at the facade.");
+						continue;
+					}
+					
 					var responder : INavigationResponder = facade.retrieveMediator(node) as INavigationResponder;
 					try {
 						addMethods[node.name().localName](responder, path);

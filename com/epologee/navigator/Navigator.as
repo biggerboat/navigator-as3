@@ -184,20 +184,20 @@ package com.epologee.navigator {
 			
 			if (inNavigationState.path == _defaultState.path) {
 				// Exact match on default state bypasses validation.
-				notice("matches default state: " + inNavigationState);
+				//				notice("matches default state: " + inNavigationState);
 				grantRequest(_defaultState);
 			} else if (validateState(inNavigationState)) {
 				// Any other state needs to be validated.
-				notice("validated: " + inNavigationState + " with current: " + _current);
+				//				notice("validated: " + inNavigationState + " with current: " + _current);
 				grantRequest(inNavigationState);
 			} else if (validateWildcards(inNavigationState)) {
 				// Validation passed after wildcard masking.
-				notice("validated: " + inNavigationState + " masked by current: " + _current);
-				grantRequest( inNavigationState.mask(_current));
+				//				notice("validated: " + inNavigationState + " masked by current: " + _current);
+				grantRequest(inNavigationState.mask(_current));
 			} else if (_current) {
 				// If validation fails, the notifyStateChange() is called with the current state as a parameter,
 				// mainly for subclasses to respond to the blocked navigation (e.g. SWFAddress). 
-				notice("reverting to current from: " + inNavigationState);
+				//				notice("reverting to current from: " + inNavigationState);
 				notifyStateChange(_current);
 				return;
 			} else if (inNavigationState.hasWildcard()) {
