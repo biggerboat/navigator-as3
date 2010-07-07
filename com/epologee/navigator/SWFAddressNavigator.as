@@ -2,7 +2,7 @@ package com.epologee.navigator {
 	import com.asual.swfaddress.SWFAddress;
 	import com.asual.swfaddress.SWFAddressEvent;
 	import com.epologee.development.logging.debug;
-	import com.epologee.development.logging.warn;
+	import com.epologee.development.logging.info;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
 	import com.epologee.navigator.states.NavigationState;
 
@@ -11,9 +11,6 @@ package com.epologee.navigator {
 	 * 
 	 * This class extends the Navigator to add SWFAddress capabilities.
 	 * 
-	 * You only need to use this instead when you construct the Navigator, for this class adds nothing
-	 * to the API, just alters a few internal changes.
-	 * 
 	 * Example:
 	 * var navigator:Navigator = new SWFAddressNavigator();
 	 */
@@ -21,7 +18,8 @@ package com.epologee.navigator {
 		public static const NAME : String = NavigationProxy.NAME;
 		//
 		private var _startState : NavigationState;
-		private var _hiddenStates : Array;
+		private var _hiddenStateContains : Array;
+		private var _hiddenStateEquals : Array;
 
 		public function SWFAddressNavigator() {
 			super();
@@ -31,13 +29,49 @@ package com.epologee.navigator {
 			_defaultState = inDefaultState;
 			_startState = inStartState;
 			
-			SWFAddress.setTracker(null);
 			SWFAddress.addEventListener(SWFAddressEvent.INIT, handleSWFAddressInit);
 		}
 
-		public function registerHiddenState(inState : NavigationState) : void {
-			_hiddenStates ||= [];
-			_hiddenStates.push(inState);
+		/**
+		 * Register a state as hidden to prevent it from showing up in the browser's address bar.
+		 * Hidden states also work with wildcard.
+		 * @param inExactMatch:	will check on state containment by default (false), or exact match (true).
+		 * 
+		 * Pseudo code example 'contains':
+		 * 
+		 * 		registerHiddenState(/a/b/);
+		 * 		/a/			-> visible
+		 * 		/a/b/		-> hidden
+		 * 		/a/b/c		-> hidden
+		 * 		/a/b/d		-> hidden
+		 * 		
+		 * Pseudo code example 'exact match':
+		 * 
+		 * 		registerHiddenState(/a/b/, true)
+		 * 		/a/			-> visible
+		 * 		/a/b/		-> hidden
+		 * 		/a/b/c/		-> visible
+		 * 		/a/b/d/		-> visible
+		 * 		
+		 * 	Pseudo code example 'wildcard':
+		 * 	
+		 * 		registerHiddenState(/a/b/*)
+		 * 		/a/			-> visible
+		 * 		/a/b/		-> visible
+		 * 		/a/b/c/		-> hidden
+		 * 		/a/b/d/		-> hidden
+		 * 		
+		 */
+		public function registerHiddenState(inState : NavigationState, inExactMatch:Boolean = false) : void {
+			if (inExactMatch) {
+				_hiddenStateEquals ||= [];
+				_hiddenStateEquals.push(inState);
+			} else {
+				_hiddenStateContains ||= [];
+				_hiddenStateContains.push(inState);
+			}
+			
+			
 		}
 
 		override protected function notifyStateChange(inNewState : NavigationState) : void {
@@ -72,9 +106,16 @@ package com.epologee.navigator {
 		}
 
 		private function isHidden(inState : NavigationState) : Boolean {
-			for each (var hidden : NavigationState in _hiddenStates) {
-				if (inState.containsState(hidden)) {
-					warn("State is hidden: " + inState);
+			for each (var containedState : NavigationState in _hiddenStateContains) {
+				if (inState.containsState(containedState)) {
+					info("State is hidden (by containment): " + inState);
+					return true;
+				}
+			}
+
+			for each (var equalsState : NavigationState in _hiddenStateEquals) {
+				if (inState.equals(equalsState)) {
+					info("State is hidden (exact match): " + inState);
 					return true;
 				}
 			}

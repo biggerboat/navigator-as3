@@ -135,9 +135,9 @@ package com.epologee.navigator.integration.puremvc {
 			sendNotification(RESPONDER_ADDED, inResponder, "validate");
 		}
 
-		public function registerHiddenState(inState : NavigationState) : void {
+		public function registerHiddenState(inState : NavigationState, inExactMatch : Boolean = false) : void {
 			if (_navigator is SWFAddressNavigator) {
-				SWFAddressNavigator(_navigator).registerHiddenState(inState);
+				SWFAddressNavigator(_navigator).registerHiddenState(inState, inExactMatch);
 			}
 		}
 
@@ -159,6 +159,10 @@ package com.epologee.navigator.integration.puremvc {
 
 		public function getStatus(inResponder : IHasStateTransition) : int {
 			return _navigator.getStatus(inResponder);
+		}
+
+		public function getCurrentState() : NavigationState {
+			return _navigator.getCurrentState();
 		}
 
 		/**
