@@ -75,7 +75,7 @@ package com.epologee.navigator.integration.puremvc {
 			var states : XMLList = inMap.child("state");
 			
 			var addMethods : Object = {
-				show: addResponderShow, update: addResponderUpdate, validate: addResponderValidate, hide: addResponderHide
+				show: addResponderShow, update: addResponderUpdate, validate: addResponderValidate, hide: addResponderHide, auto: addResponderByInterface
 			};
 			
 			var leni : int = states.length();
@@ -107,6 +107,26 @@ package com.epologee.navigator.integration.puremvc {
 						}
 					}
 				}
+			}
+		}
+
+		public function addResponderByInterface(inResponder : INavigationResponder, inPath : String) : void {
+			try { 
+				addResponderShow(inResponder as IHasStateTransition, inPath); 
+			}catch(e : Error) {
+				// ignore errors. 
+			}
+			
+			try { 
+				addResponderUpdate(inResponder as IHasStateUpdate, inPath); 
+			}catch(e : Error) { 
+				// ignore errors. 
+			}
+			
+			try { 
+				addResponderValidate(inResponder as IHasStateValidation, inPath) 
+			}catch(e : Error) { 
+				// ignore errors. 
 			}
 		}
 
