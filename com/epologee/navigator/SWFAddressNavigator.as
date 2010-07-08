@@ -101,7 +101,11 @@ package com.epologee.navigator {
 			var toRequest : NavigationState = new NavigationState(event.path);
 			
 			if (!isHidden(toRequest)) {
-				requestNewState(toRequest);
+				try{
+					requestNewState(toRequest);
+				}catch(error:Error){
+					requestNewState(_defaultState);
+				}
 			}
 		}
 
