@@ -1,12 +1,8 @@
 package com.epologee.navigator.integration.puremvc.debug {
-	import flash.text.StyleSheet;
-	import flash.text.TextFormatAlign;
-
-	import com.epologee.navigator.states.INavigationResponder;
 	import com.epologee.development.stats.AlignStats;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
 	import com.epologee.navigator.integration.puremvc.development;
-	import com.epologee.navigator.states.IHasStateTransition;
+	import com.epologee.navigator.states.INavigationResponder;
 	import com.epologee.navigator.transition.TransitionStatus;
 	import com.epologee.puremvc.stage.StageProxy;
 	import com.epologee.ui.text.FormattedTextBox;

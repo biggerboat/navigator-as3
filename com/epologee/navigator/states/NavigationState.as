@@ -148,7 +148,7 @@ package com.epologee.navigator.states {
 		}
 
 		public function toString() : String {
-			return "path: " + path;
+			return path;
 		}
 	}
 }
