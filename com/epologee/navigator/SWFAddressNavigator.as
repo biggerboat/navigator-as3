@@ -99,7 +99,13 @@ package com.epologee.navigator {
 		private function handleSWFAddressExternal(event : SWFAddressEvent) : void {
 			var toRequest : NavigationState = new NavigationState(event.path);
 			
-			if (!isHidden(toRequest)) {
+			if (isHidden(toRequest)) {
+				if (_current) {
+					notifyStateChange(_current);
+				} else { 
+					requestNewState(_defaultState);
+				}
+			} else {
 				try{
 					requestNewState(toRequest);
 				}catch(error:Error){
