@@ -1,5 +1,5 @@
 package com.epologee.navigator.integration.puremvc {
-	import com.epologee.development.logging.log;
+	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.SWFAddressNavigator;
@@ -89,7 +89,7 @@ package com.epologee.navigator.integration.puremvc {
 					var node : XML = responders[j] as XML;
 					var untypedResponder : * = facade.retrieveMediator(node);
 					if (!untypedResponder) {
-						log.error("Not found in Facade: " + node);
+						logger.error("Not found in Facade: " + node);
 						continue;
 					}
 					
@@ -100,9 +100,9 @@ package com.epologee.navigator.integration.puremvc {
 						if (e.errorID == 1034 && e.message.length > 11) {
 							var type : String = e.message.split(" ").pop();
 							type = type.substr(0, type.length - 1);
-							log.warn(untypedResponder + " should implement [" + type + "], if you want to use it as <" + node.name().localName + " />");
+							logger.warn(untypedResponder + " should implement [" + type + "], if you want to use it as <" + node.name().localName + " />");
 						} else {
-							log.warn(untypedResponder + " does not implement the correct interface to use it as <" + node.name().localName + " />");
+							logger.warn(untypedResponder + " does not implement the correct interface to use it as <" + node.name().localName + " />");
 						}
 					}
 				}

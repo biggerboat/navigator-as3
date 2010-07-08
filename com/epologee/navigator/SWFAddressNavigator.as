@@ -1,7 +1,7 @@
 package com.epologee.navigator {
 	import com.asual.swfaddress.SWFAddress;
 	import com.asual.swfaddress.SWFAddressEvent;
-	import com.epologee.development.logging.log;
+	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
 	import com.epologee.navigator.states.NavigationState;
 
@@ -74,7 +74,7 @@ package com.epologee.navigator {
 		}
 
 		override protected function notifyStateChange(inNewState : NavigationState) : void {
-			log.debug("inNewState: " + inNewState);
+			logger.debug("inNewState: " + inNewState);
 			
 			if (!isHidden(inNewState)) {
 				SWFAddress.setValue(inNewState.path);
@@ -117,14 +117,14 @@ package com.epologee.navigator {
 		private function isHidden(inState : NavigationState) : Boolean {
 			for each (var containedState : NavigationState in _hiddenStateContains) {
 				if (inState.containsState(containedState)) {
-					log.info("State is hidden (by containment): " + inState);
+					logger.info("State is hidden (by containment): " + inState);
 					return true;
 				}
 			}
 
 			for each (var equalsState : NavigationState in _hiddenStateEquals) {
 				if (inState.equals(equalsState)) {
-					log.info("State is hidden (exact match): " + inState);
+					logger.info("State is hidden (exact match): " + inState);
 					return true;
 				}
 			}

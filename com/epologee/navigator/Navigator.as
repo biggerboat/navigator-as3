@@ -1,5 +1,5 @@
 package com.epologee.navigator {
-	import com.epologee.development.logging.log;
+	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.states.IHasStateInitialization;
 	import com.epologee.navigator.states.IHasStateTransition;
 	import com.epologee.navigator.states.IHasStateUpdate;
@@ -172,10 +172,10 @@ package com.epologee.navigator {
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
 		public function requestNewState(inNavigationState : NavigationState) : void {
-			log.debug("inNavigationState: " + inNavigationState);
+			logger.debug("inNavigationState: " + inNavigationState);
 			
 			if (_current && _current.path == inNavigationState.path) {
-				log.info("Already at current state: " + inNavigationState);
+				logger.info("Already at current state: " + inNavigationState);
 				return;
 			}
 			
@@ -247,7 +247,7 @@ package com.epologee.navigator {
 					if (!_disappearingResponders.length) {
 						performUpdates();
 					} else {
-						log.notice("waiting for " + _disappearingResponders.length + " responders to disappear");
+						logger.notice("waiting for " + _disappearingResponders.length + " responders to disappear");
 					}
 				}
 			}
@@ -337,7 +337,7 @@ package com.epologee.navigator {
 					for each (var responder : INavigationResponder in list) {
 						var validator : IHasStateValidation = responder as IHasStateValidation;
 						if (validator.validate(inNavigationState, state) == ValidationResult.FAIL) {
-							log.warn("Validation failed based on validation responder: " + validator);
+							logger.warn("Validation failed based on validation responder: " + validator);
 							return false;
 						}
 					}
@@ -350,7 +350,7 @@ package com.epologee.navigator {
 			}
             
 			if (!direct) {
-				log.warn("Validation failed. No validators or transitions matched the requested " + inNavigationState);
+				logger.warn("Validation failed. No validators or transitions matched the requested " + inNavigationState);
 			}
             
 			return direct;

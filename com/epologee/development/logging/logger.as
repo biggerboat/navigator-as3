@@ -4,7 +4,7 @@ package com.epologee.development.logging {
 	 * 
 	 * Assign any other ITraceable instance to this variable to enable your own custom logging.
 	 */
-	public var log : ITraceable = new LogNone();
+	public var logger : ITraceable = new LogNone();
 }
 
 import com.epologee.development.logging.ITraceable;
