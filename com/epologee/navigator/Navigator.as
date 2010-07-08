@@ -1,8 +1,5 @@
 package com.epologee.navigator {
-	import com.epologee.development.logging.debug;
-	import com.epologee.development.logging.info;
-	import com.epologee.development.logging.notice;
-	import com.epologee.development.logging.warn;
+	import com.epologee.development.logging.log;
 	import com.epologee.navigator.states.IHasStateInitialization;
 	import com.epologee.navigator.states.IHasStateTransition;
 	import com.epologee.navigator.states.IHasStateUpdate;
@@ -175,10 +172,10 @@ package com.epologee.navigator {
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
 		public function requestNewState(inNavigationState : NavigationState) : void {
-			info("inNavigationState: " + inNavigationState);
+			log.debug("inNavigationState: " + inNavigationState);
 			
 			if (_current && _current.path == inNavigationState.path) {
-				info("Already at current state: " + inNavigationState);
+				log.info("Already at current state: " + inNavigationState);
 				return;
 			}
 			
@@ -203,7 +200,7 @@ package com.epologee.navigator {
 			} else if (inNavigationState.hasWildcard()) {
 				throw new Error("Check wildcard masking: " + inNavigationState);
 			} else {
-				throw new Error("Check your code, fatal error: " + inNavigationState);
+				throw new Error("First request is invalid: " + inNavigationState);
 			}
 		}
 
@@ -250,7 +247,7 @@ package com.epologee.navigator {
 					if (!_disappearingResponders.length) {
 						performUpdates();
 					} else {
-						notice("waiting for " + _disappearingResponders.length + " responders to disappear");
+						log.notice("waiting for " + _disappearingResponders.length + " responders to disappear");
 					}
 				}
 			}
@@ -264,7 +261,6 @@ package com.epologee.navigator {
 		}
 
 		protected function grantRequest(inNavigationState : NavigationState) : void {
-			debug("inNavigationState: " + inNavigationState);
 			_current = inNavigationState;
 			
 			notifyStateChange(_current);
@@ -341,7 +337,7 @@ package com.epologee.navigator {
 					for each (var responder : INavigationResponder in list) {
 						var validator : IHasStateValidation = responder as IHasStateValidation;
 						if (validator.validate(inNavigationState, state) == ValidationResult.FAIL) {
-							warn("Validation failed based on validation responder: " + validator);
+							log.warn("Validation failed based on validation responder: " + validator);
 							return false;
 						}
 					}
@@ -354,7 +350,7 @@ package com.epologee.navigator {
 			}
             
 			if (!direct) {
-				warn("Validation failed. No validators or transitions matched the requested " + inNavigationState);
+				log.warn("Validation failed. No validators or transitions matched the requested " + inNavigationState);
 			}
             
 			return direct;
