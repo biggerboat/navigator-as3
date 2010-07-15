@@ -53,8 +53,6 @@ package com.epologee.navigator.integration.puremvc.debug {
 			_boxRight.width = 110;
 			_boxRight.embedFonts = false;
 			
-			timeline.addChild(_boxLeft);
-			timeline.addChild(_boxRight);
 			timeline.addChild(new AlignStats(AlignStats.BOTTOM_RIGHT));
 		}
 
@@ -65,6 +63,9 @@ package com.epologee.navigator.integration.puremvc.debug {
 		override public function handleNotification(notification : INotification) : void {
 			switch (notification.getName()) {
 				case NavigationProxy.TRANSITION_STATUS_UPDATED:
+					timeline.addChild(_boxLeft);
+					timeline.addChild(_boxRight);
+
 					var statusByResponder : Dictionary = notification.getBody() as Dictionary;
 					var sLeft : String = "<font color=\"#AAAAAA\">Path: <font color=\"#00FF00\"><b>" + NavigationProxy(facade.retrieveProxy(NavigationProxy.NAME)).development::navigator.getCurrentPath() + "</b></font></font>\n";
 					var sRight : String = "\n";
@@ -81,7 +82,9 @@ package com.epologee.navigator.integration.puremvc.debug {
 					
 					
 				case StageProxy.RESIZE:
-					layout(_boxLeft.stage.stageWidth, _boxLeft.stage.stageHeight);
+					if(_boxLeft.parent) {
+						layout(_boxLeft.stage.stageWidth, _boxLeft.stage.stageHeight);
+					}
 					break;
 			}
 		}
