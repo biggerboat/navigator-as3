@@ -389,6 +389,10 @@ package com.epologee.navigator {
 				}
 			}
 			
+			if (waitFor.length) {
+				dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+			}
+
 			return waitFor;
 		}
 
@@ -410,7 +414,7 @@ package com.epologee.navigator {
 					}
 				}
 			}
-			
+
 			startTransitionIn();
 		}
 
