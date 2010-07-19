@@ -74,7 +74,7 @@ package com.epologee.navigator {
 		 * 
 		 * If you want to hide a responder on a deeper level, use the #addResponderHide method.
 		 */
-		public function addResponderShow(inResponder : IHasStateTransition, inPath : String) : void {
+		public function addShow(inResponder : IHasStateTransition, inPath : String) : void {
 			if (!inResponder) throw new Error("addResponderShow: responder is null");
 			
 			var path : String = new NavigationState(inPath).path;
@@ -88,7 +88,49 @@ package com.epologee.navigator {
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 		}
 
-		public function removeResponderShow(inResponder : IHasStateTransition, inPath : String) : void {
+		public function addHide(inResponder : IHasStateTransition, inPath : String) : void {
+			if (!inResponder) throw new Error("addResponderHide: responder is null");
+
+			var path : String = new NavigationState(inPath).path;
+			
+			// retrieve or create the list of responders to show for the current path:
+			var hideList : Array = _respondersToHideByPath[path] = _respondersToHideByPath[path] ? _respondersToHideByPath[path] : [];
+			hideList.push(inResponder);
+			
+			// If there is no status yet, set the initial status to UNINITIALIZED:			
+			_statusByResponder[inResponder] = _statusByResponder[inResponder] ? _statusByResponder[inResponder] : TransitionStatus.UNINITIALIZED;
+			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+		}
+
+		public function addUpdate(inResponder : IHasStateUpdate, inPath : String) : void {
+			if (!inResponder) throw new Error("addResponderUpdate: responder is null");
+			
+			var path : String = new NavigationState(inPath).path;
+						
+			// retrieve or create the list of responders to update for the current path:
+			var updateList : Array = _respondersToUpdateByPath[path] = _respondersToUpdateByPath[path] ? _respondersToUpdateByPath[path] : [];
+			updateList.push(inResponder);
+
+			// If there is no status yet, set the initial status to UNINITIALIZED:			
+			_statusByResponder[inResponder] = _statusByResponder[inResponder] ? _statusByResponder[inResponder] : TransitionStatus.UNINITIALIZED;
+			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+		}
+
+		public function addValidate(inResponder : IHasStateValidation, inPath : String) : void {
+			if (!inResponder) throw new Error("addResponderValidate: responder is null");
+
+			var path : String = new NavigationState(inPath).path;
+						
+			// retrieve or create the list of responders to update for the current path:
+			var validateList : Array = _respondersToValidateByPath[path] = _respondersToValidateByPath[path] ? _respondersToValidateByPath[path] : [];
+			validateList.push(inResponder);
+
+			// If there is no status yet, set the initial status to UNINITIALIZED:			
+			_statusByResponder[inResponder] = _statusByResponder[inResponder] ? _statusByResponder[inResponder] : TransitionStatus.UNINITIALIZED;
+			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+		}
+
+		public function removeShow(inResponder : IHasStateTransition, inPath : String) : void {
 			if (!inResponder) throw new Error("removeResponderShow: responder is null");
 			
 			var path : String = new NavigationState(inPath).path;
@@ -115,48 +157,6 @@ package com.epologee.navigator {
 			// The responder might still exist on other paths. Either check all paths,
 			// or just leave the transition status be for now... 
 			// _statusByResponder[inResponder] = TransitionStatus.HIDDEN;
-		}
-
-		public function addResponderHide(inResponder : IHasStateTransition, inPath : String) : void {
-			if (!inResponder) throw new Error("addResponderHide: responder is null");
-
-			var path : String = new NavigationState(inPath).path;
-			
-			// retrieve or create the list of responders to show for the current path:
-			var hideList : Array = _respondersToHideByPath[path] = _respondersToHideByPath[path] ? _respondersToHideByPath[path] : [];
-			hideList.push(inResponder);
-			
-			// If there is no status yet, set the initial status to UNINITIALIZED:			
-			_statusByResponder[inResponder] = _statusByResponder[inResponder] ? _statusByResponder[inResponder] : TransitionStatus.UNINITIALIZED;
-			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
-		}
-
-		public function addResponderUpdate(inResponder : IHasStateUpdate, inPath : String) : void {
-			if (!inResponder) throw new Error("addResponderUpdate: responder is null");
-			
-			var path : String = new NavigationState(inPath).path;
-						
-			// retrieve or create the list of responders to update for the current path:
-			var updateList : Array = _respondersToUpdateByPath[path] = _respondersToUpdateByPath[path] ? _respondersToUpdateByPath[path] : [];
-			updateList.push(inResponder);
-
-			// If there is no status yet, set the initial status to UNINITIALIZED:			
-			_statusByResponder[inResponder] = _statusByResponder[inResponder] ? _statusByResponder[inResponder] : TransitionStatus.UNINITIALIZED;
-			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
-		}
-
-		public function addResponderValidate(inResponder : IHasStateValidation, inPath : String) : void {
-			if (!inResponder) throw new Error("addResponderValidate: responder is null");
-
-			var path : String = new NavigationState(inPath).path;
-						
-			// retrieve or create the list of responders to update for the current path:
-			var validateList : Array = _respondersToValidateByPath[path] = _respondersToValidateByPath[path] ? _respondersToValidateByPath[path] : [];
-			validateList.push(inResponder);
-
-			// If there is no status yet, set the initial status to UNINITIALIZED:			
-			_statusByResponder[inResponder] = _statusByResponder[inResponder] ? _statusByResponder[inResponder] : TransitionStatus.UNINITIALIZED;
-			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 		}
 
 		/**
@@ -326,6 +326,7 @@ package com.epologee.navigator {
 				state = new NavigationState(path);
                             
 				if (inNavigationState.containsState(state)) {
+					var remainder : NavigationState = inNavigationState.subtract(state);
 					foundValidators = true;
                     
 					// the lookup path is contained by the new state.
@@ -336,7 +337,7 @@ package com.epologee.navigator {
                     // check for existing validators.
 					for each (var responder : INavigationResponder in list) {
 						var validator : IHasStateValidation = responder as IHasStateValidation;
-						if (validator.validate(inNavigationState, state) == ValidationResult.FAIL) {
+						if (validator.validate(remainder, inNavigationState, state) == ValidationResult.FAIL) {
 							logger.warn("Validation failed based on validation responder: " + validator);
 							return false;
 						}

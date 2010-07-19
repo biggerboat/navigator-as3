@@ -130,27 +130,27 @@ package com.epologee.navigator.integration.puremvc {
 		}
 
 		public function addResponderShow(inResponder : IHasStateTransition, inPath : String) : void {
-			_navigator.addResponderShow(inResponder, inPath);
+			_navigator.addShow(inResponder, inPath);
 			sendNotification(RESPONDER_ADDED, inResponder, "show");
 		}
 
 		public function addResponderHide(inResponder : IHasStateTransition, inPath : String) : void {
-			_navigator.addResponderHide(inResponder, inPath);
+			_navigator.addHide(inResponder, inPath);
 			sendNotification(RESPONDER_ADDED, inResponder, "hide");
 		}
 
 		public function removeResponderShow(inResponder : IHasStateTransition, inPath : String) : void {
-			_navigator.removeResponderShow(inResponder, inPath);
+			_navigator.removeShow(inResponder, inPath);
 			sendNotification(RESPONDER_REMOVED, inResponder, "show");
 		}
 
 		public function addResponderUpdate(inResponder : IHasStateUpdate, inPath : String) : void {
-			_navigator.addResponderUpdate(inResponder, inPath);
+			_navigator.addUpdate(inResponder, inPath);
 			sendNotification(RESPONDER_ADDED, inResponder, "update");
 		}
 
 		public function addResponderValidate(inResponder : IHasStateValidation, inPath : String) : void {
-			_navigator.addResponderValidate(inResponder, inPath);
+			_navigator.addValidate(inResponder, inPath);
 			sendNotification(RESPONDER_ADDED, inResponder, "validate");
 		}
 

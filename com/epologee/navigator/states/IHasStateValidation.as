@@ -10,6 +10,6 @@ package com.epologee.navigator.states {
 		 * responder is registered to @param inRegisteredState. Subtract the two to obtain the
 		 * variable part.
 		 */
-		function validate(inState:NavigationState, inRegisteredState:NavigationState):String;
+		function validate(inRemainder:NavigationState, inFull : NavigationState, inRegistered : NavigationState):String;
 	}
 }

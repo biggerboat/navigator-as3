@@ -6,8 +6,8 @@ package com.epologee.navigator.states {
 	public interface IHasStateUpdate extends INavigationResponder {
 		/**
 		 * When added to the Navigator as an update responder, this method will be fired
-		 * on each change of the path below the registered state (also provided via @param inRegisteredState).
-		 * The first parameter is the remainder of the substraction of the @param inState and the @param inRegisteredState.
+		 * on each change of the path below the registered state (also provided via @param inRegistered state).
+		 * The first parameter is the remainder of the substraction of the @param inState and the @param inRegistered state.
 		 * You will probably want to use this parameter for you update logic.
 		 * 
 		 * Pseudo code example:
@@ -18,6 +18,6 @@ package com.epologee.navigator.states {
 		 * 		
 		 * 		updateState("/categoryA/244/", "/gallery/categoryA/244/", "/gallery/");
 		 */
-		function updateState(inRemainder:NavigationState, inState : NavigationState, inRegisteredState : NavigationState) : void;
+		function updateState(inRemainder:NavigationState, inFull : NavigationState, inRegistered : NavigationState) : void;
 	}
 }
