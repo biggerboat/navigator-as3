@@ -1,4 +1,6 @@
 package com.epologee.navigator.integration.puremvc.debug {
+	import com.epologee.navigator.states.IHasStateInitialization;
+	import com.epologee.navigator.states.IHasStateTransition;
 	import com.epologee.development.stats.AlignStats;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
 	import com.epologee.navigator.integration.puremvc.development;
@@ -72,9 +74,11 @@ package com.epologee.navigator.integration.puremvc.debug {
 					
 					for (var key:* in statusByResponder) {
 						var responder : INavigationResponder = key as INavigationResponder;
-						sLeft += responder + " \t\n";
-						var color : String = getColorByStatus(statusByResponder[responder]);
-						sRight += "<font color=\"" + color + "\"><b>" + TransitionStatus.toString(statusByResponder[responder]) + "</b></font>\n";
+						if (responder is IHasStateTransition || responder is IHasStateInitialization) {
+							sLeft += responder + " \t\n";
+							var color : String = getColorByStatus(statusByResponder[responder]);
+							sRight += "<font color=\"" + color + "\"><b>" + TransitionStatus.toString(statusByResponder[responder]) + "</b></font>\n";
+						}
 					}
 					_boxLeft.text = sLeft;
 					_boxRight.text = sRight;

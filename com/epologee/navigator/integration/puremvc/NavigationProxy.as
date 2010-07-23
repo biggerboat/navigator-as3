@@ -96,7 +96,7 @@ package com.epologee.navigator.integration.puremvc {
 						}					
 					}
 					
-					var responder : INavigationResponder = facade.retrieveMediator(node) as INavigationResponder;
+					var responder : INavigationResponder = untypedResponder as INavigationResponder;
 					try {
 						addMethods[node.name().localName](responder, path);
 					} catch (e : Error) {
