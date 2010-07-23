@@ -89,8 +89,11 @@ package com.epologee.navigator.integration.puremvc {
 					var node : XML = responders[j] as XML;
 					var untypedResponder : * = facade.retrieveMediator(node);
 					if (!untypedResponder) {
-						logger.error("Not found in Facade: " + node);
-						continue;
+						untypedResponder = facade.retrieveProxy(node);
+						if (!untypedResponder) {
+							logger.error("Not found in Facade (tried mediator and proxy): " + node);
+							continue;
+						}					
 					}
 					
 					var responder : INavigationResponder = facade.retrieveMediator(node) as INavigationResponder;
