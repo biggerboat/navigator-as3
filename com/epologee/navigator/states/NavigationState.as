@@ -119,6 +119,12 @@ package com.epologee.navigator.states {
 			return new NavigationState(path + DELIMITER + inTrailingState.path);
 		}
 
+		public function addSegments(...inTrailingSegments : Array) : NavigationState {
+			var trailingState : NavigationState = new NavigationState();
+			trailingState.segments = inTrailingSegments;
+			return add(trailingState);
+		}
+
 		public function hasWildcard() : Boolean {
 			return path.indexOf(WILDCARD) >= 0;
 		}
