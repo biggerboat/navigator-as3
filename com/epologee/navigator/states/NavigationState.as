@@ -15,6 +15,8 @@ package com.epologee.navigator.states {
 		public static const DELIMITER : String = "/";
 		//
 		private var _path : String;
+		private var _pathPrefix : String = "/";
+		private var _pathSuffix : String = "/";
 
 		/**
 		 * @param ...inSegements: Pass the desired path segments as a list of arguments, or pass it all at once, as a ready-made path, it's up to you.
@@ -28,10 +30,26 @@ package com.epologee.navigator.states {
 			path = inSegments.join("/");
 		}
 
+		public function get pathPrefix() : String {
+			return _pathPrefix;
+		}
+
+		public function set pathPrefix(inPrefix : String) : void {
+			_pathPrefix = inPrefix;
+		}
+
 		public function set path(inPath : String) : void {
-			_path = "/" + inPath.toLowerCase() + "/";
+			_path = _pathPrefix + inPath.toLowerCase() + _pathSuffix;
 			_path = _path.replace(new RegExp("\/+", "g"), "/");
 			_path = _path.replace(/\s+/g, "-");
+		}
+
+		public function get pathSuffix() : String {
+			return _pathSuffix;
+		}
+
+		public function set pathSuffix(pathSuffix : String) : void {
+			_pathSuffix = pathSuffix;
 		}
 
 		public function get path() : String {
