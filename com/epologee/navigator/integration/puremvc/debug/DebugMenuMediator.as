@@ -32,7 +32,7 @@ package com.epologee.navigator.integration.puremvc.debug {
 			var np : NavigationProxy = NavigationProxy(facade.retrieveProxy(NavigationProxy.NAME));
 
 			while(_buttons.length) {
-				removeChild(_buttons.pop());			
+				removeChild(_buttons.pop());
 			}
 			
 			var x : int = 0;
