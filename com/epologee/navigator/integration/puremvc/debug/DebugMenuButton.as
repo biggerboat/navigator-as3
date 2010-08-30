@@ -1,8 +1,8 @@
 package com.epologee.navigator.integration.puremvc.debug {
+	import com.epologee.navigator.integration.debug.DebugTextField;
 	import com.epologee.navigator.states.NavigationState;
 	import com.epologee.ui.buttons.DrawnStateButtonBehavior;
 	import com.epologee.ui.buttons.IHasDrawnStates;
-	import com.epologee.ui.text.FormattedTextField;
 
 	import flash.display.Sprite;
 
@@ -11,12 +11,12 @@ package com.epologee.navigator.integration.puremvc.debug {
 	 */
 	public class DebugMenuButton extends Sprite implements IHasDrawnStates {
 		private var _path : String;
-		private var _label : FormattedTextField;
+		private var _label : DebugTextField;
 
 		public function DebugMenuButton(inPath : String) {
 			_path = inPath;
 			
-			_label = new FormattedTextField("Arial", 12, 0, true, false);
+			_label = new DebugTextField("Arial", 12, 0, true, false);
 			_label.embedFonts = false;
 			_label.background = true;
 			_label.backgroundColor = 0xCCCCCC;

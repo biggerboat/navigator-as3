@@ -6,7 +6,6 @@ package com.epologee.navigator.integration.debug {
 	import com.epologee.navigator.states.IHasStateTransition;
 	import com.epologee.navigator.states.INavigationResponder;
 	import com.epologee.navigator.transition.TransitionStatus;
-	import com.epologee.ui.text.FormattedTextBox;
 
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -17,8 +16,8 @@ package com.epologee.navigator.integration.debug {
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public class DebugStatusDisplay extends Sprite {
-		private var _boxLeft : FormattedTextBox;
-		private var _boxRight : FormattedTextBox;
+		private var _boxLeft : DebugTextBox;
+		private var _boxRight : DebugTextBox;
 		private var _navigator : Navigator;
 		private var _alignMode : String;
 
@@ -26,14 +25,14 @@ package com.epologee.navigator.integration.debug {
 			_navigator = inNavigator;
 			_alignMode = inAlignMode;
 
-			_boxLeft = new FormattedTextBox("Arial", 12, 0xFF9900);
+			_boxLeft = new DebugTextBox("Arial", 12, 0xFF9900);
 			_boxLeft.background = true;
 			_boxLeft.backgroundColor = 0x222222;
 			_boxLeft.wordWrap = false;
 			_boxLeft.autoSize = TextFieldAutoSize.LEFT;
 			_boxLeft.embedFonts = false;
 
-			_boxRight = new FormattedTextBox("Arial", 12, 0xFF9900);
+			_boxRight = new DebugTextBox("Arial", 12, 0xFF9900);
 			_boxRight.background = true;
 			_boxRight.backgroundColor = 0x222222;
 			_boxRight.wordWrap = false;
