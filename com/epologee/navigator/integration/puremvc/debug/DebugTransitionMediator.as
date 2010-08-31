@@ -1,5 +1,4 @@
 package com.epologee.navigator.integration.puremvc.debug {
-	import com.epologee.util.drawing.SpriteDrawings;
 	import com.epologee.development.stats.AlignStats;
 	import com.epologee.navigator.integration.debug.DebugStatusDisplay;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
@@ -31,7 +30,6 @@ package com.epologee.navigator.integration.puremvc.debug {
 
 			timeline.addChild(new AlignStats(AlignStats.BOTTOM_LEFT));
 			timeline.addChild(_display);
-			timeline.addChild(SpriteDrawings.circle());
 		}
 	}
 }
