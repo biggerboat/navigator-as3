@@ -116,7 +116,7 @@ package com.epologee.navigator {
 
 		private function isHidden(inState : NavigationState) : Boolean {
 			for each (var containedState : NavigationState in _hiddenStateContains) {
-				if (inState.containsState(containedState)) {
+				if (inState.contains(containedState)) {
 					logger.info("State is hidden (by containment): " + inState);
 					return true;
 				}

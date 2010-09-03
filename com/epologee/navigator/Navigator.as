@@ -339,7 +339,7 @@ package com.epologee.navigator {
 				// create a state object for comparison:
 				state = new NavigationState(path);
 
-				if (inNavigationState.containsState(state)) {
+				if (inNavigationState.contains(state)) {
 					var remainder : NavigationState = inNavigationState.subtract(state);
 					foundValidators = true;
 
@@ -413,7 +413,7 @@ package com.epologee.navigator {
 				// create a state object for comparison:
 				var state : NavigationState = new NavigationState(path);
 
-				if (_current.containsState(state)) {
+				if (_current.contains(state)) {
 					// the lookup path is contained by the new state.
 					var list : Array = _respondersToUpdateByPath[path];
 
@@ -483,7 +483,7 @@ package com.epologee.navigator {
 			var responders : Array = [];
 
 			for (var path:String in inList) {
-				if (inState.containsState(new NavigationState(path))) {
+				if (inState.contains(new NavigationState(path))) {
 					responders = responders.concat(inList[path]);
 				}
 			}

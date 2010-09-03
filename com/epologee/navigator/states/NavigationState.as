@@ -1,5 +1,4 @@
 package com.epologee.navigator.states {
-
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 * 
@@ -15,8 +14,6 @@ package com.epologee.navigator.states {
 		public static const DELIMITER : String = "/";
 		//
 		private var _path : String;
-		private var _pathPrefix : String = "/";
-		private var _pathSuffix : String = "/";
 
 		/**
 		 * @param ...inSegements: Pass the desired path segments as a list of arguments, or pass it all at once, as a ready-made path, it's up to you.
@@ -30,46 +27,59 @@ package com.epologee.navigator.states {
 			path = inSegments.join("/");
 		}
 
-		public function get pathPrefix() : String {
-			return _pathPrefix;
-		}
-
-		public function set pathPrefix(inPrefix : String) : void {
-			_pathPrefix = inPrefix;
-		}
-
+		/**
+		 * A path will always start and end with a slash /
+		 * All double slashes // will be removed and white spaces are 
+		 * replaced by dashes -.
+		 */
 		public function set path(inPath : String) : void {
-			_path = _pathPrefix + inPath.toLowerCase() + _pathSuffix;
+			_path = DELIMITER + inPath.toLowerCase() + DELIMITER;
 			_path = _path.replace(new RegExp("\/+", "g"), "/");
 			_path = _path.replace(/\s+/g, "-");
-		}
-
-		public function get pathSuffix() : String {
-			return _pathSuffix;
-		}
-
-		public function set pathSuffix(pathSuffix : String) : void {
-			_pathSuffix = pathSuffix;
 		}
 
 		public function get path() : String {
 			return _path;
 		}
 
+		/**
+		 * Set the path as a list of segments (or path components).
+		 * Example: ["a", "b", "c"] will result in a path /a/b/c/
+		 */
 		public function set segments(inSegments : Array) : void {
 			path = inSegments.join(DELIMITER);
 		}
 
+		/**
+		 * Returns the path cut up in segments (or path components).
+		 */
 		public function get segments() : Array {
 			var s : Array = _path.split(DELIMITER);
-			
+
 			// pop emtpy string off the back.
-			if (!s[s.length - 1]) s.pop();
-			
+			if (!s[s.length - 1])
+				s.pop();
+
 			// shift empty string off the start.
-			if (!s[0]) s.shift();
-			
+			if (!s[0])
+				s.shift();
+
 			return s;
+		}
+
+		/**
+		 * Convenience method for not having to call segments[0] all the time.
+		 */
+		public function get firstSegment():String {
+			return segments[0];
+		}
+
+		/**
+		 * Convenience method for not having to call segments[segments.length-1] all the time.
+		 */
+		public function lastSegment() : String {
+			var s : Array = segments;
+			return s[s.length - 1];
 		}
 
 		/**
@@ -79,19 +89,19 @@ package com.epologee.navigator.states {
 		 * 	a = new State("/bubble/gum/");
 		 * 	b = new State("/bubble/");
 		 * 	
-		 * 	a.containsState(b) will return true.
-		 * 	b.containsState(a) will return false.
+		 * 	a.contains(b) will return true.
+		 * 	b.contains(a) will return false.
 		 * 	
 		 */
-		public function containsState(inForeignState : NavigationState) : Boolean {
+		public function contains(inForeignState : NavigationState) : Boolean {
 			var foreignSegments : Array = inForeignState.segments;
 			var nativeSegments : Array = segments;
-			
+
 			if (foreignSegments.length > nativeSegments.length) {
 				// foreign segment length too big
 				return false;
 			}
-			
+
 			// check to see if the overlapping segments match.
 			// since the foreign segment count has to be smaller than the native,
 			// the foreign count is used to limit the loop:
@@ -109,23 +119,34 @@ package com.epologee.navigator.states {
 					// native  [" + nativeSegment + "] matches foreign [" + foreignSegment + "]
 				}
 			}
-			
+
 			return true;
 		}
 
+		/**
+		 * Will test for equality between states. This comparison is wildcard safe!
+		 * @example: 
+		 * 		a/b/c equals a/b/*
+		 */
 		public function equals(inState : NavigationState) : Boolean {
 			var sub : NavigationState = subtract(inState);
-			if (!sub) return false;
-			
+			if (!sub)
+				return false;
+
 			return sub.segments.length == 0;
 		}
 
 		/**
 		 * Subtracts the path of the operand from the current state and returns it as a new state instance.
-		 * @example "/portfolio/editorial/84/3" - "/portfolio/" = "/editorial/84/3"
+		 * Subtraction uses containment as the main method of comparison, therefore wildcard safe!
+		 * @example
+		 * 		/portfolio/editorial/84/3 - /portfolio/ = /editorial/84/3
+		 * 		/portfolio/editorial/84/3 - * = /editorial/84/3
 		 */
 		public function subtract(inOperand : NavigationState) : NavigationState {
-			if (!containsState(inOperand)) return null;
+			if (!contains(inOperand))
+				return null;
+
 			var ns : NavigationState = new NavigationState();
 			var subtract : Array = segments;
 			subtract.splice(0, inOperand.segments.length);
@@ -134,7 +155,7 @@ package com.epologee.navigator.states {
 		}
 
 		public function add(inTrailingState : NavigationState) : NavigationState {
-			return new NavigationState(path + DELIMITER + inTrailingState.path);
+			return new NavigationState(path, inTrailingState.path);
 		}
 
 		public function addSegments(...inTrailingSegments : Array) : NavigationState {
@@ -143,20 +164,21 @@ package com.epologee.navigator.states {
 			return add(trailingState);
 		}
 
-		public function hasWildcard() : Boolean {
-			return path.indexOf(WILDCARD) >= 0;
+		public function prefix(inLeadingState : NavigationState) : NavigationState {
+			return new NavigationState(inLeadingState, path);
 		}
 
-		public function clone() : NavigationState {
-			return new NavigationState(path);
+		public function hasWildcard() : Boolean {
+			return path.indexOf(WILDCARD) >= 0;
 		}
 
 		/**
 		 * Will mask wildcards with values from the provided state.
 		 */
 		public function mask(inSource : NavigationState) : NavigationState {
-			if (!inSource) return clone();
-			
+			if (!inSource)
+				return clone();
+
 			var unmasked : Array = segments;
 			var source : Array = inSource.segments;
 			var leni : int = Math.min(source.length, unmasked.length);
@@ -165,10 +187,14 @@ package com.epologee.navigator.states {
 					unmasked[i] = source[i];
 				}
 			}
-			
+
 			var masked : NavigationState = new NavigationState();
 			masked.segments = unmasked;
 			return masked;
+		}
+
+		public function clone() : NavigationState {
+			return new NavigationState(path);
 		}
 
 		public function toString() : String {
