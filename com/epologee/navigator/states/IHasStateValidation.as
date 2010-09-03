@@ -6,10 +6,8 @@ package com.epologee.navigator.states {
 	public interface IHasStateValidation extends INavigationResponder {
 		/**
 		 * Synchronous validation.
-		 * Will provide the new complete @param inRequestedState, including the state this
-		 * responder is registered to @param inRegisteredState. Subtract the two to obtain the
-		 * variable part.
+		 * Will provide the result of subtracting the registered state from the requested (inFull) state to give you the inTruncated state.
 		 */
-		function validate(inRemainder:NavigationState, inFull : NavigationState, inRegistered : NavigationState):String;
+		function validate(inTruncated:NavigationState, inFull : NavigationState):String;
 	}
 }

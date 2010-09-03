@@ -1,16 +1,16 @@
 package com.epologee.navigator.transition {
 	import com.epologee.navigator.Navigator;
-	import com.epologee.navigator.states.IHasStateTransition;
+	import com.epologee.navigator.states.INavigationResponder;
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public class TransitionCompleteDelegate {
-		private var _responder : IHasStateTransition;
+		private var _responder : INavigationResponder;
 		private var _navigator : Navigator;
 		private var _status : int;
 
-		public function TransitionCompleteDelegate(inResponder : IHasStateTransition, inStatus : int, inNavigator : Navigator) {
+		public function TransitionCompleteDelegate(inResponder : INavigationResponder, inStatus : int, inNavigator : Navigator) {
 			_responder = inResponder;
 			_status = inStatus;
 			_navigator = inNavigator;

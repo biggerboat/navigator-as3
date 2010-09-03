@@ -3,6 +3,7 @@ package com.epologee.navigator.integration.puremvc {
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.SWFAddressNavigator;
+	import com.epologee.navigator.states.IHasStateSwap;
 	import com.epologee.navigator.states.IHasStateTransition;
 	import com.epologee.navigator.states.IHasStateUpdate;
 	import com.epologee.navigator.states.IHasStateValidation;
@@ -29,7 +30,7 @@ package com.epologee.navigator.integration.puremvc {
 
 		public function NavigationProxy(inUseSWFAddress : Boolean) {
 			super(NAME);
-			
+
 			_navigator = inUseSWFAddress ? new SWFAddressNavigator() : new Navigator();
 			_navigator.addEventListener(NavigatorEvent.TRANSITION_STATUS_UPDATED, handleTransitionStatusUpdate);
 			_navigator.addEventListener(NavigatorEvent.STATE_CHANGED, handleStateChanged);
@@ -72,16 +73,14 @@ package com.epologee.navigator.integration.puremvc {
 		 */
 		public function parseMediatorStateMap(inMap : XML) : void {
 			var states : XMLList = inMap.child("state");
-			
-			var addMethods : Object = {
-				show: addResponderShow, update: addResponderUpdate, validate: addResponderValidate, hide: addResponderHide, auto: addResponderByInterface
-			};
-			
+
+			var addMethods : Object = {show:addResponderShow, update:addResponderUpdate, validate:addResponderValidate, hide:addResponderHide, swap:addResponderSwap, auto:addResponderByInterface};
+
 			var leni : int = states.length();
 			for (var i : int = 0;i < leni;i++) {
 				var state : XML = states[i];
 				var path : String = state.@path;
-				
+
 				var responders : XMLList = XMLList(states[i]).children();
 				var lenj : int = responders.length();
 				for (var j : int = 0;j < lenj;j++) {
@@ -93,9 +92,9 @@ package com.epologee.navigator.integration.puremvc {
 						if (!untypedResponder) {
 							logger.error("Not found in Facade (tried mediator and proxy): " + node);
 							continue;
-						}					
+						}
 					}
-					
+
 					var responder : INavigationResponder = untypedResponder as INavigationResponder;
 					try {
 						addMethods[node.name().localName](responder, path);
@@ -113,22 +112,28 @@ package com.epologee.navigator.integration.puremvc {
 		}
 
 		public function addResponderByInterface(inResponder : INavigationResponder, inPath : String) : void {
-			try { 
-				addResponderShow(inResponder as IHasStateTransition, inPath); 
-			}catch(e : Error) {
-				// ignore errors. 
+			try {
+				addResponderShow(inResponder as IHasStateTransition, inPath);
+			} catch(e : Error) {
+				// ignore errors.
 			}
-			
-			try { 
-				addResponderUpdate(inResponder as IHasStateUpdate, inPath); 
-			}catch(e : Error) { 
-				// ignore errors. 
+
+			try {
+				addResponderUpdate(inResponder as IHasStateUpdate, inPath);
+			} catch(e : Error) { 
+				// ignore errors.
 			}
-			
-			try { 
-				addResponderValidate(inResponder as IHasStateValidation, inPath); 
-			}catch(e : Error) { 
-				// ignore errors. 
+
+			try {
+				addResponderSwap(inResponder as IHasStateSwap, inPath);
+			} catch(e : Error) { 
+				// ignore errors.
+			}
+
+			try {
+				addResponderValidate(inResponder as IHasStateValidation, inPath);
+			} catch(e : Error) { 
+				// ignore errors.
 			}
 		}
 
@@ -152,6 +157,11 @@ package com.epologee.navigator.integration.puremvc {
 			sendNotification(RESPONDER_ADDED, inResponder, "update");
 		}
 
+		public function addResponderSwap(inResponder : IHasStateSwap, inPath : String) : void {
+			_navigator.addSwap(inResponder, inPath);
+			sendNotification(RESPONDER_ADDED, inResponder, "swap");
+		}
+
 		public function addResponderValidate(inResponder : IHasStateValidation, inPath : String) : void {
 			_navigator.addValidate(inResponder, inPath);
 			sendNotification(RESPONDER_ADDED, inResponder, "validate");
@@ -161,6 +171,10 @@ package com.epologee.navigator.integration.puremvc {
 			if (_navigator is SWFAddressNavigator) {
 				SWFAddressNavigator(_navigator).registerHiddenState(inState, inExactMatch);
 			}
+		}
+
+		public function registerRedirect(inFrom : NavigationState, inTo : NavigationState) : void {
+			_navigator.registerRedirect(inFrom, inTo);
 		}
 
 		/**

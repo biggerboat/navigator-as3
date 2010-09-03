@@ -6,28 +6,27 @@ package com.epologee.development.logging {
 	 */
 	public var logger : ITraceable = new LogNone();
 }
-
 import com.epologee.development.logging.ITraceable;
 
 class LogNone implements ITraceable {
-	public function critical(inMessage : *) : void {
+	public function critical(inMessage : * = "") : void {
 	}
 
-	public function debug(inMessage : *) : void {
+	public function debug(inMessage : * = "") : void {
 	}
 
-	public function error(inMessage : *) : void {
+	public function error(inMessage : * = "") : void {
 	}
 
-	public function fatal(inMessage : *) : void {
+	public function fatal(inMessage : * = "") : void {
 	}
 
-	public function info(inMessage : *) : void {
+	public function info(inMessage : * = "") : void {
 	}
 
-	public function notice(inMessage : *) : void {
+	public function notice(inMessage : * = "") : void {
 	}
 
-	public function warn(inMessage : *) : void {
+	public function warn(inMessage : * = "") : void {
 	}
 }
