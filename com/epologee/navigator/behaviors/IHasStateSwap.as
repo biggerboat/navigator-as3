@@ -1,4 +1,5 @@
-package com.epologee.navigator.states {
+package com.epologee.navigator.behaviors {
+	import com.epologee.navigator.NavigationState;
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */

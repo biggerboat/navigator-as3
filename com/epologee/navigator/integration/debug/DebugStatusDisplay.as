@@ -2,9 +2,9 @@ package com.epologee.navigator.integration.debug {
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.integration.puremvc.development;
-	import com.epologee.navigator.states.IHasStateInitialization;
-	import com.epologee.navigator.states.IHasStateTransition;
-	import com.epologee.navigator.states.INavigationResponder;
+	import com.epologee.navigator.behaviors.IHasStateInitialization;
+	import com.epologee.navigator.behaviors.IHasStateTransition;
+	import com.epologee.navigator.behaviors.INavigationResponder;
 	import com.epologee.navigator.transition.TransitionStatus;
 
 	import flash.display.Sprite;

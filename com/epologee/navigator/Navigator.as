@@ -1,17 +1,17 @@
 package com.epologee.navigator {
 	import com.epologee.development.logging.logger;
+	import com.epologee.navigator.behaviors.IHasStateInitialization;
+	import com.epologee.navigator.behaviors.IHasStateSwap;
+	import com.epologee.navigator.behaviors.IHasStateTransition;
+	import com.epologee.navigator.behaviors.IHasStateUpdate;
+	import com.epologee.navigator.behaviors.IHasStateValidation;
+	import com.epologee.navigator.behaviors.IHasStateValidationOptional;
+	import com.epologee.navigator.behaviors.INavigationResponder;
+	import com.epologee.navigator.behaviors.NavigationBehaviors;
 	import com.epologee.navigator.integration.puremvc.development;
-	import com.epologee.navigator.states.IHasStateInitialization;
-	import com.epologee.navigator.states.IHasStateSwap;
-	import com.epologee.navigator.states.IHasStateTransition;
-	import com.epologee.navigator.states.IHasStateUpdate;
-	import com.epologee.navigator.states.IHasStateValidation;
-	import com.epologee.navigator.states.INavigationResponder;
-	import com.epologee.navigator.states.NavigationState;
 	import com.epologee.navigator.transition.TransitionCompleteDelegate;
 	import com.epologee.navigator.transition.TransitionStatus;
 	import com.epologee.navigator.transition.transition;
-	import com.epologee.navigator.validation.ValidationResult;
 
 	import flash.events.EventDispatcher;
 	import flash.utils.Dictionary;
@@ -48,13 +48,10 @@ package com.epologee.navigator {
 		//
 		private var _responders : ResponderLists;
 		private var _statusByResponder : Dictionary;
-		private var _disappearingResponders : Array;
-		private var _disappearingAsynchronously : Boolean;
-		private var _appearingAsynchronously : Boolean;
-		private var _appearingResponders : Array;
-		private var _swappingAsynchronously : Boolean;
-		private var _swappingResponders : Array;
 		private var _redirects : Dictionary;
+		private var _disappearing : AsynchResponders;
+		private var _appearing : AsynchResponders;
+		private var _swapping : AsynchResponders;
 
 		public function Navigator() {
 			_responders = new ResponderLists();
@@ -80,116 +77,55 @@ package com.epologee.navigator {
 			}
 		}
 
-		/**
-		 * Any responder added to the "show" list will receive transitionIn() and transitionOut() calls
-		 * when the path they're registered to activates or deactivates. Any path's segments are used
-		 * hierarchically, so if a responder should show on /gallery/, it will also show on /gallery/help/
-		 * 
-		 * If you want to hide a responder on a deeper level, use the #addResponderHide method.
-		 */
-		public function addShow(inResponder : IHasStateTransition, inPath : String) : void {
+		public function add(inResponder : INavigationResponder, inPathOrState : *, inBehavior : String = NavigationBehaviors.SHOW) : void {
 			if (!inResponder)
-				throw new Error("addShow: responder is null");
+				throw new Error("add: responder is null");
 
-			var path : String = new NavigationState(inPath).path;
-
-			// retrieve or create the list of responders to show for the current path:
-			var showList : Array = _responders.showByPath[path] ||= [];
-			showList.push(inResponder);
-
-			// If there is no status yet, set the initial status to UNINITIALIZED:
-			_statusByResponder[inResponder] ||= TransitionStatus.UNINITIALIZED;
-			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
-		}
-
-		public function addHide(inResponder : IHasStateTransition, inPath : String) : void {
-			if (!inResponder)
-				throw new Error("addHide: responder is null");
-
-			var path : String = new NavigationState(inPath).path;
-
-			// retrieve or create the list of responders to show for the current path:
-			var hideList : Array = _responders.hideByPath[path] ||= [];
-			hideList.push(inResponder);
-
-			// If there is no status yet, set the initial status to UNINITIALIZED:
-			_statusByResponder[inResponder] ||= TransitionStatus.UNINITIALIZED;
-			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
-		}
-
-		public function addUpdate(inResponder : IHasStateUpdate, inPath : String) : void {
-			if (!inResponder)
-				throw new Error("addUpdate: responder is null");
-
-			var path : String = new NavigationState(inPath).path;
-
-			// retrieve or create the list of responders to update for the current path:
-			var updateList : Array = _responders.updateByPath[path] ||= [];
-			updateList.push(inResponder);
-
-			// If there is no status yet, set the initial status to UNINITIALIZED:
-			_statusByResponder[inResponder] ||= TransitionStatus.UNINITIALIZED;
-			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
-		}
-
-		public function addSwap(inResponder : IHasStateSwap, inPath : String) : void {
-			if (!inResponder)
-				throw new Error("addSwap: responder is null");
-
-			var path : String = new NavigationState(inPath).path;
-
-			// retrieve or create the list of responders to update for the current path:
-			var updateList : Array = _responders.swapByPath[path] ||= [];
-			updateList.push(inResponder);
-
-			// If there is no status yet, set the initial status to UNINITIALIZED:
-			_statusByResponder[inResponder] ||= TransitionStatus.UNINITIALIZED;
-			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
-		}
-
-		public function addValidate(inResponder : IHasStateValidation, inPath : String) : void {
-			if (!inResponder)
-				throw new Error("addValidate: responder is null");
-
-			var path : String = new NavigationState(inPath).path;
-
-			// retrieve or create the list of responders to update for the current path:
-			var validateList : Array = _responders.validateByPath[path] ||= [];
-			validateList.push(inResponder);
-
-			// If there is no status yet, set the initial status to UNINITIALIZED:
-			_statusByResponder[inResponder] ||= TransitionStatus.UNINITIALIZED;
-			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
-		}
-
-		public function removeShow(inResponder : IHasStateTransition, inPath : String) : void {
-			if (!inResponder)
-				throw new Error("removeResponderShow: responder is null");
-
-			var path : String = new NavigationState(inPath).path;
-
-			// retrieve the list of responders to show for the current path:
-			var showList : Array = _responders.showByPath[path];
-			if (!showList) {
-				throw new Error("removeResponderShow: path not found" + path);
+			if (inBehavior == NavigationBehaviors.AUTO) {
+				autoAdd(inResponder, inPathOrState);
 				return;
 			}
 
-			// remove the element off the list.
-			// by iterating in reverse, we can use the Array().splice() method
-			for (var i : int = showList.length;--i >= 0;) {
-				if (showList[i] == inResponder) {
-					showList.splice(i, 1);
-				}
+			// Using the path variable as dictionary key to break instance referencing.
+			var path : String = new NavigationState(inPathOrState).path;
+			var list : Array;
+			var matchingInterface : Class;
+
+			// Create, store and retrieve the list that matches the desired behavior.
+			switch(inBehavior) {
+				case NavigationBehaviors.SHOW:
+					matchingInterface = IHasStateTransition;
+					list = _responders.showByPath[path] ||= [];
+					break;
+				case NavigationBehaviors.HIDE:
+					matchingInterface = IHasStateTransition;
+					list = _responders.hideByPath[path] ||= [];
+					break;
+				case NavigationBehaviors.VALIDATE:
+					matchingInterface = IHasStateValidation;
+					list = _responders.validateByPath[path] ||= [];
+					break;
+				case NavigationBehaviors.UPDATE:
+					matchingInterface = IHasStateUpdate;
+					list = _responders.updateByPath[path] ||= [];
+					break;
+				case NavigationBehaviors.SWAP:
+					matchingInterface = IHasStateSwap;
+					list = _responders.swapByPath[path] ||= [];
+					break;
+				default:
+					throw new Error("Unknown behavior: " + inBehavior);
 			}
 
-			if (!showList.length) {
-				delete _responders.showByPath[path];
+			if (!(inResponder is matchingInterface)) {
+				throw new Error("Responder " + inResponder + " should implement " + matchingInterface + " to respond to " + inBehavior);
 			}
 
-			// The responder might still exist on other paths. Either check all paths,
-			// or just leave the transition status be for now... 
-			// _statusByResponder[inResponder] = TransitionStatus.HIDDEN;
+			list.push(inResponder);
+
+			// If the responder has no status yet, initialize it to UNINITIALIZED:
+			_statusByResponder[inResponder] ||= TransitionStatus.UNINITIALIZED;
+			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 		}
 
 		/** TODO: Add removeXYZ methods for removing responders */
@@ -206,10 +142,9 @@ package com.epologee.navigator {
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
 		public function requestNewState(inNavigationState : NavigationState) : void {
-			logger.debug("inNavigationState: " + inNavigationState);
-
+			// Check for exact match of the requested and the current state
 			if (_current && _current.path == inNavigationState.path) {
-				logger.info("Already at current state: " + inNavigationState);
+				logger.info("Already at the requested state: " + inNavigationState);
 				return;
 			}
 
@@ -219,21 +154,24 @@ package com.epologee.navigator {
 					if (from.equals(inNavigationState)) {
 						var to : NavigationState = NavigationState(_redirects[path]);
 						notifyStateChange(from);
+						logger.info("Redirecting " + from + " to " + to);
 						requestNewState(to);
 						return;
 					}
 				}
 			}
 
+			logger.debug(inNavigationState);
+
 			if (inNavigationState.path == _defaultState.path) {
 				// Exact match on default state bypasses validation.
 				// notice("matches default state: " + inNavigationState);
 				grantRequest(_defaultState);
-			} else if (validateState(inNavigationState)) {
+			} else if (validate(inNavigationState)) {
 				// Any other state needs to be validated.
 				// notice("validated: " + inNavigationState + " with current: " + _current);
 				grantRequest(inNavigationState);
-			} else if (validateWildcards(inNavigationState)) {
+			} else if (validateWithWildcards(inNavigationState)) {
 				// Validation passed after wildcard masking.
 				// notice("validated: " + inNavigationState + " masked by current: " + _current);
 				grantRequest(inNavigationState.mask(_current));
@@ -279,46 +217,41 @@ package com.epologee.navigator {
 
 		public function getCurrentState() : NavigationState {
 			// not returning the _current instance for reference reasons.
-			return new NavigationState(_current.path);
+			return _current.clone();
 		}
 
-		transition function notifyComplete(inResponder : INavigationResponder, inStatus : int) : void {
+		transition function notifyComplete(inResponder : INavigationResponder, inStatus : int, inBehavior : String) : void {
 			_statusByResponder[inResponder] = inStatus;
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 
-			var index : int;
-			if (_disappearingAsynchronously && inStatus == TransitionStatus.HIDDEN) {
-				index = _disappearingResponders.indexOf(inResponder);
-				if (index >= 0) {
-					_disappearingResponders.splice(index, 1);
+			var asynch : AsynchResponders;
+			var method : Function;
 
-					if (!_disappearingResponders.length) {
-						flow::performUpdates();
-					} else {
-						logger.notice("waiting for " + _disappearingResponders.length + " responders to disappear");
-					}
-				}
-			} else if (_appearingAsynchronously && inStatus == TransitionStatus.SHOWN) {
-				index = _appearingResponders.indexOf(inResponder);
-				if (index >= 0) {
-					_appearingResponders.splice(index, 1);
+			switch(inBehavior) {
+				case NavigationBehaviors.HIDE:
+					asynch = _disappearing;
+					method = flow::performUpdates;
+					break;
+				case NavigationBehaviors.SHOW:
+					asynch = _appearing;
+					method = flow::startSwapOut;
+					break;
+				case NavigationBehaviors.SWAP:
+					asynch = _swapping;
+					method = flow::swapIn;
+					break;
+				default:
+					throw new Error("Don't know how to handle notification of behavior " + inBehavior);
+			}
 
-					if (!_appearingResponders.length) {
-						flow::startSwapOut();
-					} else {
-						logger.notice("waiting for " + _appearingResponders.length + " responders to show");
-					}
-				}
-			} else if (_swappingAsynchronously && inStatus == TransitionStatus.SHOWN) {
-				index = _swappingResponders.indexOf(inResponder);
-				if (index >= 0) {
-					_swappingResponders.splice(index, 1);
+			// If the notifyComplete is called instantly, the array of asynchronous responders is not yet assigned, and therefore not busy.
+			if (asynch.isBusy()) {
+				asynch.takeOutResponder(inResponder);
 
-					if (!_swappingResponders.length) {
-						flow::swapIn();
-					} else {
-						logger.notice("waiting for " + _swappingResponders.length + " responders to complete swap");
-					}
+				if (!asynch.isBusy()) {
+					method();
+				} else {
+					logger.notice("waiting for " + asynch.responders.length + " responders to " + inBehavior);
 				}
 			}
 		}
@@ -338,13 +271,14 @@ package com.epologee.navigator {
 			flow::startTransition();
 		}
 
-		private function validateWildcards(inNavigationState : NavigationState) : Boolean {
-			if (inNavigationState.hasWildcard()) {
-				// run by regular validation.
-				return validateState(inNavigationState.mask(_current));
+		private function autoAdd(inResponder : INavigationResponder, inPathOrState : *) : void {
+			for each (var behavior : String in NavigationBehaviors.ALL_AUTO) {
+				try {
+					add(inResponder, inPathOrState, behavior);
+				} catch(e : Error) {
+					// ignore error
+				}
 			}
-
-			return false;
 		}
 
 		/**
@@ -357,17 +291,17 @@ package com.epologee.navigator {
 		 * Secondly, if not already granted, it will continue to look for existing validators in the _responders.validateByPath.
 		 * If found, will call those and have the grant rely on the external validators.
 		 */
-		private function validateState(inNavigationState : NavigationState) : Boolean {
+		private function validate(inState : NavigationState) : Boolean {
 			var state : NavigationState;
 			var path : String;
 
 			// check to see if there are still wildcards left
-			if (inNavigationState.hasWildcard()) {
+			if (inState.hasWildcard()) {
 				// throw new Error("validateState: Requested states may not contain wildcards " + NavigationState.WILDCARD);
 				return false;
 			}
 
-			if (inNavigationState.equals(_defaultState)) {
+			if (inState.equals(_defaultState)) {
 				return true;
 			}
 
@@ -377,20 +311,19 @@ package com.epologee.navigator {
 			for (path in _responders.showByPath) {
 				state = new NavigationState(path);
 
-				if (state.equals(inNavigationState)) {
+				if (state.equals(inState)) {
 					// info("Validation passed based on transition responder.");
 					direct = true;
 				}
 			}
 
-			var foundValidators : Boolean = false;
+			// The second loop will check for custom validators.
 			for (path in _responders.validateByPath) {
 				// create a state object for comparison:
 				state = new NavigationState(path);
 
-				if (inNavigationState.contains(state)) {
-					var remainder : NavigationState = inNavigationState.subtract(state);
-					foundValidators = true;
+				if (inState.contains(state)) {
+					var remainder : NavigationState = inState.subtract(state);
 
 					// the lookup path is contained by the new state.
 					var list : Array = _responders.validateByPath[path];
@@ -400,35 +333,45 @@ package com.epologee.navigator {
 					// check for existing validators.
 					for each (var responder : INavigationResponder in list) {
 						var validator : IHasStateValidation = responder as IHasStateValidation;
-						if (validator.validate(remainder, inNavigationState) == ValidationResult.FAIL) {
-							logger.warn("Validation failed based on validation responder: " + validator);
-							return false;
+
+						// check for optional validation
+						if (validator is IHasStateValidationOptional && !IHasStateValidationOptional(validator).willValidate(remainder, inState)) {
+							continue;
 						}
+
+						if (validator.validate(remainder, inState)) {
+							return true;
+						}
+						
+						logger.warn("Denied by validator: " + validator);
+						return false;
 					}
 				}
 			}
 
-			if (foundValidators) {
-				// info("Validation passed validation responder(s)");
-				return true;
-			}
-
 			if (!direct) {
-				logger.warn("Validation failed. No validators or transitions matched the requested " + inNavigationState);
+				logger.warn("Validation failed. No validators or transitions matched the requested " + inState);
 			}
 
 			return direct;
 		}
 
+		private function validateWithWildcards(inState : NavigationState) : Boolean {
+			if (inState.hasWildcard()) {
+				// run by regular validation.
+				return validate(inState.mask(_current));
+			}
+
+			return false;
+		}
+
 		flow function startTransition() : void {
 			logger.notice();
 
-			_disappearingAsynchronously = false;
-			_disappearingResponders = flow::transitionOut();
+			_disappearing = new AsynchResponders();
+			_disappearing.responders = flow::transitionOut();
 
-			if (_disappearingResponders.length) {
-				_disappearingAsynchronously = true;
-			} else {
+			if (!_disappearing.isBusy()) {
 				flow::performUpdates();
 			}
 		}
@@ -448,7 +391,7 @@ package com.epologee.navigator {
 						waitFor.push(responder);
 
 						use namespace transition;
-						responder.transitionOut(new TransitionCompleteDelegate(responder, TransitionStatus.HIDDEN, this).call);
+						responder.transitionOut(new TransitionCompleteDelegate(responder, TransitionStatus.HIDDEN, NavigationBehaviors.HIDE, this).call);
 					} else {
 						// already hidden or hiding
 					}
@@ -470,7 +413,8 @@ package com.epologee.navigator {
 		}
 
 		flow function performUpdates() : void {
-			_disappearingAsynchronously = false;
+			_disappearing.reset();
+
 			for (var path:String in _responders.updateByPath) {
 				// create a state object for comparison:
 				var state : NavigationState = new NavigationState(path);
@@ -492,11 +436,10 @@ package com.epologee.navigator {
 		}
 
 		flow function startTransitionIn() : void {
-			_appearingResponders = flow::transitionIn();
+			_appearing = new AsynchResponders();
+			_appearing.responders = flow::transitionIn();
 
-			if (_appearingResponders.length) {
-				_appearingAsynchronously = true;
-			} else {
+			if (!_appearing.isBusy()) {
 				flow::startSwapOut();
 			}
 		}
@@ -517,7 +460,7 @@ package com.epologee.navigator {
 					waitFor.push(responder);
 
 					use namespace transition;
-					responder.transitionIn(new TransitionCompleteDelegate(responder, TransitionStatus.SHOWN, this).call);
+					responder.transitionIn(new TransitionCompleteDelegate(responder, TransitionStatus.SHOWN, NavigationBehaviors.SHOW, this).call);
 				}
 			}
 
@@ -536,17 +479,16 @@ package com.epologee.navigator {
 		}
 
 		flow function startSwapOut() : void {
-			_swappingResponders = flow::swapOut();
+			_swapping = new AsynchResponders();
+			_swapping.responders = flow::swapOut();
 
-			if (_swappingResponders.length) {
-				_swappingAsynchronously = true;
-			} else {
+			if (!_swapping.isBusy()) {
 				flow::swapIn();
 			}
 		}
 
 		flow function swapOut() : Array {
-			_appearingAsynchronously = false;
+			_appearing.reset();
 
 			var waitFor : Array = [];
 
@@ -571,7 +513,7 @@ package com.epologee.navigator {
 							waitFor.push(responder);
 
 							use namespace transition;
-							responder.swapOut(new TransitionCompleteDelegate(responder, TransitionStatus.SHOWN, this).call);
+							responder.swapOut(new TransitionCompleteDelegate(responder, TransitionStatus.SHOWN, NavigationBehaviors.SWAP, this).call);
 						}
 					}
 				}
@@ -592,7 +534,7 @@ package com.epologee.navigator {
 		}
 
 		flow function swapIn() : void {
-			_swappingAsynchronously = false;
+			_swapping.reset();
 
 			for (var path:String in _responders.swapByPath) {
 				// create a state object for comparison:
@@ -615,10 +557,10 @@ package com.epologee.navigator {
 				}
 			}
 
-			flow::finish();
+			flow::finishTransition();
 		}
 
-		flow function finish() : void {
+		flow function finishTransition() : void {
 			logger.notice();
 		}
 
@@ -660,8 +602,11 @@ package com.epologee.navigator {
 		}
 	}
 }
+import com.epologee.development.logging.logger;
+import com.epologee.navigator.behaviors.INavigationResponder;
+
 import flash.utils.Dictionary;
-/**
+/**	
  * The flow namespace is used privately, to mark methods that belong to the transition flow group.
  */
 namespace flow;
@@ -672,4 +617,31 @@ class ResponderLists {
 	public var showByPath : Dictionary = new Dictionary();
 	public var hideByPath : Dictionary = new Dictionary();
 	public var swappedBefore : Dictionary = new Dictionary();
+}
+class AsynchResponders {
+	public var responders : Array = [];
+
+	public function isBusy():Boolean {
+		return responders && responders.length;
+	}
+
+	public function hasResponder(inResponder : INavigationResponder):Boolean {
+		return responders.indexOf(inResponder) >= 0;
+	}
+
+	public function takeOutResponder(inResponder : INavigationResponder) : Boolean {
+		var index : int = responders.indexOf(inResponder);
+		if (index >= 0) {
+			responders.splice(index, 1);
+			return true;
+		}
+
+		return false;
+	}
+
+	public function reset() : void {
+		if (responders && responders.length)
+			logger.warn("Resetting too early? Still have responders marked for asynchronous tasks");
+		responders = null;
+	}
 }

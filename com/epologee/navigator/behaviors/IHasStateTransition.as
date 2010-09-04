@@ -1,4 +1,4 @@
-package com.epologee.navigator.states {
+package com.epologee.navigator.behaviors {
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com

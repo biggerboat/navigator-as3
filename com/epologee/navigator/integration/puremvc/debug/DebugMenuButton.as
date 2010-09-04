@@ -1,6 +1,6 @@
 package com.epologee.navigator.integration.puremvc.debug {
 	import com.epologee.navigator.integration.debug.DebugTextField;
-	import com.epologee.navigator.states.NavigationState;
+	import com.epologee.navigator.NavigationState;
 	import com.epologee.ui.buttons.DrawnStateButtonBehavior;
 	import com.epologee.ui.buttons.IHasDrawnStates;
 

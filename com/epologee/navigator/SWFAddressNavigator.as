@@ -3,7 +3,7 @@ package com.epologee.navigator {
 	import com.asual.swfaddress.SWFAddressEvent;
 	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
-	import com.epologee.navigator.states.NavigationState;
+	
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
@@ -74,8 +74,6 @@ package com.epologee.navigator {
 		}
 
 		override protected function notifyStateChange(inNewState : NavigationState) : void {
-			logger.debug("inNewState: " + inNewState);
-			
 			if (!isHidden(inNewState)) {
 				SWFAddress.setValue(inNewState.path);
 			}
@@ -85,11 +83,12 @@ package com.epologee.navigator {
 
 		private function handleSWFAddressInit(event : SWFAddressEvent) : void {
 			var ns : NavigationState = new NavigationState(event.path);
+
 			if (ns.segments.length == 0) {
 				if (_startState) {
 					requestNewState(_startState);
 				} else {
-					grantRequest(_defaultState);
+					requestNewState(_defaultState);
 				}
 			}
 			
@@ -97,6 +96,14 @@ package com.epologee.navigator {
 		}
 
 		private function handleSWFAddressExternal(event : SWFAddressEvent) : void {
+			/**
+			 * A bug in SWFAddress 2.4 will cause the external change to be dispatched
+			 * right after the first call to SWFAddress.setValue(). This is of course
+			 * an *internal* change, but the navigator will take care of the fact that
+			 * we're resubmitting the unchanged state and everything will be fine.
+			 * 
+			 * It *would* however be nice if the bug in SWFAddress gets fixed.
+			 */
 			var toRequest : NavigationState = new NavigationState(event.path);
 			
 			if (isHidden(toRequest)) {

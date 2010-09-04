@@ -3,12 +3,9 @@ package com.epologee.navigator.integration.puremvc {
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.SWFAddressNavigator;
-	import com.epologee.navigator.states.IHasStateSwap;
-	import com.epologee.navigator.states.IHasStateTransition;
-	import com.epologee.navigator.states.IHasStateUpdate;
-	import com.epologee.navigator.states.IHasStateValidation;
-	import com.epologee.navigator.states.INavigationResponder;
-	import com.epologee.navigator.states.NavigationState;
+	import com.epologee.navigator.behaviors.INavigationResponder;
+	import com.epologee.navigator.behaviors.IHasStateTransition;
+	import com.epologee.navigator.NavigationState;
 
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 
@@ -42,11 +39,12 @@ package com.epologee.navigator.integration.puremvc {
 		}
 
 		/**
-		 * Will use the mediator names in the <show />, <update /> and <validate /> nodes
-		 * and register the actual mediator instances in the corresponding navigation lists.
+		 * Will use the mediator names in the behavior nodes and register the actual mediator 
+		 * instances in the corresponding navigation lists.
 		 * 
 		 * If you want to add non-mediator instances to show, update or validate, you can use
-		 * the public add...Responder methods.
+		 * the public add() method, with the appropriate behavior. See #NavigationBehaviors for
+		 * the different options.
 		 * 
 		 * @param inMap an XML map following this example:
 		 * 
@@ -58,7 +56,7 @@ package com.epologee.navigator.integration.puremvc {
 		 *		<state path="/">
 		 *			<show>{LogoMediator.NAME}</show>
 		 *			<show>{PortfolioMediator.NAME}</show>
-		 *			<show>{MenuMediator.NAME}</show>
+		 *			<auto>{MenuMediator.NAME}</auto>
 		 *			<show>{FullScreenMediator.NAME}</show>
 		 *			<update>{MenuMediator.NAME}</update>
 		 *		</state>
@@ -73,8 +71,6 @@ package com.epologee.navigator.integration.puremvc {
 		 */
 		public function parseMediatorStateMap(inMap : XML) : void {
 			var states : XMLList = inMap.child("state");
-
-			var addMethods : Object = {show:addResponderShow, update:addResponderUpdate, validate:addResponderValidate, hide:addResponderHide, swap:addResponderSwap, auto:addResponderByInterface};
 
 			var leni : int = states.length();
 			for (var i : int = 0;i < leni;i++) {
@@ -97,74 +93,23 @@ package com.epologee.navigator.integration.puremvc {
 
 					var responder : INavigationResponder = untypedResponder as INavigationResponder;
 					try {
-						addMethods[node.name().localName](responder, path);
+						add(responder, path, node.name().localName);
 					} catch (e : Error) {
 						if (e.errorID == 1034 && e.message.length > 11) {
 							var type : String = e.message.split(" ").pop();
 							type = type.substr(0, type.length - 1);
 							logger.warn(untypedResponder + " should implement [" + type + "], if you want to use it as <" + node.name().localName + " />");
 						} else {
-							logger.warn(untypedResponder + " does not implement the correct interface to use it as <" + node.name().localName + " />");
+							logger.warn(untypedResponder + " " + node.name().localName + ": " + e.message);
 						}
 					}
 				}
 			}
 		}
 
-		public function addResponderByInterface(inResponder : INavigationResponder, inPath : String) : void {
-			try {
-				addResponderShow(inResponder as IHasStateTransition, inPath);
-			} catch(e : Error) {
-				// ignore errors.
-			}
-
-			try {
-				addResponderUpdate(inResponder as IHasStateUpdate, inPath);
-			} catch(e : Error) { 
-				// ignore errors.
-			}
-
-			try {
-				addResponderSwap(inResponder as IHasStateSwap, inPath);
-			} catch(e : Error) { 
-				// ignore errors.
-			}
-
-			try {
-				addResponderValidate(inResponder as IHasStateValidation, inPath);
-			} catch(e : Error) { 
-				// ignore errors.
-			}
-		}
-
-		public function addResponderShow(inResponder : IHasStateTransition, inPath : String) : void {
-			_navigator.addShow(inResponder, inPath);
-			sendNotification(RESPONDER_ADDED, inResponder, "show");
-		}
-
-		public function addResponderHide(inResponder : IHasStateTransition, inPath : String) : void {
-			_navigator.addHide(inResponder, inPath);
-			sendNotification(RESPONDER_ADDED, inResponder, "hide");
-		}
-
-		public function removeResponderShow(inResponder : IHasStateTransition, inPath : String) : void {
-			_navigator.removeShow(inResponder, inPath);
-			sendNotification(RESPONDER_REMOVED, inResponder, "show");
-		}
-
-		public function addResponderUpdate(inResponder : IHasStateUpdate, inPath : String) : void {
-			_navigator.addUpdate(inResponder, inPath);
-			sendNotification(RESPONDER_ADDED, inResponder, "update");
-		}
-
-		public function addResponderSwap(inResponder : IHasStateSwap, inPath : String) : void {
-			_navigator.addSwap(inResponder, inPath);
-			sendNotification(RESPONDER_ADDED, inResponder, "swap");
-		}
-
-		public function addResponderValidate(inResponder : IHasStateValidation, inPath : String) : void {
-			_navigator.addValidate(inResponder, inPath);
-			sendNotification(RESPONDER_ADDED, inResponder, "validate");
+		public function add(inResponder : INavigationResponder, inPathOrState : *, inBehavior : String):void {
+			_navigator.add(inResponder, inPathOrState, inBehavior);
+			sendNotification(RESPONDER_ADDED, inResponder, inBehavior);
 		}
 
 		public function registerHiddenState(inState : NavigationState, inExactMatch : Boolean = false) : void {
@@ -201,19 +146,19 @@ package com.epologee.navigator.integration.puremvc {
 			return _navigator.getCurrentState();
 		}
 
-		/**
-		 * Use this getter only for development feedback.
-		 */
-		development function get navigator() : Navigator {
-			return _navigator;
-		}
-
 		private function handleTransitionStatusUpdate(event : NavigatorEvent) : void {
 			sendNotification(TRANSITION_STATUS_UPDATED, event.statusByResponder);
 		}
 
 		private function handleStateChanged(event : NavigatorEvent) : void {
 			sendNotification(STATE_CHANGED, _navigator.getCurrentState());
+		}
+
+		/**
+		 * Use this getter only for development feedback.
+		 */
+		development function get navigator() : Navigator {
+			return _navigator;
 		}
 	}
 }
