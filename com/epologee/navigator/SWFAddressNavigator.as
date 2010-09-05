@@ -2,7 +2,6 @@ package com.epologee.navigator {
 	import com.asual.swfaddress.SWFAddress;
 	import com.asual.swfaddress.SWFAddressEvent;
 	import com.epologee.development.logging.logger;
-	import com.epologee.navigator.integration.puremvc.NavigationProxy;
 	
 
 	/**
@@ -14,8 +13,6 @@ package com.epologee.navigator {
 	 * var navigator:Navigator = new SWFAddressNavigator();
 	 */
 	public class SWFAddressNavigator extends Navigator {
-		public static const NAME : String = NavigationProxy.NAME;
-		//
 		private var _startState : NavigationState;
 		private var _hiddenStateContains : Array;
 		private var _hiddenStateEquals : Array;

@@ -1,4 +1,4 @@
-package com.epologee.navigator.integration.puremvc {
+	package com.epologee.navigator.integration.puremvc {
 	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
