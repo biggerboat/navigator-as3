@@ -1,15 +1,18 @@
 package com.epologee.navigator.integration.debug {
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
-	import com.epologee.navigator.integration.puremvc.development;
 	import com.epologee.navigator.behaviors.IHasStateInitialization;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
 	import com.epologee.navigator.behaviors.INavigationResponder;
+	import com.epologee.navigator.integration.puremvc.development;
 	import com.epologee.navigator.transition.TransitionStatus;
 
 	import flash.display.Sprite;
+	import flash.events.ContextMenuEvent;
 	import flash.events.Event;
 	import flash.text.TextFieldAutoSize;
+	import flash.ui.ContextMenu;
+	import flash.ui.ContextMenuItem;
 	import flash.utils.Dictionary;
 
 	/**
@@ -54,6 +57,24 @@ package com.epologee.navigator.integration.debug {
 			layout(stage.stageWidth, stage.stageHeight);
 		}
 
+		private function updateContextMenu() : void {
+			var cm : ContextMenu = new ContextMenu();
+			cm.hideBuiltInItems();
+			
+			cm.customItems.push(new ContextMenuItem("States with registered responders:", false, false, true));
+
+			var separate : Boolean = true;
+			var paths : Array = _navigator.getKnownPaths();
+			for each (var path : String in paths) {
+				var menuItem : ContextMenuItem = new ContextMenuItem(path, separate);
+				separate = false;
+				menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, new ContextMenuHandler(path, _navigator).handleEvent);
+				cm.customItems.push(menuItem);
+			}
+
+			contextMenu = cm;
+		}
+
 		private function handleStageResize(event : Event) : void {
 			layout(stage.stageWidth, stage.stageHeight);
 		}
@@ -63,7 +84,7 @@ package com.epologee.navigator.integration.debug {
 			layout(stage.stageWidth, stage.stageHeight);
 		}
 
-		private function updateDisplay(inStatusByResponder:Dictionary) : void {
+		private function updateDisplay(inStatusByResponder : Dictionary) : void {
 			var sLeft : String = "<font color=\"#AAAAAA\">Path: <font color=\"#00FF00\"><b>" + _navigator.getCurrentPath() + "</b></font></font>\n";
 			var sRight : String = "\n";
 
@@ -78,8 +99,9 @@ package com.epologee.navigator.integration.debug {
 			_boxLeft.text = sLeft;
 			_boxRight.text = sRight;
 			_boxRight.height = _boxLeft.height;
+			
+			updateContextMenu();
 		}
-
 
 		private function getColorByStatus(inStatus : int) : String {
 			var color : String = "";
@@ -128,5 +150,27 @@ package com.epologee.navigator.integration.debug {
 					break;
 			}
 		}
+	}
+}
+import com.epologee.navigator.Navigator;
+
+import flash.events.ContextMenuEvent;
+import flash.events.EventDispatcher;
+
+class ContextMenuHandler {
+	private var _path : String;
+	private var _navigator : Navigator;
+	public function ContextMenuHandler(inPath : String, inNavigator:Navigator) {
+		_path = inPath;
+		_navigator = inNavigator;
+	}
+
+	public function handleEvent(event : ContextMenuEvent) : void {
+		_navigator.requestNewStateByPath(_path);
+		
+		// and clean up.
+		_path = null;
+		_navigator = null;
+		EventDispatcher(event.target).removeEventListener(ContextMenuEvent.MENU_ITEM_SELECT, handleEvent);
 	}
 }
