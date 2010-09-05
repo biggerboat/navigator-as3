@@ -59,7 +59,13 @@ All your custom classes should implement the appropriate interfaces in order to 
 
 # Integration
 
-The integration package is provided to help you on your way if you're a fan of standardized frameworks. Currently the only external framework that is used, is PureMVC. Others may follow. Feel free to send a pull request if you have a custom implementation!
+The integration package is provided to help you on your way if you're a fan of standardized frameworks.
+
+# SWFAddress 2.4
+
+One of the cool integration features of the Navigator is the ability to use SWFAddress 2.4. Just construct the SWFAddressNavigator where you'd otherwise construct the Navigator. It will automatically propagate state changes back and forth to the user's browser address, so there's instant deeplinking, history back tracking and it's all 100% fool proof! By default, all state changes will be visible to the user, but to allow full flexibility in the way you organize your states, you can also hide certain states from the user, so your registration process of `/register/form/step1/`, `/register/form/step2/` and `/register/thankyou/` will only be shown to the user as `http://yourwebsite.here/#/register/`.
+
+The PureMVC integration package adds SWFAddress support with just one boolean!
 
 ## PureMVC
 
@@ -111,9 +117,5 @@ By providing standard mediators and a proxy wrapper of the Navigator, getting up
 	
 	np.parseMediatorStateMap(map);
 </code>
-
-## SWFAddress 2.4
-
-To wrap this monstrous README file up, the PureMVC integration package gives you the option of using SWFAddress 2.4 to propagate state changes back and forth to the user's browser address, so there's instant deeplinking, history back tracking and it's all 100% fool proof!
 
 Enjoy the Navigator!
