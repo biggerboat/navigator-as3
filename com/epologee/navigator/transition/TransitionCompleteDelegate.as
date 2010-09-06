@@ -1,6 +1,7 @@
 package com.epologee.navigator.transition {
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.behaviors.INavigationResponder;
+	import com.epologee.navigator.namespaces.transition;
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com

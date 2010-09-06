@@ -8,10 +8,10 @@ package com.epologee.navigator {
 	import com.epologee.navigator.behaviors.IHasStateValidationOptional;
 	import com.epologee.navigator.behaviors.INavigationResponder;
 	import com.epologee.navigator.behaviors.NavigationBehaviors;
-	import com.epologee.navigator.integration.puremvc.development;
+	import com.epologee.navigator.namespaces.hidden;
+	import com.epologee.navigator.namespaces.transition;
 	import com.epologee.navigator.transition.TransitionCompleteDelegate;
 	import com.epologee.navigator.transition.TransitionStatus;
-	import com.epologee.navigator.transition.transition;
 
 	import flash.events.EventDispatcher;
 	import flash.utils.Dictionary;
@@ -56,25 +56,6 @@ package com.epologee.navigator {
 		public function Navigator() {
 			_responders = new ResponderLists();
 			_statusByResponder = new Dictionary();
-		}
-
-		development function get statusByResponder() : Dictionary {
-			return _statusByResponder;
-		}
-
-		public function registerRedirect(inFrom : NavigationState, inTo : NavigationState) : void {
-			_redirects ||= new Dictionary();
-			_redirects[inFrom.path] = inTo;
-		}
-
-		public function start(inDefaultState : NavigationState, inStartState : NavigationState = null) : void {
-			_defaultState = inDefaultState;
-
-			if (inStartState) {
-				requestNewState(inStartState);
-			} else {
-				grantRequest(_defaultState);
-			}
 		}
 
 		public function add(inResponder : INavigationResponder, inPathOrState : *, inBehavior : String = NavigationBehaviors.SHOW) : void {
@@ -126,6 +107,21 @@ package com.epologee.navigator {
 			// If the responder has no status yet, initialize it to UNINITIALIZED:
 			_statusByResponder[inResponder] ||= TransitionStatus.UNINITIALIZED;
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+		}
+
+		public function registerRedirect(inFrom : NavigationState, inTo : NavigationState) : void {
+			_redirects ||= new Dictionary();
+			_redirects[inFrom.path] = inTo;
+		}
+
+		public function start(inDefaultState : NavigationState, inStartState : NavigationState = null) : void {
+			_defaultState = inDefaultState;
+
+			if (inStartState) {
+				requestNewState(inStartState);
+			} else {
+				grantRequest(_defaultState);
+			}
 		}
 
 		/** TODO: Add removeXYZ methods for removing responders */
@@ -183,41 +179,11 @@ package com.epologee.navigator {
 				return;
 			} else if (inNavigationState.hasWildcard()) {
 				throw new Error("Check wildcard masking: " + inNavigationState);
+			} else if (_defaultState) {
+				grantRequest(_defaultState);
 			} else {
 				throw new Error("First request is invalid: " + inNavigationState);
 			}
-		}
-
-		public function getStatus(inResponder : IHasStateTransition) : int {
-			return _statusByResponder[inResponder];
-		}
-
-		public function getKnownPaths() : Array {
-			var list : Object = {};
-
-			var path : String;
-			for (path in _responders.showByPath) {
-				list[new NavigationState(path).path] = true;
-			}
-
-			var known : Array = [];
-			for (path in list) {
-				known.push(path);
-			}
-
-			known.sort();
-			return known;
-		}
-
-		public function getCurrentPath() : String {
-			if (!_current)
-				return "uninitialized";
-			return _current.path;
-		}
-
-		public function getCurrentState() : NavigationState {
-			// not returning the _current instance for reference reasons.
-			return _current.clone();
 		}
 
 		transition function notifyComplete(inResponder : INavigationResponder, inStatus : int, inBehavior : String) : void {
@@ -256,11 +222,43 @@ package com.epologee.navigator {
 			}
 		}
 
-		protected function notifyStateChange(inNewState : NavigationState) : void {
-			// Do call the super.notifyStateChange() when overriding.
-			if (inNewState != _current) {
-				dispatchEvent(new NavigatorEvent(NavigatorEvent.STATE_CHANGED, null));
+		hidden function get statusByResponder() : Dictionary {
+			return _statusByResponder;
+		}
+
+		hidden function getStatus(inResponder : IHasStateTransition) : int {
+			return _statusByResponder[inResponder];
+		}
+
+		hidden function getKnownPaths() : Array {
+			var list : Object = {};
+
+			var path : String;
+			for (path in _responders.showByPath) {
+				list[new NavigationState(path).path] = true;
 			}
+
+			var known : Array = [];
+			for (path in list) {
+				known.push(path);
+			}
+
+			known.sort();
+			return known;
+		}
+
+		hidden function getCurrentPath() : String {
+			if (!_current)
+				return "uninitialized";
+			return _current.path;
+		}
+
+		hidden function getCurrentState() : NavigationState {
+			// not returning the _current instance for reference reasons.
+			if (!_current)
+				return null;
+
+			return _current.clone();
 		}
 
 		protected function grantRequest(inNavigationState : NavigationState) : void {
@@ -269,6 +267,13 @@ package com.epologee.navigator {
 			notifyStateChange(_current);
 
 			flow::startTransition();
+		}
+
+		protected function notifyStateChange(inNewState : NavigationState) : void {
+			// Do call the super.notifyStateChange() when overriding.
+			if (inNewState != _current) {
+				dispatchEvent(new NavigatorEvent(NavigatorEvent.STATE_CHANGED, null));
+			}
 		}
 
 		private function autoAdd(inResponder : INavigationResponder, inPathOrState : *) : void {
@@ -306,6 +311,8 @@ package com.epologee.navigator {
 			}
 
 			var direct : Boolean = false;
+			var invalidated : Boolean = false;
+			var validated : Boolean = false;
 
 			// This first loop will check hard wiring of states to transition responders in the show list.
 			for (path in _responders.showByPath) {
@@ -340,16 +347,25 @@ package com.epologee.navigator {
 						}
 
 						if (validator.validate(remainder, inState)) {
-							return true;
+							validated = true;
+						} else {
+							logger.warn("Invalidated by validator: " + validator);
+							invalidated = true;
 						}
-						
-						logger.warn("Denied by validator: " + validator);
-						return false;
 					}
 				}
 			}
 
-			if (!direct) {
+			// invalidation overrules any validation
+			if (invalidated) {
+				return false;
+			}
+
+			if (validated) {
+				return true;
+			}
+
+			if (!direct && !invalidated && !validated) {
 				logger.warn("Validation failed. No validators or transitions matched the requested " + inState);
 			}
 

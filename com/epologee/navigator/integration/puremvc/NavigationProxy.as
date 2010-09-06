@@ -1,11 +1,12 @@
-	package com.epologee.navigator.integration.puremvc {
+package com.epologee.navigator.integration.puremvc {
 	import com.epologee.development.logging.logger;
+	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.SWFAddressNavigator;
-	import com.epologee.navigator.behaviors.INavigationResponder;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
-	import com.epologee.navigator.NavigationState;
+	import com.epologee.navigator.behaviors.INavigationResponder;
+	import com.epologee.navigator.namespaces.hidden;
 
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 
@@ -139,11 +140,11 @@
 		}
 
 		public function getStatus(inResponder : IHasStateTransition) : int {
-			return _navigator.getStatus(inResponder);
+			return _navigator.hidden::getStatus(inResponder);
 		}
 
 		public function getCurrentState() : NavigationState {
-			return _navigator.getCurrentState();
+			return _navigator.hidden::getCurrentState();
 		}
 
 		private function handleTransitionStatusUpdate(event : NavigatorEvent) : void {
@@ -151,13 +152,13 @@
 		}
 
 		private function handleStateChanged(event : NavigatorEvent) : void {
-			sendNotification(STATE_CHANGED, _navigator.getCurrentState());
+			sendNotification(STATE_CHANGED, _navigator.hidden::getCurrentState());
 		}
 
 		/**
 		 * Use this getter only for development feedback.
 		 */
-		development function get navigator() : Navigator {
+		hidden function get navigator() : Navigator {
 			return _navigator;
 		}
 	}

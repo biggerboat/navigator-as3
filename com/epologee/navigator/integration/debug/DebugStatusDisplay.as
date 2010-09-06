@@ -4,7 +4,7 @@ package com.epologee.navigator.integration.debug {
 	import com.epologee.navigator.behaviors.IHasStateInitialization;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
 	import com.epologee.navigator.behaviors.INavigationResponder;
-	import com.epologee.navigator.integration.puremvc.development;
+	import com.epologee.navigator.namespaces.hidden;
 	import com.epologee.navigator.transition.TransitionStatus;
 
 	import flash.display.Sprite;
@@ -53,7 +53,7 @@ package com.epologee.navigator.integration.debug {
 			_navigator.addEventListener(NavigatorEvent.TRANSITION_STATUS_UPDATED, handleStatusUpdated);
 			stage.addEventListener(Event.RESIZE, handleStageResize);
 			removeEventListener(Event.ADDED_TO_STAGE, handleAddedToStage);
-			updateDisplay(_navigator.development::statusByResponder);
+			updateDisplay(_navigator.hidden::statusByResponder);
 			layout(stage.stageWidth, stage.stageHeight);
 		}
 
@@ -64,7 +64,7 @@ package com.epologee.navigator.integration.debug {
 			cm.customItems.push(new ContextMenuItem("States with registered responders:", false, false, true));
 
 			var separate : Boolean = true;
-			var paths : Array = _navigator.getKnownPaths();
+			var paths : Array = _navigator.hidden::getKnownPaths();
 			for each (var path : String in paths) {
 				var menuItem : ContextMenuItem = new ContextMenuItem(path, separate);
 				separate = false;
@@ -85,7 +85,7 @@ package com.epologee.navigator.integration.debug {
 		}
 
 		private function updateDisplay(inStatusByResponder : Dictionary) : void {
-			var sLeft : String = "<font color=\"#AAAAAA\">Path: <font color=\"#00FF00\"><b>" + _navigator.getCurrentPath() + "</b></font></font>\n";
+			var sLeft : String = "<font color=\"#AAAAAA\">Path: <font color=\"#00FF00\"><b>" + _navigator.hidden::getCurrentPath() + "</b></font></font>\n";
 			var sRight : String = "\n";
 
 			for (var key:* in inStatusByResponder) {

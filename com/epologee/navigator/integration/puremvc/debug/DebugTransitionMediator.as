@@ -2,7 +2,7 @@ package com.epologee.navigator.integration.puremvc.debug {
 	import com.epologee.development.stats.AlignStats;
 	import com.epologee.navigator.integration.debug.DebugStatusDisplay;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
-	import com.epologee.navigator.integration.puremvc.development;
+	import com.epologee.navigator.namespaces.hidden;
 	import com.epologee.puremvc.view.TimelineMediator;
 
 	import flash.display.Sprite;
@@ -26,7 +26,7 @@ package com.epologee.navigator.integration.puremvc.debug {
 
 		override public function onRegister() : void {
 			var np : NavigationProxy = NavigationProxy(facade.retrieveProxy(NavigationProxy.NAME));
-			_display = new DebugStatusDisplay(np.development::navigator, _alignMode);
+			_display = new DebugStatusDisplay(np.hidden::navigator, _alignMode);
 
 			timeline.addChild(new AlignStats(AlignStats.BOTTOM_LEFT));
 			timeline.addChild(_display);

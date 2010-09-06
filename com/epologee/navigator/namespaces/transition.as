@@ -1,4 +1,4 @@
-package com.epologee.navigator.transition {
+package com.epologee.navigator.namespaces {
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 * 

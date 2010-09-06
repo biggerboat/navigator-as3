@@ -1,9 +1,9 @@
 package com.epologee.navigator {
-	
-
 	import flash.events.Event;
 	import flash.utils.Dictionary;
 	import flash.utils.getQualifiedClassName;
+	
+
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
