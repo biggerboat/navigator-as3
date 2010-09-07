@@ -43,6 +43,8 @@ package com.epologee.navigator {
 	[Event(name="STATE_CHANGED", type="com.epologee.navigator.NavigatorEvent")]
 	//
 	public class Navigator extends EventDispatcher {
+		public static var MAX_HISTORY_LENGTH : Number = 50;
+		//
 		protected var _current : NavigationState;
 		protected var _defaultState : NavigationState;
 		//
@@ -52,6 +54,7 @@ package com.epologee.navigator {
 		private var _disappearing : AsynchResponders;
 		private var _appearing : AsynchResponders;
 		private var _swapping : AsynchResponders;
+		private var _history : Array;
 
 		public function Navigator() {
 			_responders = new ResponderLists();
@@ -186,6 +189,10 @@ package com.epologee.navigator {
 			}
 		}
 
+		public function get history() : Array {
+			return _history;
+		}
+
 		transition function notifyComplete(inResponder : INavigationResponder, inStatus : int, inBehavior : String) : void {
 			_statusByResponder[inResponder] = inStatus;
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
@@ -262,6 +269,10 @@ package com.epologee.navigator {
 		}
 
 		protected function grantRequest(inNavigationState : NavigationState) : void {
+			_history ||= [];
+			_history.unshift(_current);
+			_history.length = Math.min(_history.length, MAX_HISTORY_LENGTH);
+
 			_current = inNavigationState;
 
 			notifyStateChange(_current);
