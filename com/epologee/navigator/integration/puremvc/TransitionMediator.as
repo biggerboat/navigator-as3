@@ -1,7 +1,6 @@
 package com.epologee.navigator.integration.puremvc {
 	import com.epologee.navigator.behaviors.IHasStateInitialization;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
-	import com.epologee.puremvc.view.TimelineMediator;
 
 	import flash.display.Sprite;
 

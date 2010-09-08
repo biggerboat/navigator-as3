@@ -1,9 +1,8 @@
 package com.epologee.navigator.integration.puremvc.debug {
-	import com.epologee.development.stats.AlignStats;
 	import com.epologee.navigator.integration.debug.DebugStatusDisplay;
 	import com.epologee.navigator.integration.puremvc.NavigationProxy;
+	import com.epologee.navigator.integration.puremvc.TimelineMediator;
 	import com.epologee.navigator.namespaces.hidden;
-	import com.epologee.puremvc.view.TimelineMediator;
 
 	import flash.display.Sprite;
 	import flash.utils.getQualifiedClassName;
@@ -28,7 +27,6 @@ package com.epologee.navigator.integration.puremvc.debug {
 			var np : NavigationProxy = NavigationProxy(facade.retrieveProxy(NavigationProxy.NAME));
 			_display = new DebugStatusDisplay(np.hidden::navigator, _alignMode);
 
-			timeline.addChild(new AlignStats(AlignStats.BOTTOM_LEFT));
 			timeline.addChild(_display);
 		}
 	}
