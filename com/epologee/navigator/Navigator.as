@@ -393,8 +393,6 @@ package com.epologee.navigator {
 		}
 
 		flow function startTransition() : void {
-			logger.notice();
-
 			_disappearing = new AsynchResponders();
 			_disappearing.responders = flow::transitionOut();
 
@@ -588,7 +586,7 @@ package com.epologee.navigator {
 		}
 
 		flow function finishTransition() : void {
-			logger.notice();
+			// logger.notice();
 		}
 
 		private function getRespondersToShow() : Array {
