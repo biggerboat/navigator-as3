@@ -24,7 +24,7 @@ package com.epologee.navigator {
 		 * 		new NavigationState("beginning", "end");
 		 */
 		public function NavigationState(...inSegments : Array) {
-			path = inSegments.join("/");
+			path = inSegments.join(DELIMITER);
 		}
 
 		/**
