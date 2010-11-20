@@ -86,7 +86,10 @@ package com.epologee.navigator.integration.debug {
 		}
 
 		private function updateDisplay(inStatusByResponder : Dictionary) : void {
-			var sLeft : String = "<font color=\"#AAAAAA\">Path: <font color=\"#00FF00\"><b>" + _navigator.getCurrentState().path + "</b></font></font>\n";
+			var currentState : NavigationState = _navigator.getCurrentState();
+			if (!currentState) return;
+
+			var sLeft : String = "<font color=\"#AAAAAA\">Path: <font color=\"#00FF00\"><b>" + currentState.path + "</b></font></font>\n";
 			var sRight : String = "\n";
 
 			for (var key:* in inStatusByResponder) {
