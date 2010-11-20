@@ -46,6 +46,7 @@ package com.epologee.navigator {
 		public static var MAX_HISTORY_LENGTH : Number = 50;
 		//
 		protected var _current : NavigationState;
+		protected var _previous : NavigationState;
 		protected var _defaultState : NavigationState;
 		//
 		private var _responders : ResponderLists;
@@ -273,6 +274,7 @@ package com.epologee.navigator {
 			_history.unshift(_current);
 			_history.length = Math.min(_history.length, MAX_HISTORY_LENGTH);
 
+			_previous = _current;
 			_current = inNavigationState;
 
 			notifyStateChange(_current);
@@ -282,7 +284,7 @@ package com.epologee.navigator {
 
 		protected function notifyStateChange(inNewState : NavigationState) : void {
 			// Do call the super.notifyStateChange() when overriding.
-			if (inNewState != _current) {
+			if (inNewState != _previous) {
 				dispatchEvent(new NavigatorEvent(NavigatorEvent.STATE_CHANGED, null));
 			}
 		}
