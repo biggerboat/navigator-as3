@@ -285,7 +285,7 @@ package com.epologee.navigator {
 		protected function notifyStateChange(inNewState : NavigationState) : void {
 			// Do call the super.notifyStateChange() when overriding.
 			if (inNewState != _previous) {
-				dispatchEvent(new NavigatorEvent(NavigatorEvent.STATE_CHANGED, null));
+				dispatchEvent(new NavigatorEvent(NavigatorEvent.STATE_CHANGED, _statusByResponder));
 			}
 		}
 

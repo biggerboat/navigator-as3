@@ -50,6 +50,7 @@ package com.epologee.navigator.integration.debug {
 		}
 
 		private function handleAddedToStage(event : Event) : void {
+			_navigator.addEventListener(NavigatorEvent.STATE_CHANGED, handleStatusUpdated);
 			_navigator.addEventListener(NavigatorEvent.TRANSITION_STATUS_UPDATED, handleStatusUpdated);
 			stage.addEventListener(Event.RESIZE, handleStageResize);
 			removeEventListener(Event.ADDED_TO_STAGE, handleAddedToStage);
