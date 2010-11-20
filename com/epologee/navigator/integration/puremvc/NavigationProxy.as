@@ -108,7 +108,7 @@ package com.epologee.navigator.integration.puremvc {
 			}
 		}
 
-		public function add(inResponder : INavigationResponder, inPathOrState : *, inBehavior : String):void {
+		public function add(inResponder : INavigationResponder, inPathOrState : *, inBehavior : String) : void {
 			_navigator.add(inResponder, inPathOrState, inBehavior);
 			sendNotification(RESPONDER_ADDED, inResponder, inBehavior);
 		}
@@ -124,19 +124,15 @@ package com.epologee.navigator.integration.puremvc {
 		}
 
 		/**
-		 * Use this method when you want to pass in a simple string.
-		 * If you already have a #NavigationState object, use the regular requestNewState() method.
-		 */
-		public function requestNewStateByPath(inPath : String) : void {
-			_navigator.requestNewStateByPath(inPath);
-		}
-
-		/**
 		 * Request a new state by providing a #NavigationState instance.
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
-		public function requestNewState(inNavigationState : NavigationState) : void {
-			_navigator.requestNewState(inNavigationState);
+		public function requestNewState(inStateOrPath : *) : void {
+			if (inStateOrPath is NavigationState) {
+				_navigator.requestNewState(inStateOrPath);
+			} else {
+				_navigator.requestNewStateByPath(inStateOrPath);
+			}
 		}
 
 		public function getStatus(inResponder : IHasStateTransition) : int {

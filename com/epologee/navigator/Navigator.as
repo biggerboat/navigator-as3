@@ -1,6 +1,7 @@
 package com.epologee.navigator {
 	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.behaviors.IHasStateInitialization;
+	import com.epologee.navigator.behaviors.IHasStateRedirection;
 	import com.epologee.navigator.behaviors.IHasStateSwap;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
 	import com.epologee.navigator.behaviors.IHasStateUpdate;
@@ -55,14 +56,15 @@ package com.epologee.navigator {
 		private var _disappearing : AsynchResponders;
 		private var _appearing : AsynchResponders;
 		private var _swapping : AsynchResponders;
-		private var _history : Array;
+		private var _inlineRedirection : NavigationState;
 
 		public function Navigator() {
 			_responders = new ResponderLists();
 			_statusByResponder = new Dictionary();
 		}
 
-		public function add(inResponder : INavigationResponder, inPathOrState : *, inBehavior : String = NavigationBehaviors.SHOW) : void {
+		public function add(inResponder : INavigationResponder, inPathOrState : *, inBehavior : String = null) : void {
+			inBehavior ||= NavigationBehaviors.SHOW;
 			if (!inResponder)
 				throw new Error("add: responder is null");
 
@@ -128,7 +130,6 @@ package com.epologee.navigator {
 			}
 		}
 
-		/** TODO: Add removeXYZ methods for removing responders */
 		/**
 		 * Use this method when you want to pass in a simple string.
 		 * If you already have a #NavigationState object, use the regular requestNewState() method.
@@ -142,6 +143,11 @@ package com.epologee.navigator {
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
 		public function requestNewState(inNavigationState : NavigationState) : void {
+			if (inNavigationState == null) {
+				error("Requested a null state. Aborting request.");
+				return;
+			}
+
 			// Check for exact match of the requested and the current state
 			if (_current && _current.path == inNavigationState.path) {
 				logger.info("Already at the requested state: " + inNavigationState);
@@ -161,7 +167,8 @@ package com.epologee.navigator {
 				}
 			}
 
-			logger.debug(inNavigationState);
+			debug(inNavigationState);
+			_inlineRedirection = null;
 
 			if (inNavigationState.path == _defaultState.path) {
 				// Exact match on default state bypasses validation.
@@ -175,6 +182,8 @@ package com.epologee.navigator {
 				// Validation passed after wildcard masking.
 				// notice("validated: " + inNavigationState + " masked by current: " + _current);
 				grantRequest(inNavigationState.mask(_current));
+			} else if (_inlineRedirection) {
+				requestNewState(_inlineRedirection);
 			} else if (_current) {
 				// If validation fails, the notifyStateChange() is called with the current state as a parameter,
 				// mainly for subclasses to respond to the blocked navigation (e.g. SWFAddress).
@@ -188,10 +197,6 @@ package com.epologee.navigator {
 			} else {
 				throw new Error("First request is invalid: " + inNavigationState);
 			}
-		}
-
-		public function get history() : Array {
-			return _history;
 		}
 
 		transition function notifyComplete(inResponder : INavigationResponder, inStatus : int, inBehavior : String) : void {
@@ -270,10 +275,6 @@ package com.epologee.navigator {
 		}
 
 		protected function grantRequest(inNavigationState : NavigationState) : void {
-			_history ||= [];
-			_history.unshift(_current);
-			_history.length = Math.min(_history.length, MAX_HISTORY_LENGTH);
-
 			_previous = _current;
 			_current = inNavigationState;
 
@@ -309,7 +310,7 @@ package com.epologee.navigator {
 		 * Secondly, if not already granted, it will continue to look for existing validators in the _responders.validateByPath.
 		 * If found, will call those and have the grant rely on the external validators.
 		 */
-		private function validate(inState : NavigationState) : Boolean {
+		private function validate(inState : NavigationState, inAllowRedirection : Boolean = true) : Boolean {
 			var state : NavigationState;
 			var path : String;
 
@@ -348,8 +349,6 @@ package com.epologee.navigator {
 					// the lookup path is contained by the new state.
 					var list : Array = _responders.validateByPath[path];
 
-					initializeIfNeccessary(list);
-
 					// check for existing validators.
 					for each (var responder : INavigationResponder in list) {
 						var validator : IHasStateValidation = responder as IHasStateValidation;
@@ -364,6 +363,10 @@ package com.epologee.navigator {
 						} else {
 							logger.warn("Invalidated by validator: " + validator);
 							invalidated = true;
+
+							if (inAllowRedirection && validator is IHasStateRedirection) {
+								_inlineRedirection = IHasStateRedirection(validator).redirect(remainder, inState);
+							}
 						}
 					}
 				}
