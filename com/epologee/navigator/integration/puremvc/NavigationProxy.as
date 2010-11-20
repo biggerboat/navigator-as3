@@ -144,7 +144,7 @@ package com.epologee.navigator.integration.puremvc {
 		}
 
 		public function getCurrentState() : NavigationState {
-			return _navigator.hidden::getCurrentState();
+			return _navigator.getCurrentState();
 		}
 
 		private function handleTransitionStatusUpdate(event : NavigatorEvent) : void {
@@ -152,7 +152,7 @@ package com.epologee.navigator.integration.puremvc {
 		}
 
 		private function handleStateChanged(event : NavigatorEvent) : void {
-			sendNotification(STATE_CHANGED, _navigator.hidden::getCurrentState());
+			sendNotification(STATE_CHANGED, _navigator.getCurrentState());
 		}
 
 		/**

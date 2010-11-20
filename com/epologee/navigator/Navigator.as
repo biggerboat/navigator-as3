@@ -189,6 +189,14 @@ package com.epologee.navigator {
 			}
 		}
 
+		public function getCurrentState() : NavigationState {
+			// not returning the _current instance to prevent possible reference conflicts.
+			if (!_current)
+				return null;
+
+			return _current.clone();
+		}
+
 		transition function notifyComplete(inResponder : INavigationResponder, inStatus : int, inBehavior : String) : void {
 			_statusByResponder[inResponder] = inStatus;
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
@@ -250,22 +258,7 @@ package com.epologee.navigator {
 			return known;
 		}
 
-		hidden function getCurrentPath() : String {
-			if (!_current)
-				return "uninitialized";
-			return _current.path;
-		}
-
-		hidden function getCurrentState() : NavigationState {
-			// not returning the _current instance for reference reasons.
-			if (!_current)
-				return null;
-
-			return _current.clone();
-		}
-
 		protected function grantRequest(inNavigationState : NavigationState) : void {
-
 			_previous = _current;
 			_current = inNavigationState;
 
@@ -277,7 +270,9 @@ package com.epologee.navigator {
 		protected function notifyStateChange(inNewState : NavigationState) : void {
 			// Do call the super.notifyStateChange() when overriding.
 			if (inNewState != _previous) {
-				dispatchEvent(new NavigatorEvent(NavigatorEvent.STATE_CHANGED, _statusByResponder));
+				var ne : NavigatorEvent = new NavigatorEvent(NavigatorEvent.STATE_CHANGED, _statusByResponder);
+				ne.state = getCurrentState();
+				dispatchEvent(ne);
 			}
 		}
 
@@ -640,11 +635,11 @@ class ResponderLists {
 class AsynchResponders {
 	public var responders : Array = [];
 
-	public function isBusy():Boolean {
+	public function isBusy() : Boolean {
 		return responders && responders.length;
 	}
 
-	public function hasResponder(inResponder : INavigationResponder):Boolean {
+	public function hasResponder(inResponder : INavigationResponder) : Boolean {
 		return responders.indexOf(inResponder) >= 0;
 	}
 
