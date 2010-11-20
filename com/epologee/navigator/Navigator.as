@@ -159,7 +159,6 @@ package com.epologee.navigator {
 					var from : NavigationState = new NavigationState(path);
 					if (from.equals(inNavigationState)) {
 						var to : NavigationState = NavigationState(_redirects[path]);
-						notifyStateChange(from);
 						logger.info("Redirecting " + from + " to " + to);
 						requestNewState(to);
 						return;

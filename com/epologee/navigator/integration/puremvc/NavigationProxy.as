@@ -1,4 +1,5 @@
 package com.epologee.navigator.integration.puremvc {
+	import com.epologee.navigator.history.NavigatorHistory;
 	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
@@ -25,6 +26,7 @@ package com.epologee.navigator.integration.puremvc {
 		public static const STATE_CHANGED : String = NAME + ":STATE_CHANGED";
 		//
 		private var _navigator : Navigator;
+		private var _history : NavigatorHistory;
 
 		public function NavigationProxy(inUseSWFAddress : Boolean) {
 			super(NAME);
@@ -32,6 +34,12 @@ package com.epologee.navigator.integration.puremvc {
 			_navigator = inUseSWFAddress ? new SWFAddressNavigator() : new Navigator();
 			_navigator.addEventListener(NavigatorEvent.TRANSITION_STATUS_UPDATED, handleTransitionStatusUpdate);
 			_navigator.addEventListener(NavigatorEvent.STATE_CHANGED, handleStateChanged);
+
+			_history = new NavigatorHistory(_navigator);
+		}
+
+		public function get history() : NavigatorHistory {
+			return _history;
 		}
 
 		public function start(inDefaultState : NavigationState, inStartState : NavigationState = null) : void {

@@ -1,9 +1,7 @@
 package com.epologee.navigator.history {
-	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
-	import com.epologee.navigator.behaviors.IHasStateUpdate;
-	import com.epologee.navigator.behaviors.NavigationBehaviors;
+	import com.epologee.navigator.NavigatorEvent;
 
 	/**
 	 * Provides history management for the Navigator package. 
