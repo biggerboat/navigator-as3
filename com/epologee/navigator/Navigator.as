@@ -144,7 +144,7 @@ package com.epologee.navigator {
 		 */
 		public function requestNewState(inNavigationState : NavigationState) : void {
 			if (inNavigationState == null) {
-				error("Requested a null state. Aborting request.");
+				logger.error("Requested a null state. Aborting request.");
 				return;
 			}
 
@@ -166,7 +166,6 @@ package com.epologee.navigator {
 				}
 			}
 
-			debug(inNavigationState);
 			_inlineRedirection = null;
 
 			if (inNavigationState.path == _defaultState.path) {
