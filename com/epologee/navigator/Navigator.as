@@ -64,7 +64,7 @@ package com.epologee.navigator {
 		}
 
 		public function add(inResponder : INavigationResponder, inPathOrState : *, inBehavior : String = null) : void {
-			inBehavior ||= NavigationBehaviors.SHOW;
+			inBehavior ||= NavigationBehaviors.AUTO;
 			if (!inResponder)
 				throw new Error("add: responder is null");
 
@@ -120,44 +120,38 @@ package com.epologee.navigator {
 			_redirects[inFrom.path] = inTo;
 		}
 
-		public function start(inDefaultState : NavigationState, inStartState : NavigationState = null) : void {
-			_defaultState = inDefaultState;
+		public function start(inDefaultStateOrPath : *, inStartStateOrPath : * = null) : void {
+			_defaultState = (inDefaultStateOrPath is NavigationState) ? inDefaultStateOrPath : new NavigationState(inDefaultStateOrPath);
 
-			if (inStartState) {
-				requestNewState(inStartState);
+			if (inStartStateOrPath) {
+				requestNewState(inStartStateOrPath);
 			} else {
 				grantRequest(_defaultState);
 			}
 		}
 
 		/**
-		 * Use this method when you want to pass in a simple string.
-		 * If you already have a #NavigationState object, use the regular requestNewState() method.
-		 */
-		public function requestNewStateByPath(inPath : String) : void {
-			requestNewState(new NavigationState(inPath));
-		}
-
-		/**
 		 * Request a new state by providing a #NavigationState instance.
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
-		public function requestNewState(inNavigationState : NavigationState) : void {
-			if (inNavigationState == null) {
+		public function requestNewState(inNavigationStateOrPath : *) : void {
+			if (inNavigationStateOrPath == null) {
 				logger.error("Requested a null state. Aborting request.");
 				return;
 			}
 
+			var requested : NavigationState = (inNavigationStateOrPath is NavigationState) ? inNavigationStateOrPath : new NavigationState(inNavigationStateOrPath);
+
 			// Check for exact match of the requested and the current state
-			if (_current && _current.path == inNavigationState.path) {
-				logger.info("Already at the requested state: " + inNavigationState);
+			if (_current && _current.path == requested.path) {
+				logger.info("Already at the requested state: " + requested);
 				return;
 			}
 
 			if (_redirects) {
 				for (var path : String in _redirects) {
 					var from : NavigationState = new NavigationState(path);
-					if (from.equals(inNavigationState)) {
+					if (from.equals(requested)) {
 						var to : NavigationState = NavigationState(_redirects[path]);
 						logger.info("Redirecting " + from + " to " + to);
 						requestNewState(to);
@@ -168,18 +162,18 @@ package com.epologee.navigator {
 
 			_inlineRedirection = null;
 
-			if (inNavigationState.path == _defaultState.path) {
+			if (requested.path == _defaultState.path) {
 				// Exact match on default state bypasses validation.
 				// notice("matches default state: " + inNavigationState);
 				grantRequest(_defaultState);
-			} else if (validate(inNavigationState)) {
+			} else if (validate(requested)) {
 				// Any other state needs to be validated.
 				// notice("validated: " + inNavigationState + " with current: " + _current);
-				grantRequest(inNavigationState);
-			} else if (validateWithWildcards(inNavigationState)) {
+				grantRequest(requested);
+			} else if (validateWithWildcards(requested)) {
 				// Validation passed after wildcard masking.
 				// notice("validated: " + inNavigationState + " masked by current: " + _current);
-				grantRequest(inNavigationState.mask(_current));
+				grantRequest(requested.mask(_current));
 			} else if (_inlineRedirection) {
 				requestNewState(_inlineRedirection);
 			} else if (_current) {
@@ -188,12 +182,12 @@ package com.epologee.navigator {
 				// notice("reverting to current from: " + inNavigationState);
 				notifyStateChange(_current);
 				return;
-			} else if (inNavigationState.hasWildcard()) {
-				throw new Error("Check wildcard masking: " + inNavigationState);
+			} else if (requested.hasWildcard()) {
+				throw new Error("Check wildcard masking: " + requested);
 			} else if (_defaultState) {
 				grantRequest(_defaultState);
 			} else {
-				throw new Error("First request is invalid: " + inNavigationState);
+				throw new Error("First request is invalid: " + requested);
 			}
 		}
 
@@ -251,6 +245,7 @@ package com.epologee.navigator {
 
 		hidden function getKnownPaths() : Array {
 			var list : Object = {};
+			list[_defaultState.path] = true;
 
 			var path : String;
 			for (path in _responders.showByPath) {

@@ -11,6 +11,7 @@ package com.epologee.navigator.integration.debug {
 	import flash.display.Sprite;
 	import flash.events.ContextMenuEvent;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.text.TextFieldAutoSize;
 	import flash.ui.ContextMenu;
 	import flash.ui.ContextMenuItem;
@@ -54,6 +55,7 @@ package com.epologee.navigator.integration.debug {
 			_navigator.addEventListener(NavigatorEvent.STATE_CHANGED, handleStatusUpdated);
 			_navigator.addEventListener(NavigatorEvent.TRANSITION_STATUS_UPDATED, handleStatusUpdated);
 			stage.addEventListener(Event.RESIZE, handleStageResize);
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
 			removeEventListener(Event.ADDED_TO_STAGE, handleAddedToStage);
 			updateDisplay(_navigator.hidden::statusByResponder);
 			layout(stage.stageWidth, stage.stageHeight);
@@ -62,7 +64,7 @@ package com.epologee.navigator.integration.debug {
 		private function updateContextMenu() : void {
 			var cm : ContextMenu = new ContextMenu();
 			cm.hideBuiltInItems();
-			
+
 			cm.customItems.push(new ContextMenuItem("States with registered responders:", false, false, true));
 
 			var separate : Boolean = true;
@@ -104,7 +106,7 @@ package com.epologee.navigator.integration.debug {
 			_boxLeft.text = sLeft;
 			_boxRight.text = sRight;
 			_boxRight.height = _boxLeft.height;
-			
+
 			updateContextMenu();
 		}
 
@@ -155,6 +157,16 @@ package com.epologee.navigator.integration.debug {
 					break;
 			}
 		}
+
+		private function handleKeyDown(event : KeyboardEvent) : void {
+			switch(String.fromCharCode(event.charCode)) {
+				case "~":
+				case "$":
+				case "`":
+					visible = !visible;
+					break;
+			}
+		}
 	}
 }
 import com.epologee.navigator.Navigator;
@@ -165,14 +177,15 @@ import flash.events.EventDispatcher;
 class ContextMenuHandler {
 	private var _path : String;
 	private var _navigator : Navigator;
-	public function ContextMenuHandler(inPath : String, inNavigator:Navigator) {
+
+	public function ContextMenuHandler(inPath : String, inNavigator : Navigator) {
 		_path = inPath;
 		_navigator = inNavigator;
 	}
 
 	public function handleEvent(event : ContextMenuEvent) : void {
-		_navigator.requestNewStateByPath(_path);
-		
+		_navigator.requestNewState(_path);
+
 		// and clean up.
 		_path = null;
 		_navigator = null;

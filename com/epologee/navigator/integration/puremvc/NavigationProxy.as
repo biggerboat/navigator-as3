@@ -1,5 +1,4 @@
 package com.epologee.navigator.integration.puremvc {
-	import com.epologee.navigator.history.NavigatorHistory;
 	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
@@ -7,6 +6,7 @@ package com.epologee.navigator.integration.puremvc {
 	import com.epologee.navigator.SWFAddressNavigator;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
 	import com.epologee.navigator.behaviors.INavigationResponder;
+	import com.epologee.navigator.history.NavigatorHistory;
 	import com.epologee.navigator.namespaces.hidden;
 
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
@@ -136,11 +136,7 @@ package com.epologee.navigator.integration.puremvc {
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
 		public function requestNewState(inStateOrPath : *) : void {
-			if (inStateOrPath is NavigationState) {
-				_navigator.requestNewState(inStateOrPath);
-			} else {
-				_navigator.requestNewStateByPath(inStateOrPath);
-			}
+			_navigator.requestNewState(inStateOrPath);
 		}
 
 		public function getStatus(inResponder : IHasStateTransition) : int {

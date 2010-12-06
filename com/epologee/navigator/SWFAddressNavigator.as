@@ -21,9 +21,9 @@ package com.epologee.navigator {
 			super();
 		}
 
-		override public function start(inDefaultState : NavigationState, inStartState : NavigationState = null) : void {
-			_defaultState = inDefaultState;
-			_startState = inStartState;
+		override public function start(inDefaultStateOrPath : *, inStartStateOrPath : * = null) : void {
+			_defaultState = new NavigationState(inDefaultStateOrPath);
+			_startState = new NavigationState(inStartStateOrPath);
 			
 			SWFAddress.addEventListener(SWFAddressEvent.INIT, handleSWFAddressInit);
 		}

@@ -5,8 +5,6 @@ package com.epologee.navigator.integration.puremvc.debug {
 	import com.epologee.navigator.namespaces.hidden;
 
 	import flash.display.Sprite;
-	import flash.events.Event;
-	import flash.events.KeyboardEvent;
 	import flash.utils.getQualifiedClassName;
 
 	/**
@@ -30,31 +28,6 @@ package com.epologee.navigator.integration.puremvc.debug {
 			_display = new DebugStatusDisplay(np.hidden::navigator, _alignMode);
 
 			timeline.addChild(_display);
-
-			if (timeline.stage) {
-				setupHotKey();
-			} else {
-				timeline.addEventListener(Event.ADDED_TO_STAGE, setupHotKey);
-			}
-		}
-
-		private function setupHotKey(e : Event = null) : void {
-			timeline.removeEventListener(Event.ADDED_TO_STAGE, setupHotKey);
-			timeline.stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
-		}
-
-		private function handleKeyDown(event : KeyboardEvent) : void {
-			switch(String.fromCharCode(event.charCode)) {
-				case "~":
-				case "$":
-				case "`":
-					toggleVisibility();
-					break;
-			}
-		}
-
-		private function toggleVisibility() : void {
-			timeline.visible = !timeline.visible;
 		}
 	}
 }
