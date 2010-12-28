@@ -1,71 +1,64 @@
 # Navigator for ActionScript 3.0
 
-All the ActionScript 3.0 code I consider to be reusable, I bundle in the "reusabilitee" project.
-Currently, the bulk of the project's files are still over at Google Code: http://code.google.com/p/epologee
-However, this one particular part that I brilliantly coined the "Navigator", is my most valuable component to date, which is why I brought it to GitHub as a standalone project. There should be no references to external libraries, except for the integration package. You can safely delete/ignore that package if you don't need it though.
+This library was created to take away your pains when it comes to navigating your application between different views or application states. It provides ways to deal with (asynchronous) transitions between states without bugging you with the tedious parts. To some up of the library's features:
 
-# What does it do?
+*	Total control over synchronous and asynchronous visual transitions
+*	Just-in-Time initalization of view components
+*	Instant deeplinking with SWFAddress
+*	Support for dynamic range elements and lists, like gallery items
+*	Nested states, move complete parts of you application and they still work
+*	Integration of popular frameworks (PureMVC, RobotLegs), but it's optional
+*	And many more...
 
-The Navigator strives to take away all your pains when it comes to navigating your application between different states. It provides ways to deal with (asynchronous) transitions between states without bugging you with the tedious parts. All transitions are 100% customizable, there's no tweening or anything like that in this library.
+## Navigation State Concept
 
-# The Navigation State Concept
+The core concept of the navigator revolves around **navigation states**. These are essentially slash delimited paths, wrapped in convenience class instances called **NavigationState**. This class you'll use fairly frequently, for it not only takes care of putting the slashes in consistently, it also contains convenience methods to compare and modify states. You change the state of your application by requesting a new state, like: `navigator.request("gallery")`. The path will automatically be complemented to include the right beginning and trailing slashes, so if granted, your application will navigate to the state called **/gallery/**.
 
-## Wrapped paths
+The idea of these navigation states is that they're built like a [cascade](http://www.google.nl/images?q=cascade). You add elements of your application to a certain state, and the navigator will make sure it responds to changes in that state or states further down stream. For example, you can add your gallery component to a state called **/gallery/**. If your application state then changes to **/gallery/fishes/** your component will be notified of the change. The same holds true for a state like **/gallery/fishes/1979/**. If however the application navigates to **/contact/** or **/contact/headquarters/**, it will not be notified of the change, and most likely be ordered to hide itself.
 
-Everything you do with the Navigator uses the concept of navigation states. A navigation state (also the class NavigationState.as) is a wrapper around a slash delimited path, like `/home/about/` or `/gallery/birds/213/`. When setting up your application, you add your own class instances to the navigator by providing the navigation state or path it should respond to. 
+## Behaviors
 
-For example, by calling `navigator.add(myInstance, "/contact/")` you have made sure that myInstance is shown when the navigator is at the `/contact/` state.
+The kind of notification an element gets from the navigator is based on the behavior it was added with. All notifications happen through direct method calls, which is why your element needs to implement the correct interfaces. These behavior interfaces contain methods for transitioning in and out, getting update calls, swapping content in ranged lists and, very important, validate states.
 
-## Clean paths
+## Validation
 
-Internally, the Navigator will convert all paths to NavigationState instances. This takes care of a couple of things you shouldn't worry about, like where to put the slashes. A NavigationState's path will always have a leading and trailing slash, and accidental double slashes will be removed.
+To ensure that your application can never navigate to an 'invalid' state, part of the library deals with validating requests, though most of this happens automatically. For example, because the navigator knows if you have a component registered to **/about/**, the `navigator.request("about")` will be granted immediately. However, if you want to make sure that your gallery component does not navigate past the amount of pictures in your database, you can deny requests that exceed the boundaries of you application. The item at **/gallery/5/** may be completely fine, but **/gallery/42/** may not be. This whole validation business makes the use of a deeplinking feature a breeze.
 
-For example, the compound string `"home/" + "/info"` will be converted to a `/home/info/` path once passed to a NavigationState instance.
+# Integration of other frameworks
+## SWFAddress 2.4
 
-## Inclusion
+Implementing deeplinks into your application has never been easier. Create your application with the Navigator, and at any time replace the constructor of new Navigator with new SWFAddressNavigator() and you're done. You application states will be put in the browser's address bar and you don't have to do anything special for it! Now there are always parts of an application's steps that you do not want to expose to the click-savvy end user, which is why you may hide certain states from them. Check out the SWFAddressNavigator class for more information.
 
-The way I envisioned the path of a navigation state is a little different from the way paths work on the web. The idea is that anything that is visible on a 'higher level' state, like `/home/`, will still be active on a 'lower level' state, like `/home/info/`. This provides an interesting way of nesting visual elements on your screen, without having to think twice about "should it stay? or should it get some kind of hide() call?"
+## RobotLegs (still experimental!)
 
-What does that mean? Well, if you register an image class that shows your face on `/about/`, your face will stay visible when you then navigate to a state called `/about/my-girlfriend/`. If however you navigate to `/my-girlfriend/`, your face will be hidden.
+Although the framework started out as a companion to PureMVC, my personal preference has moved to RobotLegs as of late. By providing just a minimum of extra classes, the Navigator steps up and complements the framework to a large benefit. RobotLegs constructs mediators when view components are added to the stage, and provides the mediators with all the instances it needs through injection. Putting the view components on stage however, is still a task left up to you, and getting a nice setup for it can be pretty tedious. 
 
-Of course you can define exceptions to this rule, but we'll get to that.
+By extending the NavigatorContext, this is no longer the case. Register your view components and mediators to the right navigation state from within your application context' `startup` method. You can define the order at which your components appear on stage, yet they will only be constructed when the application navigates to the corresponding state:
 
-# Requesting States
+<code>
+	
+	override public function startup() : void {
+		// Map the /red/ state to the RedSquare view component with it's corresponding mediator RedMediator 
+		navigationMap.mapState("red", RedSquare, RedMediator);
+		// Map the green and blue view components to multiple states at once, with the corresponding mediator
+		navigationMap.mapState(["green", "*/green", "*/*/green", "*/*/*/green"], GreenSquare, GreenMediator);
+		navigationMap.mapState(["blue", "*/blue", "*/*/blue", "*/*/*/blue"], BlueSquare, BlueMediator);
+		// Map /any/ to a square with a custom color and the corresponding mediator  
+		navigationMap.mapState(new NavigationState("any"), AnySquare, AnyMediator, 0xFF9900);
 
-You navigate your application by calling the navigator.requestNewState() or requestNewStateByPath() methods. The second is a convenience method so you don't have to think of creating your own NavigationState instances every time you make a request. At every request, the Navigator will run through the transition flow, which will first validate the request, then transitionOut all instances that need to hide, then update all instances that want to know the exact new state, then transitionIn all instances that need to show and lastly swap the contents of visible instances if they should.
+		// Add extra mappings to the red and any square
+		navigationMap.mapState(["*/red", "*/*/red", "*/*/*/red"], RedSquare);
+		navigationMap.mapState(["*/any", "*/*/any", "*/*/*/any"], AnySquare);
 
-You code all the transitions yourself, and by executing a provided callback method you let the navigator know your transition is ready. So you have total control over the duration of a transition and whatever tweening or otherwise audiovisual stuff you want to happen.
+		// Add the debug status display, mediatorless
+		navigationMap.mapState("/", DebugStatusDisplay, null, navigator);
+	
+		// Start the navigation with default state /red/
+		navigator.start("red");
+	}
+</code>
 
-The Navigator will make sure that no transitionIn or ~Out is called without it being neccessary (no more hide-calls when something is already hidden!), and it even provides you with a shortcut menu to quickly navigate your application while developing.
-
-# Mind the Interface
-
-## INavigationResponder
-
-All your custom classes should implement the appropriate interfaces in order to behave the way you want, with respect to the Navigator. The base behavior interface for a class is the marker interface INavigationResponder. You do not implement this interface directly, but you implement any of the subinterfaces, which you can combine to your liking.
-
-*	**IHasStateInitialization**<br />
-	Adds just-in-time initialization to your class. Right before any other call, the initialize() method is called.
-*	**IHasStateTransition**<br />
-	This contains what you would consider 'default show/hide' features. Here, it's called transitionIn() and transitionOut(). Be sure to use the provided callback methods to indicate when you're done with your transition. You can also just callback instantly, if the transition is synchronous (like a simple visible true/false switch).
-*	**IHasStateValidation**<br />
-	If you want to add custom paths to the Navigator that aren't known at compile-time, or are too tedious to enter manually, you use the validation interface. Every single state path requested from the Navigator, has to pass validation, either because an instance is registered at that path, or because you validate it yourself. Return true or false to indicate the path is valid or invalid. The provided arguments may seem a bit weird, read through the source documentation to see how it works.
-*	**IHasStateUpdate**<br />
-	This is a usual companion of the validator interface. Consider the pages of a gallery `/gallery/1/`, `/gallery/2/` etc. If the state is requested, it gets run by validation first, and if granted, will trigger an updateState() call. After the update, it will proceed with transitioning.
-*	**IHasStateSwap**<br />
-	The swap is a more specific variant of the update interface. It deals with scenarios where you want to have an asynchronous transition between pages, without needing to transitionOut and transitionIn. For the previously given examples of gallery pages, you could also use the swap interface and have the page tween off the stage, right before a new page tweens in. Swap is your friend.
-*	**IHasStateValidationOptional**<br />
-	The final interface is a specific companion to the validator interface. It is only used when you want or need to register two validators at the same state. Right before validation, the Navigator will ask your optional validator if it will actually validate the requested state, or if it's not interested. This way you can prevent two validators eternally contradicting eachother and never passing validation
-
-# Integration
-
-The integration package is provided to help you on your way if you're a fan of standardized frameworks.
-
-# SWFAddress 2.4
-
-One of the cool integration features of the Navigator is the ability to use SWFAddress 2.4. Just construct the SWFAddressNavigator where you'd otherwise construct the Navigator. It will automatically propagate state changes back and forth to the user's browser address, so there's instant deeplinking, history back tracking and it's all 100% fool proof! By default, all state changes will be visible to the user, but to allow full flexibility in the way you organize your states, you can also hide certain states from the user, so your registration process of `/register/form/step1/`, `/register/form/step2/` and `/register/thankyou/` will only be shown to the user as `http://yourwebsite.here/#/register/`.
-
-The PureMVC integration package adds SWFAddress support with just one boolean!
+***RobotLegs integration is still pretty fresh, so please be advised that details of the implementation may change in future updates.***
 
 ## PureMVC
 
@@ -95,15 +88,6 @@ By providing standard mediators and a proxy wrapper of the Navigator, getting up
 		<state path={States.PROGRAM}>
 			<show>{PageProgramMediator.NAME}</show>
 		</state>
-		<state path={States.REGISTRATION_FORM}>
-			<show>{PageRegistrationMediator.NAME}</show>
-		</state>
-		<state path={States.REGISTRATION_QUIZ}>
-			<auto>{PageQuizzMediator.NAME}</auto>
-		</state>
-		<state path={States.REGISTRATION_DRESS_CODE}>
-			<show>{PageDressCodeMediator.NAME}</show>
-		</state>
 		<state path={States.REGISTRATION_THANK_YOU}>
 			<show>{PageThankYouMediator.NAME}</show>
 		</state>
@@ -118,4 +102,6 @@ By providing standard mediators and a proxy wrapper of the Navigator, getting up
 	np.parseMediatorStateMap(map);
 </code>
 
-Enjoy the Navigator!
+# Feedback
+
+I'd love to hear your opinion on this library and the scenarios you're using it in. Drop me a line or file an issue here on GitHub if you need more information. Enjoy the Navigator!

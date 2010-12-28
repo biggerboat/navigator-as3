@@ -1,4 +1,6 @@
 package com.epologee.navigator.integration.robotlegs {
+	import com.epologee.navigator.Navigator;
+
 	import org.robotlegs.mvcs.Context;
 
 	import flash.display.DisplayObjectContainer;
@@ -11,6 +13,10 @@ package com.epologee.navigator.integration.robotlegs {
 
 		public function NavigatorContext(inContextView : DisplayObjectContainer, inAutoStartUp : Boolean = true) {
 			super(inContextView, inAutoStartUp);
+		}
+
+		protected function get navigator() : Navigator {
+			return injector.getInstance(Navigator);
 		}
 
 		protected function get navigationMap() : NavigationMap {

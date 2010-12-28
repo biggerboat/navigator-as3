@@ -32,11 +32,11 @@ package com.epologee.navigator.integration.robotlegs {
 			_recipesByLayer = [];
 
 			// Map a subclass of the Navigator, like SWFAddressNavigator, before constructing this map if you need to replace it:
-			// Example: injector.mapSingletonOf(Navigator, SWFAddressNavigator); 
+			// Example: injector.mapSingletonOf(Navigator, SWFAddressNavigator);
 			if (!inInjector.hasMapping(Navigator)) {
 				inInjector.mapSingleton(Navigator);
 			}
-			
+
 			navigator = inInjector.getInstance(Navigator);
 			navigator.addEventListener(NavigatorEvent.STATE_CHANGED, handleStateChanged);
 			navigator.add(this, "", NavigationBehaviors.AUTO);
@@ -93,7 +93,10 @@ package com.epologee.navigator.integration.robotlegs {
 								addProductToContextView(recipe);
 							}
 
-							navigator.add(_mediatorMap.retrieveMediator(recipe.product) as INavigationResponder, event.state);
+							var mediatorResponder : INavigationResponder = _mediatorMap.retrieveMediator(recipe.product) as INavigationResponder;
+							if (mediatorResponder) {
+								navigator.add(mediatorResponder, event.state);
+							}
 						}
 					}
 				}
