@@ -14,6 +14,10 @@ package com.epologee.navigator {
 		public static const DELIMITER : String = "/";
 		//
 		private var _path : String;
+		
+		public static function make(inFromStateOrPath : *) : NavigationState {
+			return inFromStateOrPath is NavigationState ? inFromStateOrPath : new NavigationState(inFromStateOrPath);
+		}
 
 		/**
 		 * @param ...inSegements: Pass the desired path segments as a list of arguments, or pass it all at once, as a ready-made path, it's up to you.
@@ -154,8 +158,8 @@ package com.epologee.navigator {
 			return ns;
 		}
 
-		public function add(inTrailingState : NavigationState) : NavigationState {
-			return new NavigationState(path, inTrailingState.path);
+		public function add(inTrailingStateOrPath : *) : NavigationState {
+			return new NavigationState(path, make(inTrailingStateOrPath).path);
 		}
 
 		public function addSegments(...inTrailingSegments : Array) : NavigationState {
@@ -164,8 +168,8 @@ package com.epologee.navigator {
 			return add(trailingState);
 		}
 
-		public function prefix(inLeadingState : NavigationState) : NavigationState {
-			return new NavigationState(inLeadingState, path);
+		public function prefix(inLeadingStateOrPath : *) : NavigationState {
+			return new NavigationState(make(inLeadingStateOrPath), path);
 		}
 
 		public function hasWildcard() : Boolean {

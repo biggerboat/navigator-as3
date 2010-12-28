@@ -108,7 +108,11 @@ package com.epologee.navigator {
 				throw new Error("Responder " + inResponder + " should implement " + matchingInterface + " to respond to " + inBehavior);
 			}
 
-			list.push(inResponder);
+			if (list.indexOf(inResponder) >= 0) {
+				logger.warn("Ignoring duplicate addition of " + inResponder + " to " + inBehavior + " at " + path);
+			} else {
+				list.push(inResponder);
+			}
 
 			// If the responder has no status yet, initialize it to UNINITIALIZED:
 			_statusByResponder[inResponder] ||= TransitionStatus.UNINITIALIZED;

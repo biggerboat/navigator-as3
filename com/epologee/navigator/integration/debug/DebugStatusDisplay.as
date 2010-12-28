@@ -1,4 +1,7 @@
 package com.epologee.navigator.integration.debug {
+	import flash.ui.Keyboard;
+	import com.epologee.util.drawing.SpriteDrawings;
+	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
@@ -12,7 +15,9 @@ package com.epologee.navigator.integration.debug {
 	import flash.events.ContextMenuEvent;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
 	import flash.text.TextFieldAutoSize;
+	import flash.text.TextFieldType;
 	import flash.ui.ContextMenu;
 	import flash.ui.ContextMenuItem;
 	import flash.utils.Dictionary;
@@ -23,12 +28,21 @@ package com.epologee.navigator.integration.debug {
 	public class DebugStatusDisplay extends Sprite {
 		private var _boxLeft : DebugTextBox;
 		private var _boxRight : DebugTextBox;
+		private var _boxHeader : DebugTextField;
 		private var _navigator : Navigator;
 		private var _alignMode : String;
 
 		public function DebugStatusDisplay(inNavigator : Navigator, inAlignMode : String = "BL") {
 			_navigator = inNavigator;
 			_alignMode = inAlignMode;
+
+			_boxHeader = new DebugTextField("Arial", 12, 0x00FF00);
+			_boxHeader.type = TextFieldType.INPUT;
+			_boxHeader.background = true;
+			_boxHeader.backgroundColor = 0x222222;
+			_boxHeader.embedFonts = false;
+			_boxHeader.selectable = true;
+			_boxHeader.addEventListener(KeyboardEvent.KEY_DOWN, handleInputKeystroke);
 
 			_boxLeft = new DebugTextBox("Arial", 12, 0xFF9900);
 			_boxLeft.background = true;
@@ -47,8 +61,15 @@ package com.epologee.navigator.integration.debug {
 
 			addChild(_boxLeft);
 			addChild(_boxRight);
+			addChild(_boxHeader);
 
 			addEventListener(Event.ADDED_TO_STAGE, handleAddedToStage);
+		}
+
+		private function handleInputKeystroke(event : KeyboardEvent) : void {
+			if (event.keyCode == Keyboard.ENTER) {
+				_navigator.requestNewState(_boxHeader.text);
+			}
 		}
 
 		private function handleAddedToStage(event : Event) : void {
@@ -92,8 +113,9 @@ package com.epologee.navigator.integration.debug {
 			var currentState : NavigationState = _navigator.getCurrentState();
 			if (!currentState) return;
 
-			var sLeft : String = "<font color=\"#AAAAAA\">Path: <font color=\"#00FF00\"><b>" + currentState.path + "</b></font></font>\n";
+			var sLeft : String = "<font color=\"#AAAAAA\">Path:</font>\n";
 			var sRight : String = "\n";
+			var sHeader : String = "<font color=\"#00FF00\"><b>" + currentState.path + "</b></font>";
 
 			for (var key:* in inStatusByResponder) {
 				var responder : INavigationResponder = key as INavigationResponder;
@@ -103,6 +125,7 @@ package com.epologee.navigator.integration.debug {
 					sRight += "<font color=\"" + color + "\"><b>" + TransitionStatus.toString(inStatusByResponder[responder]) + "</b></font>\n";
 				}
 			}
+			_boxHeader.text = sHeader;
 			_boxLeft.text = sLeft;
 			_boxRight.text = sRight;
 			_boxRight.height = _boxLeft.height;
@@ -156,6 +179,9 @@ package com.epologee.navigator.integration.debug {
 					_boxLeft.y = _boxRight.y;
 					break;
 			}
+
+			_boxHeader.x = _boxLeft.x + 40;
+			_boxHeader.y = _boxLeft.y;
 		}
 
 		private function handleKeyDown(event : KeyboardEvent) : void {
