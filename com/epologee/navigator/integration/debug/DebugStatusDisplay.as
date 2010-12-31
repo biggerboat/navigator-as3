@@ -1,7 +1,4 @@
 package com.epologee.navigator.integration.debug {
-	import flash.ui.Keyboard;
-	import com.epologee.util.drawing.SpriteDrawings;
-	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
@@ -15,11 +12,11 @@ package com.epologee.navigator.integration.debug {
 	import flash.events.ContextMenuEvent;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
-	import flash.events.MouseEvent;
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.ui.ContextMenu;
 	import flash.ui.ContextMenuItem;
+	import flash.ui.Keyboard;
 	import flash.utils.Dictionary;
 
 	/**

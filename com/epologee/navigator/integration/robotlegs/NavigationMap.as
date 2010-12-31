@@ -17,29 +17,22 @@ package com.epologee.navigator.integration.robotlegs {
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public class NavigationMap implements IHasStateValidationOptional {
-		protected var navigator : Navigator;
-		//
+		private var _navigator : Navigator;
 		private var _recipesByPath : Dictionary;
 		private var _recipesByLayer : Array;
 		private var _mediatorMap : IMediatorMap;
 		private var _contextView : DisplayObjectContainer;
 
-		public function NavigationMap(inInjector : IInjector, inMediatorMap : IMediatorMap, inContextView : DisplayObjectContainer) {
+		public function NavigationMap(inNavigator:Navigator, inMediatorMap : IMediatorMap, inContextView : DisplayObjectContainer) {
+			_navigator = inNavigator;
+			_navigator.addEventListener(NavigatorEvent.STATE_CHANGED, handleStateChanged);
+			_navigator.add(this, "", NavigationBehaviors.AUTO);
+
 			_mediatorMap = inMediatorMap;
 			_contextView = inContextView;
 
 			_recipesByPath = new Dictionary();
 			_recipesByLayer = [];
-
-			// Map a subclass of the Navigator, like SWFAddressNavigator, before constructing this map if you need to replace it:
-			// Example: injector.mapSingletonOf(Navigator, SWFAddressNavigator);
-			if (!inInjector.hasMapping(Navigator)) {
-				inInjector.mapSingleton(Navigator);
-			}
-
-			navigator = inInjector.getInstance(Navigator);
-			navigator.addEventListener(NavigatorEvent.STATE_CHANGED, handleStateChanged);
-			navigator.add(this, "", NavigationBehaviors.AUTO);
 		}
 
 		/**
@@ -95,7 +88,7 @@ package com.epologee.navigator.integration.robotlegs {
 
 							var mediatorResponder : INavigationResponder = _mediatorMap.retrieveMediator(recipe.product) as INavigationResponder;
 							if (mediatorResponder) {
-								navigator.add(mediatorResponder, event.state);
+								_navigator.add(mediatorResponder, event.state);
 							}
 						}
 					}

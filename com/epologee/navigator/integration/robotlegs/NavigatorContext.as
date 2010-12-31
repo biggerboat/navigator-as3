@@ -16,11 +16,17 @@ package com.epologee.navigator.integration.robotlegs {
 		}
 
 		protected function get navigator() : Navigator {
+			// Map a subclass of the Navigator, like SWFAddressNavigator, before constructing the context if you need to substitute it:
+			// Example: injector.mapSingletonOf(Navigator, SWFAddressNavigator);
+			if (!injector.hasMapping(Navigator)) {
+				injector.mapSingleton(Navigator);
+			}
+
 			return injector.getInstance(Navigator);
 		}
 
 		protected function get navigationMap() : NavigationMap {
-			return _navigationMap ||= new NavigationMap(injector, mediatorMap, contextView);
+			return _navigationMap ||= new NavigationMap(navigator, mediatorMap, contextView);
 		}
 	}
 }
