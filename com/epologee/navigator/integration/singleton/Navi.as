@@ -51,7 +51,7 @@ package com.epologee.navigator.integration.singleton {
 
 		/**
 		 * Alternative getter naming for gator-lovers.
-		 * Plus, it's even shorter than instance! :) 
+		 * Plus, "gator" is even shorter than "instance"! :) 
 		 */
 		public static function get gator() : Navigator {
 			return instance;

@@ -22,7 +22,6 @@ package com.epologee.navigator {
 		}
 
 		override public function toString() : String {
-			// com.epologee.puremvc.navigation.NavigatorEvent
 			return getQualifiedClassName(this);
 		}
 	}

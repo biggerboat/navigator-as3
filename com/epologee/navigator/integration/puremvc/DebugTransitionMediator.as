@@ -1,11 +1,9 @@
-package com.epologee.navigator.integration.puremvc.debug {
-	import com.epologee.navigator.integration.debug.DebugStatusDisplay;
-	import com.epologee.navigator.integration.puremvc.NavigationProxy;
-	import com.epologee.navigator.integration.puremvc.TimelineMediator;
+package com.epologee.navigator.integration.puremvc {
+	import com.epologee.navigator.features.display.DebugStatusDisplay;
 	import com.epologee.navigator.namespaces.hidden;
-
 	import flash.display.Sprite;
 	import flash.utils.getQualifiedClassName;
+
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com

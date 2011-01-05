@@ -1,4 +1,4 @@
-package com.epologee.navigator.integration.debug {
+package com.epologee.navigator.features.display {
 	import flash.text.AntiAliasType;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;

@@ -1,7 +1,9 @@
-package com.epologee.navigator {
+package com.epologee.navigator.integration.swfaddress {
 	import com.asual.swfaddress.SWFAddress;
 	import com.asual.swfaddress.SWFAddressEvent;
 	import com.epologee.development.logging.logger;
+	import com.epologee.navigator.NavigationState;
+	import com.epologee.navigator.Navigator;
 	
 
 	/**

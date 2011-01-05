@@ -3,15 +3,15 @@ package com.epologee.navigator.integration.puremvc {
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
-	import com.epologee.navigator.SWFAddressNavigator;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
 	import com.epologee.navigator.behaviors.INavigationResponder;
-	import com.epologee.navigator.history.NavigatorHistory;
+	import com.epologee.navigator.features.history.NavigatorHistory;
+	import com.epologee.navigator.integration.swfaddress.SWFAddressNavigator;
 	import com.epologee.navigator.namespaces.hidden;
-
+	import flash.utils.getQualifiedClassName;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 
-	import flash.utils.getQualifiedClassName;
+
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
