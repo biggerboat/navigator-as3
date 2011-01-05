@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application  xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:fu="http://www.adobe.com/2009/flexUnitUIRunner"
+				xmlns:adobe="http://www.adobe.com/2009/flexUnitUIRunner"
+				creationComplete="runMe()"
+				horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	<mx:Script>
+		<![CDATA[
+			import com.epologee.development.logging.logger;
+			import com.epologee.navigator.integration.logmeister.LogMeisterLogger;
+			import logmeister.LogMeister;
+			import logmeister.connectors.TrazzleConnector;
+			import org.flexunit.internals.TraceListener;
+			import org.flexunit.listeners.LogMeisterListener;
+			import org.flexunit.listeners.UIListener;
+			import org.flexunit.runner.FlexUnitCore;
+			import suites.navigator.NavigatorTestSuite;
+
+
+
+			
+			private var core:FlexUnitCore;
+
+			public function runMe():void {
+				if (stage) {
+					startTests();
+				} else {
+					addEventListener(Event.ADDED_TO_STAGE, startTests);
+				}
+			}
+
+			private function startTests(...ignoreParameters) : void {
+				// Add LogMeister logging to the application
+				LogMeister.addLogger(new TrazzleConnector(stage, "RobotLegsTest"));
+				
+				// Enable logging of Navigator internals to LogMeister
+				logger = new LogMeisterLogger();
+				
+				// Create the test core and add listeners
+				core = new FlexUnitCore();
+				core.addListener(new TraceListener());
+				core.addListener(new LogMeisterListener());
+				core.addListener(new UIListener(uiListener));
+				
+				// Not doing any continuous integration yet...
+				// core.addListener(new CIListener());
+				
+				// Run the test suite
+				core.run(NavigatorTestSuite);
+			}
+		]]>
+	</mx:Script>
+	
+	<adobe:TestRunnerBase id="uiListener" width="100%" height="100%"  />
+</mx:Application>

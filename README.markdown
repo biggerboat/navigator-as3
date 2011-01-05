@@ -1,6 +1,6 @@
 # Navigator for ActionScript 3.0
 
-This library was created to take away your pains when it comes to navigating your application between different views or application states. It provides ways to deal with (asynchronous) transitions between states without bugging you with the tedious parts. To some up of the library's features:
+This library was created to take away your pains when it comes to navigating your application between different views or application states. It provides ways to deal with (asynchronous) transitions between states without bugging you with the tedious parts. To sum up of the library's features:
 
 *	Total control over synchronous and asynchronous visual transitions
 *	Just-in-Time initalization of view components
@@ -8,6 +8,7 @@ This library was created to take away your pains when it comes to navigating you
 *	Support for dynamic range elements and lists, like gallery items
 *	Nested states, move complete parts of you application and they still work
 *	Integration of popular frameworks (PureMVC, RobotLegs), but it's optional
+*	History management (courtesy of Laurent)
 *	And many more...
 
 ## Navigation State Concept
