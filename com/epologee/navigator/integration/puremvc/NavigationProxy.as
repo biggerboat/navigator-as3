@@ -1,15 +1,17 @@
 package com.epologee.navigator.integration.puremvc {
-	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
+	import com.epologee.navigator.NavigatorLogEvent;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
 	import com.epologee.navigator.behaviors.INavigationResponder;
 	import com.epologee.navigator.features.history.NavigatorHistory;
 	import com.epologee.navigator.integration.swfaddress.SWFAddressNavigator;
 	import com.epologee.navigator.namespaces.hidden;
-	import flash.utils.getQualifiedClassName;
+
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
+
+	import flash.utils.getQualifiedClassName;
 
 
 
@@ -95,7 +97,7 @@ package com.epologee.navigator.integration.puremvc {
 					if (!untypedResponder) {
 						untypedResponder = facade.retrieveProxy(node);
 						if (!untypedResponder) {
-							logger.error("Not found in Facade (tried mediator and proxy): " + node);
+							Navigator.dispatchLogMessage(NavigatorLogEvent.TYPE_ERROR,"Not found in Facade (tried mediator and proxy): " + node);
 							continue;
 						}
 					}
@@ -107,9 +109,9 @@ package com.epologee.navigator.integration.puremvc {
 						if (e.errorID == 1034 && e.message.length > 11) {
 							var type : String = e.message.split(" ").pop();
 							type = type.substr(0, type.length - 1);
-							logger.warn(untypedResponder + " should implement [" + type + "], if you want to use it as <" + node.name().localName + " />");
+							Navigator.dispatchLogMessage(NavigatorLogEvent.TYPE_ERROR,untypedResponder + " should implement [" + type + "], if you want to use it as <" + node.name().localName + " />");
 						} else {
-							logger.warn(untypedResponder + " " + node.name().localName + ": " + e.message);
+							Navigator.dispatchLogMessage(NavigatorLogEvent.TYPE_ERROR,untypedResponder + " " + node.name().localName + ": " + e.message);
 						}
 					}
 				}

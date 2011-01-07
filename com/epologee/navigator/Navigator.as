@@ -1,5 +1,4 @@
 package com.epologee.navigator {
-	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.behaviors.IHasStateInitialization;
 	import com.epologee.navigator.behaviors.IHasStateRedirection;
 	import com.epologee.navigator.behaviors.IHasStateSwap;
@@ -57,6 +56,8 @@ package com.epologee.navigator {
 		private var _appearing : AsynchResponders;
 		private var _swapping : AsynchResponders;
 		private var _inlineRedirection : NavigationState;
+		//
+		private static var _dispatcher : EventDispatcher = new EventDispatcher();
 
 		public function Navigator() {
 			_responders = new ResponderLists();
@@ -109,7 +110,7 @@ package com.epologee.navigator {
 			}
 
 			if (list.indexOf(inResponder) >= 0) {
-				logger.warn("Ignoring duplicate addition of " + inResponder + " to " + inBehavior + " at " + path);
+				dispatchLogMessage(NavigatorLogEvent.TYPE_ERROR,"Ignoring duplicate addition of " + inResponder + " to " + inBehavior + " at " + path);
 			} else {
 				list.push(inResponder);
 			}
@@ -117,6 +118,14 @@ package com.epologee.navigator {
 			// If the responder has no status yet, initialize it to UNINITIALIZED:
 			_statusByResponder[inResponder] ||= TransitionStatus.UNINITIALIZED;
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+		}
+
+		public static function addLogEventListener(type : String, listener : Function, useCapture : Boolean = false, priority : int = 0, useWeakReference : Boolean = false) : void {
+			_dispatcher.addEventListener(type, listener, useCapture, priority, useWeakReference);
+		}
+
+		public static function removeLogEventListener(type : String, listener : Function, useCapture : Boolean = false) : void {
+			_dispatcher.removeEventListener(type, listener, useCapture);
 		}
 
 		public function registerRedirect(inFrom : NavigationState, inTo : NavigationState) : void {
@@ -140,7 +149,7 @@ package com.epologee.navigator {
 		 */
 		public function requestNewState(inNavigationStateOrPath : *) : void {
 			if (inNavigationStateOrPath == null) {
-				logger.error("Requested a null state. Aborting request.");
+				dispatchLogMessage(NavigatorLogEvent.TYPE_ERROR,"Requested a null state. Aborting request.");
 				return;
 			}
 
@@ -148,7 +157,7 @@ package com.epologee.navigator {
 
 			// Check for exact match of the requested and the current state
 			if (_current && _current.path == requested.path) {
-				logger.info("Already at the requested state: " + requested);
+				dispatchLogMessage(NavigatorLogEvent.TYPE_ERROR,"Already at the requested state: " + requested);
 				return;
 			}
 
@@ -157,7 +166,7 @@ package com.epologee.navigator {
 					var from : NavigationState = new NavigationState(path);
 					if (from.equals(requested)) {
 						var to : NavigationState = NavigationState(_redirects[path]);
-						logger.info("Redirecting " + from + " to " + to);
+						dispatchLogMessage(NavigatorLogEvent.TYPE_LOG,"Redirecting " + from + " to " + to);
 						requestNewState(to);
 						return;
 					}
@@ -234,7 +243,7 @@ package com.epologee.navigator {
 				if (!asynch.isBusy()) {
 					method();
 				} else {
-					logger.notice("waiting for " + asynch.responders.length + " responders to " + inBehavior);
+					dispatchLogMessage(NavigatorLogEvent.TYPE_LOG,"waiting for " + asynch.responders.length + " responders to " + inBehavior);
 				}
 			}
 		}
@@ -354,7 +363,7 @@ package com.epologee.navigator {
 						if (validator.validate(remainder, inState)) {
 							validated = true;
 						} else {
-							logger.warn("Invalidated by validator: " + validator);
+							dispatchLogMessage(NavigatorLogEvent.TYPE_LOG,"Invalidated by validator: " + validator);
 							invalidated = true;
 
 							if (inAllowRedirection && validator is IHasStateRedirection) {
@@ -375,7 +384,7 @@ package com.epologee.navigator {
 			}
 
 			if (!direct && !invalidated && !validated) {
-				logger.warn("Validation failed. No validators or transitions matched the requested " + inState);
+				dispatchLogMessage(NavigatorLogEvent.TYPE_LOG,"Validation failed. No validators or transitions matched the requested " + inState);
 			}
 
 			return direct;
@@ -612,6 +621,10 @@ package com.epologee.navigator {
 			}
 		}
 
+		public static function dispatchLogMessage(inType : String, inMessage : String) : void {
+			_dispatcher.dispatchEvent(new NavigatorLogEvent(inType, inMessage));
+		}
+
 		private function getResponderList(inList : Dictionary, inState : NavigationState) : Array {
 			var responders : Array = [];
 
@@ -625,7 +638,6 @@ package com.epologee.navigator {
 		}
 	}
 }
-import com.epologee.development.logging.logger;
 import com.epologee.navigator.behaviors.INavigationResponder;
 
 import flash.utils.Dictionary;
@@ -664,7 +676,7 @@ class AsynchResponders {
 
 	public function reset() : void {
 		if (responders && responders.length)
-			logger.warn("Resetting too early? Still have responders marked for asynchronous tasks");
+			throw new Error("Resetting too early? Still have responders marked for asynchronous tasks");
 		responders = null;
 	}
 }

@@ -1,5 +1,5 @@
 package com.epologee.navigator.integration.robotlegs {
-	import com.epologee.development.logging.logger;
+	import com.epologee.navigator.NavigatorLogEvent;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
@@ -7,7 +7,6 @@ package com.epologee.navigator.integration.robotlegs {
 	import com.epologee.navigator.behaviors.INavigationResponder;
 	import com.epologee.navigator.behaviors.NavigationBehaviors;
 
-	import org.robotlegs.core.IInjector;
 	import org.robotlegs.core.IMediatorMap;
 
 	import flash.display.DisplayObjectContainer;
@@ -78,7 +77,7 @@ package com.epologee.navigator.integration.robotlegs {
 
 				if (event.state.contains(state)) {
 					var stateRecipes : Array = _recipesByPath[path];
-					logger.notice(event.state + " --> " + stateRecipes);
+					Navigator.dispatchLogMessage(NavigatorLogEvent.TYPE_LOG,event.state + " --> " + stateRecipes);
 
 					if (stateRecipes) {
 						for each (var recipe : DisplayObjectRecipe in stateRecipes) {
@@ -107,14 +106,14 @@ package com.epologee.navigator.integration.robotlegs {
 				if (testRecipe.produced && testRecipe.product.parent == _contextView) {
 					// add the product right below the current test's product.
 					_contextView.addChildAt(inRecipe.product, _contextView.getChildIndex(testRecipe.product));
-					logger.info("Added at index: " + inRecipe);
+					Navigator.dispatchLogMessage(NavigatorLogEvent.TYPE_LOG,"Added at index: " + inRecipe);
 					return;
 				}
 			}
 
 			// otherwise add on top
 			_contextView.addChild(inRecipe.product);
-			logger.info("Added regularly");
+			Navigator.dispatchLogMessage(NavigatorLogEvent.TYPE_LOG,"Added regularly");
 		}
 
 		private function uniqueRecipeOf(inViewComponentClass : Class, inConstructorParams : Array) : DisplayObjectRecipe {
@@ -124,7 +123,7 @@ package com.epologee.navigator.integration.robotlegs {
 
 			var newRecipe : DisplayObjectRecipe = new DisplayObjectRecipe(inViewComponentClass, inConstructorParams);
 			_recipesByLayer.push(newRecipe);
-			logger.notice("Recipe count (by layer): " + _recipesByLayer.length);
+			Navigator.dispatchLogMessage(NavigatorLogEvent.TYPE_LOG,"Recipe count (by layer): " + _recipesByLayer.length);
 			return newRecipe;
 		}
 	}
