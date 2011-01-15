@@ -7,6 +7,7 @@ This library was created to take away your pains when it comes to navigating you
 *	Instant deeplinking with SWFAddress
 *	Support for dynamic range elements and lists, like gallery items
 *	Nested states, move complete parts of you application and they still work
+*	Flow control through state validation, both synchronous and asynchronous
 *	Integration of popular frameworks (PureMVC, RobotLegs), but it's optional
 *	History management (courtesy of Laurent)
 *	And many more...
@@ -23,7 +24,7 @@ The kind of notification an element gets from the navigator is based on the beha
 
 ## Validation
 
-To ensure that your application can never navigate to an 'invalid' state, part of the library deals with validating requests, though most of this happens automatically. For example, because the navigator knows if you have a component registered to **/about/**, the `navigator.request("about")` will be granted immediately. However, if you want to make sure that your gallery component does not navigate past the amount of pictures in your database, you can deny requests that exceed the boundaries of you application. The item at **/gallery/5/** may be completely fine, but **/gallery/42/** may not be. This whole validation business makes the use of a deeplinking feature a breeze.
+To ensure that your application can never navigate to an 'invalid' state, part of the library deals with validating requests, though most of this happens automatically. For example, because the navigator knows if you have a component registered to **/about/**, the `navigator.request("about")` will be granted immediately. However, if you want to make sure that your gallery component does not navigate past the amount of pictures in your database, you can deny requests that exceed the boundaries of you application. The item at **/gallery/5/** may be completely fine, but **/gallery/42/** may not be. For the case that your application needs a little time to decide whether a state is valid or not, there's also support for asynchronous validation. This whole validation business makes the use of a deeplinking feature a breeze.
 
 # Integration of other frameworks
 ## SWFAddress 2.4
@@ -39,20 +40,23 @@ By extending the NavigatorContext, this is no longer the case. Register your vie
 <code>
 	
 	override public function startup() : void {
+		// Map Actor subclasses (like models/proxies) to listen to particular states:
+		stateActorMap.mapStateSingleton("/", ApplicationModel);
+		
 		// Map the /red/ state to the RedSquare view component with it's corresponding mediator RedMediator 
-		navigationMap.mapState("red", RedSquare, RedMediator);
+		stateMediatorMap.mapState("red", RedSquare, RedMediator);
 		// Map the green and blue view components to multiple states at once, with the corresponding mediator
-		navigationMap.mapState(["green", "*/green", "*/*/green", "*/*/*/green"], GreenSquare, GreenMediator);
-		navigationMap.mapState(["blue", "*/blue", "*/*/blue", "*/*/*/blue"], BlueSquare, BlueMediator);
+		stateMediatorMap.mapState(["green", "*/green", "*/*/green", "*/*/*/green"], GreenSquare, GreenMediator);
+		stateMediatorMap.mapState(["blue", "*/blue", "*/*/blue", "*/*/*/blue"], BlueSquare, BlueMediator);
 		// Map /any/ to a square with a custom color and the corresponding mediator  
-		navigationMap.mapState(new NavigationState("any"), AnySquare, AnyMediator, 0xFF9900);
+		stateMediatorMap.mapState(new NavigationState("any"), AnySquare, AnyMediator, 0xFF9900);
 
 		// Add extra mappings to the red and any square
-		navigationMap.mapState(["*/red", "*/*/red", "*/*/*/red"], RedSquare);
-		navigationMap.mapState(["*/any", "*/*/any", "*/*/*/any"], AnySquare);
+		stateMediatorMap.mapAdditionalStates(["*/red", "*/*/red", "*/*/*/red"], RedSquare);
+		stateMediatorMap.mapAdditionalStates(["*/any", "*/*/any", "*/*/*/any"], AnySquare);
 
 		// Add the debug status display, mediatorless
-		navigationMap.mapState("/", DebugStatusDisplay, null, navigator);
+		stateMediatorMap.mapState("/", DebugStatusDisplay, null, navigator);
 	
 		// Start the navigation with default state /red/
 		navigator.start("red");
