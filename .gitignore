@@ -1,0 +1,8 @@
+# ignore Eclipse settings, FDT project settings and OSX leftovers
+.project
+.settings
+.DS_Store
+
+# binary and library folders
+bin/*
+dependencies/*

@@ -2,19 +2,19 @@ package suites.navigator.validation {
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.time.TimeDelay;
+
 	import flash.events.Event;
+
 	import org.flexunit.assertThat;
 	import org.flexunit.async.Async;
 	import org.hamcrest.core.not;
 	import org.hamcrest.object.equalTo;
+
 	import suites.navigator.validation.elements.ResponderAsyncIV;
 	import suites.navigator.validation.elements.ResponderAsyncIVO;
 	import suites.navigator.validation.elements.ResponderIT;
 	import suites.navigator.validation.elements.ResponderIV;
 	import suites.navigator.validation.elements.ResponderIVO;
-
-
-
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
@@ -48,7 +48,8 @@ package suites.navigator.validation {
 			navigator.add(responderIVO2, "segment1e");
 			navigator.add(responderAsyncIVO1, "segment1f");
 			navigator.add(responderAsyncIVO2, "segment1f");
-			
+			navigator.add(responderIT, "segment1h/*/*/*");
+
 			navigator.start("");
 		}
 
@@ -58,35 +59,46 @@ package suites.navigator.validation {
 			responderIV.removeAllSignalListeners();
 		}
 
-		[Test(order=1)]
+		[Test(order=10)]
 		public function implicitValidation() : void {
 			var request : NavigationState = NavigationState.make("segment1a");
 			navigator.requestNewState(request);
 			assertThat(navigator.getCurrentState().path, equalTo(request.path));
 		}
 
-		[Test(order=2)]
+		[Test(order=20)]
 		public function implicitInvalidation() : void {
 			var request : NavigationState = NavigationState.make("segment1x");
 			navigator.requestNewState(request);
 			assertThat(navigator.getCurrentState().path, not(request.path));
 		}
 
-		[Test(order=3)]
+		[Test(order=21)]
+		public function implicitWildcardValidation() : void {
+			var request : NavigationState = new NavigationState("segment1h/segment2a/segment3a/segment4a");
+			navigator.requestNewState(request);
+			assertThat(navigator.getCurrentState().path, equalTo(request.path));
+
+			request = new NavigationState("*/*/*/segment4b");
+			navigator.requestNewState(request);
+			assertThat(navigator.getCurrentState().path, equalTo(NavigationState.make("segment1h/segment2a/segment3a/segment4b").path));
+		}
+
+		[Test(order=30)]
 		public function explicitValidation() : void {
 			var request : NavigationState = new NavigationState("segment1c", "segment2a");
 			navigator.requestNewState(request);
 			assertThat(navigator.getCurrentState().path, equalTo(request.path));
 		}
 
-		[Test(order=4)]
+		[Test(order=40)]
 		public function explicitInvalidation() : void {
 			var request : NavigationState = new NavigationState("segment1c", "segment2b");
 			navigator.requestNewState(request);
 			assertThat(navigator.getCurrentState().path, not(request.path));
 		}
 
-		[Test(async,order=5)]
+		[Test(async,order=50,timeout=5000)]
 		public function asyncValidation() : void {
 			var start : NavigationState = navigator.getCurrentState();
 			var request : NavigationState = new NavigationState("segment1d", "segment2d");
@@ -102,7 +114,7 @@ package suites.navigator.validation {
 			assertThat(navigator.getCurrentState().path, equalTo(inRequest.path));
 		}
 
-		[Test(async,order=6)]
+		[Test(async,order=60,timeout=5000)]
 		public function asyncInvalidation() : void {
 			var start : NavigationState = navigator.getCurrentState();
 			var request : NavigationState = new NavigationState("segment1d", "segment2e");
@@ -118,7 +130,7 @@ package suites.navigator.validation {
 			assertThat(navigator.getCurrentState().path, not(inRequest.path));
 		}
 
-		[Test(async,order=7)]
+		[Test(order=70)]
 		public function instantAsyncValidation() : void {
 			var request : NavigationState = new NavigationState("segment1d", "segment2d");
 			responderAsyncIV.instantPreparation = true;
@@ -127,7 +139,7 @@ package suites.navigator.validation {
 			assertThat(navigator.getCurrentState().path, equalTo(request.path));
 		}
 
-		[Test(async,order=8)]
+		[Test(order=80)]
 		public function instantAsyncInvalidation() : void {
 			var start : NavigationState = navigator.getCurrentState();
 			var request : NavigationState = new NavigationState("segment1d", "segment2e");
@@ -137,7 +149,7 @@ package suites.navigator.validation {
 			assertThat(navigator.getCurrentState().path, equalTo(start.path));
 		}
 
-		[Test(async,order=9)]
+		[Test(order=90)]
 		public function optionalValidation() : void {
 			var request : NavigationState = new NavigationState("segment1e", "segment2f", "segment3a");
 			navigator.requestNewState(request);
@@ -148,19 +160,17 @@ package suites.navigator.validation {
 			assertThat(navigator.getCurrentState().path, equalTo(request.path));
 		}
 
-		[Test(async,order=10)]
+		[Test(order=100)]
 		public function optionalInstantAsyncValidation() : void {
 			responderAsyncIVO1.instantPreparation = true;
 			responderAsyncIVO2.instantPreparation = true;
-			
+
 			var request : NavigationState = new NavigationState("segment1f", "segment2f", "segment3a");
 			navigator.requestNewState(request);
 			assertThat(navigator.getCurrentState().path, equalTo(request.path));
 
 			request = new NavigationState("segment1f", "segment2g", "segment3a");
-			fatal("HIERO VOOR "+navigator.getCurrentState());
 			navigator.requestNewState(request);
-			fatal("HIERO NA "+navigator.getCurrentState());
 			assertThat(navigator.getCurrentState().path, equalTo(request.path));
 		}
 	}

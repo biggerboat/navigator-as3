@@ -152,7 +152,11 @@ package com.epologee.navigator {
 				return;
 			}
 
+			// Store and possibly mask the requested state
 			var requested : NavigationState = NavigationState.make(inNavigationStateOrPath);
+			if (requested.hasWildcard()) {
+				requested = requested.mask(_current);
+			}
 
 			// Check for exact match of the requested and the current state
 			if (_current && _current.path == requested.path) {
@@ -171,7 +175,7 @@ package com.epologee.navigator {
 					}
 				}
 			}
-
+			
 			// this event makes it possible to add responders just in time to participate in the validation process.
 			var ne : NavigatorEvent = new NavigatorEvent(NavigatorEvent.STATE_REQUESTED);
 			ne.state = requested;
@@ -362,7 +366,7 @@ package com.epologee.navigator {
 		 * If found, will call those and have the grant rely on the external validators.
 		 */
 		private function validate(inState : NavigationState, inAllowRedirection : Boolean = true, inAllowAsyncValidation : Boolean = true) : Boolean {
-			var unvalidatedState : NavigationState = inState.hasWildcard() ? inState.mask(_current) : inState;
+			var unvalidatedState : NavigationState = inState;
 
 			// check to see if there are still wildcards left
 			if (unvalidatedState.hasWildcard()) {
