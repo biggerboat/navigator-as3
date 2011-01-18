@@ -1,6 +1,13 @@
+# Navigator Examples
+
 Up next for the example section:
 
-# Validate dynamic states by creating your own IHasStateValidation*** implementations
-# Using the NavigatorContext and NavigatorSignalContext with RobotLegs
-# Asynchronous and optional validation scenarios
-# Using the NavigationProxy and the mediator-proxy-state-map in XML
+* Integration: SWFAddress (is an example really neccessary? It's just one line!)
+* Behaviors: Dynamic state validation and update notification
+* Behaviors: Asynchronous and optional validation scenarios
+* Behaviors: Swap dynamic content
+* Using the NavigatorContext and NavigatorSignalContext with RobotLegs
+* Using the NavigationProxy and the mediator-proxy-state-map in XML
+* History management
+
+Let me know if you'd like to see more.
