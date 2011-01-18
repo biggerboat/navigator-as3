@@ -5,8 +5,9 @@ package com.epologee.navigator.features.display {
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public class DebugTextBox extends DebugTextField {
-		public function DebugTextBox(inFont : String, inFontSize : Number = 12, inColor : uint = 0x000000, inBold : Boolean = false, inItalic : Object = false) {
-			super(inFont, inFontSize, inColor, inBold, inItalic);
+		public function DebugTextBox(inFontSize : Number = 12, inColor : uint = 0x000000, inBold : Boolean = false, inItalic : Object = false) {
+			super("Arial", inFontSize, inColor, inBold, inItalic);
+			embedFonts = false;
 			
 			width = 300; 
 			height = 100;

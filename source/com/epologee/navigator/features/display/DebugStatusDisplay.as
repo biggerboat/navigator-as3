@@ -42,20 +42,18 @@ package com.epologee.navigator.features.display {
 			_boxHeader.restrict = "/abcdefghijklmnopqrstuvwxyz-0123456789";
 			_boxHeader.addEventListener(KeyboardEvent.KEY_DOWN, handleInputKeystroke);
 
-			_boxLeft = new DebugTextBox("Arial", 12, 0xFF9900);
+			_boxLeft = new DebugTextBox(12, 0xFF9900);
 			_boxLeft.background = true;
 			_boxLeft.backgroundColor = 0x222222;
 			_boxLeft.wordWrap = false;
 			_boxLeft.autoSize = TextFieldAutoSize.LEFT;
-			_boxLeft.embedFonts = false;
 
-			_boxRight = new DebugTextBox("Arial", 12, 0xFF9900);
+			_boxRight = new DebugTextBox(12, 0xFF9900);
 			_boxRight.background = true;
 			_boxRight.backgroundColor = 0x222222;
 			_boxRight.wordWrap = false;
 			_boxRight.autoSize = TextFieldAutoSize.NONE;
 			_boxRight.width = 110;
-			_boxRight.embedFonts = false;
 
 			addChild(_boxLeft);
 			addChild(_boxRight);

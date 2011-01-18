@@ -71,18 +71,25 @@ package com.epologee.navigator {
 			_statusByResponder = new Dictionary();
 		}
 
-		public function add(inResponder : INavigationResponder, inPathOrState : *, inBehavior : String = null) : void {
+		public function add(inResponder : INavigationResponder, inPathOrStates : *, inBehavior : String = null) : void {
+			if (inPathOrStates is Array) {
+				for each (var pathOrState : * in inPathOrStates) {
+					add(inResponder, pathOrState, inBehavior);
+				}
+				return;
+			}
+			
 			inBehavior ||= NavigationBehaviors.AUTO;
 			if (!inResponder)
 				throw new Error("add: responder is null");
 
 			if (inBehavior == NavigationBehaviors.AUTO) {
-				autoAdd(inResponder, inPathOrState);
+				autoAdd(inResponder, inPathOrStates);
 				return;
 			}
 
 			// Using the path variable as dictionary key to break instance referencing.
-			var path : String = NavigationState.make(inPathOrState).path;
+			var path : String = NavigationState.make(inPathOrStates).path;
 			var list : Array;
 			var matchingInterface : Class;
 
@@ -132,8 +139,8 @@ package com.epologee.navigator {
 			_redirects[inFrom.path] = inTo;
 		}
 
-		public function start(inDefaultStateOrPath : *, inStartStateOrPath : * = null) : void {
-			_defaultState = (inDefaultStateOrPath is NavigationState) ? inDefaultStateOrPath : new NavigationState(inDefaultStateOrPath);
+		public function start(inDefaultStateOrPath : * = "", inStartStateOrPath : * = null) : void {
+			_defaultState = NavigationState.make(inDefaultStateOrPath);
 
 			if (inStartStateOrPath) {
 				requestNewState(inStartStateOrPath);
