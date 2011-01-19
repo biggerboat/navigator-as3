@@ -7,6 +7,13 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		 * @param inStateOrPath can be one of three types. A string containing a path, a NavigationState object, or an array of those mixed.
 		 */
 		function mapState(inStatesOrPaths : *, inViewClass : Class, inMediatorClass : Class, ...inViewConstructionParams : Array) : void;
+		
+		/**
+		 * Regardless of our love for RobotLegs, it is not the only way to put stuff on stage.
+		 * Use this method if you just-want-to-put-a-display-object-on-the-stage in the correct layer order
+		 * If your view class implements any INavigationResponder interfaces, it will be added to the navigator.
+		 */
+		function mapStateWithoutMediator(inStatesOrPaths : *, inViewClass : Class, ...inViewConstructionParams : Array) : void;
 
 		/**
 		 * Alternative mapStateView, with support for RobotLegs' injectViewAs parameter.

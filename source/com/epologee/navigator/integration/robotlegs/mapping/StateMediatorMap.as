@@ -1,4 +1,5 @@
 package com.epologee.navigator.integration.robotlegs.mapping {
+	import org.robotlegs.core.IInjector;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
@@ -20,14 +21,17 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		private var _recipesByLayer : Array;
 		private var _mediatorMap : IMediatorMap;
 		private var _contextView : DisplayObjectContainer;
+		private var _injector : IInjector;
 
-		public function StateMediatorMap(inNavigator : Navigator, inMediatorMap : IMediatorMap, inContextView : DisplayObjectContainer) {
+		public function StateMediatorMap(inNavigator : Navigator, inInjector : IInjector, inMediatorMap : IMediatorMap, inContextView : DisplayObjectContainer) {
 			_navigator = inNavigator;
+			_injector = inInjector;
+			_mediatorMap = inMediatorMap;
+			_contextView = inContextView;
+			
 			_navigator.addEventListener(NavigatorEvent.STATE_CHANGED, handleStateChanged);
 			_navigator.add(this, "", NavigationBehaviors.AUTO);
 
-			_mediatorMap = inMediatorMap;
-			_contextView = inContextView;
 
 			_recipesByPath = new Dictionary();
 			_recipesByLayer = [];
@@ -56,6 +60,15 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 				_mediatorMap.mapView(inViewClass, inMediatorClass);
 			}
 
+			addRecipe(inStatesOrPaths, inViewClass, inViewConstructionParams);
+		}
+
+		/**
+		 * @inheritDoc
+		 * 
+		 * FIXME: This method is called "without mediator", yet we're in a class called the "state mediator map". One of these names needs a change...
+		 */
+		public function mapStateWithoutMediator(inStatesOrPaths : *, inViewClass : Class, ...inViewConstructionParams : Array) : void {
 			addRecipe(inStatesOrPaths, inViewClass, inViewConstructionParams);
 		}
 
@@ -104,15 +117,20 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 					var stateRecipes : Array = _recipesByPath[path];
 
 					if (stateRecipes) {
-						for each (var recipe : DisplayObjectRecipe in stateRecipes) {
-							if (!recipe.displayObject.parent) {
-								addProductToContextView(recipe);
+						for (var i : int = stateRecipes.length; --i >= 0; ) {
+							var recipe : DisplayObjectRecipe = DisplayObjectRecipe(stateRecipes[i]);
+
+							addProductToContextView(recipe);
+							if (recipe.object is INavigationResponder) {
+								_navigator.add(recipe.object, state);
 							}
 
 							var mediatorResponder : INavigationResponder = _mediatorMap.retrieveMediator(recipe.displayObject) as INavigationResponder;
 							if (mediatorResponder) {
-								_navigator.add(mediatorResponder, event.state);
+								_navigator.add(mediatorResponder, state);
 							}
+
+							stateRecipes.splice(i, 1);
 						}
 					}
 				}
@@ -123,6 +141,8 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		 * Takes care of ordering the products in the order their recipes were added.
 		 */
 		private function addProductToContextView(inRecipe : DisplayObjectRecipe) : void {
+			_injector.injectInto(inRecipe.object);
+			
 			var start : int = _recipesByLayer.indexOf(inRecipe);
 			var leni : int = _recipesByLayer.length;
 			for (var i : int = start + 1; i < leni ; i++) {

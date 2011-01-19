@@ -510,6 +510,10 @@ package com.epologee.navigator {
 
 		flow function transitionOut() : Array {
 			var toShow : Array = getRespondersToShow();
+			
+			// This initialize call is to catch responders that were put on stage to show, 
+			// yet still need to wait for async out transitions before they actually transition in.
+			initializeIfNeccessary(toShow);
 
 			var waitFor : Array = [];
 

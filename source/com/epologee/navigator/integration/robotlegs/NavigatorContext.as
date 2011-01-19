@@ -35,7 +35,7 @@ package com.epologee.navigator.integration.robotlegs {
 		}
 
 		public function get stateMediatorMap() : IStateMediatorMap {
-			return _stateMediatorMap ||= new StateMediatorMap(navigator, mediatorMap, contextView);
+			return _stateMediatorMap ||= new StateMediatorMap(navigator, injector, mediatorMap, contextView);
 		}
 
 		public function get stateCommandMap() : IStateCommandMap {

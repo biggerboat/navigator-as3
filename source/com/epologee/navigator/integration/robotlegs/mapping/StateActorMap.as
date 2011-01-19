@@ -39,7 +39,6 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		 */
 		public function mapStateSingletonOf(inStatesOrPaths : *, inActorClass : Class, inUseSingletonOf :Class) : void {
 			_injector.mapSingletonOf(inActorClass, inUseSingletonOf);
-			
 			addStateClass(inStatesOrPaths, inActorClass);			
 		}
 
