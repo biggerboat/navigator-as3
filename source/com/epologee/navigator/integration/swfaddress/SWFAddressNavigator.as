@@ -22,7 +22,7 @@ package com.epologee.navigator.integration.swfaddress {
 			super();
 		}
 
-		override public function start(inDefaultStateOrPath : *, inStartStateOrPath : * = null) : void {
+		override public function start(inDefaultStateOrPath : * = "", inStartStateOrPath : * = null) : void {
 			_defaultState = new NavigationState(inDefaultStateOrPath);
 			_startState = new NavigationState(inStartStateOrPath);
 
