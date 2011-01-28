@@ -28,7 +28,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		/**
 		 * @param inStateOrPath can be one of three types. A string containing a path, a NavigationState object, or an array of those mixed.
 		 */
-		public function mapStateSingleton(inStatesOrPaths : *, inActorClass : Class) : void {
+		public function mapSingleton(inStatesOrPaths : *, inActorClass : Class) : void {
 			_injector.mapSingleton(inActorClass);
 			
 			addStateClass(inStatesOrPaths, inActorClass);			
@@ -37,7 +37,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		/**
 		 * @param inStateOrPath can be one of three types. A string containing a path, a NavigationState object, or an array of those mixed.
 		 */
-		public function mapStateSingletonOf(inStatesOrPaths : *, inActorClass : Class, inUseSingletonOf :Class) : void {
+		public function mapSingletonOf(inStatesOrPaths : *, inActorClass : Class, inUseSingletonOf :Class) : void {
 			_injector.mapSingletonOf(inActorClass, inUseSingletonOf);
 			addStateClass(inStatesOrPaths, inActorClass);			
 		}

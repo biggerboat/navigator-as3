@@ -14,13 +14,13 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
-	public class StateCommandMap implements IStateCommandMap, IHasStateUpdate {
+	public class StateControllerMap implements IStateControllerMap, IHasStateUpdate {
 		private var _navigator : Navigator;
 		private var _injector : IInjector;
 		private var _commandsByState : Dictionary;
 		private var _verifiedCommandClasses : Dictionary;
 
-		public function StateCommandMap(inNavigator : Navigator, inInjector : IInjector) {
+		public function StateControllerMap(inNavigator : Navigator, inInjector : IInjector) {
 			_navigator = inNavigator;
 			_injector = inInjector;
 
@@ -30,7 +30,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			_navigator.add(this, "");
 		}
 
-		public function mapState(inStateOrPath : *, inCommandClass : Class, inExactMatch : Boolean = false, inOneShot : Boolean = false) : void {
+		public function mapCommand(inStateOrPath : *, inCommandClass : Class, inExactMatch : Boolean = false, inOneShot : Boolean = false) : void {
 			var state : NavigationState = NavigationState.make(inStateOrPath);
 			var commands : Array = _commandsByState[state.path] ||= [];
 
@@ -44,7 +44,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			commands.push(new CommandWrapper(inCommandClass, state, inExactMatch, inOneShot));
 		}
 
-		public function unmapStateCommand(inStateOrPath : *, inCommandClass : Class) : void {
+		public function unmapCommand(inStateOrPath : *, inCommandClass : Class) : void {
 			var state : NavigationState = NavigationState.make(inStateOrPath);
 			var commands : Array = _commandsByState[state.path] ||= [];
 
@@ -76,7 +76,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 						command.execute();
 
 						if (wrapper.oneShot) {
-							unmapStateCommand(wrapper.state, wrapper.CommandClass);
+							unmapCommand(wrapper.state, wrapper.CommandClass);
 						}
 					}
 				}

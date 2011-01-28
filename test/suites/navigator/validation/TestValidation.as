@@ -1,20 +1,21 @@
 package suites.navigator.validation {
-	import com.epologee.navigator.NavigationState;
-	import com.epologee.navigator.Navigator;
-	import com.epologee.time.TimeDelay;
-
-	import flash.events.Event;
-
-	import org.flexunit.assertThat;
-	import org.flexunit.async.Async;
-	import org.hamcrest.core.not;
-	import org.hamcrest.object.equalTo;
-
 	import suites.navigator.validation.elements.ResponderAsyncIV;
 	import suites.navigator.validation.elements.ResponderAsyncIVO;
 	import suites.navigator.validation.elements.ResponderIT;
 	import suites.navigator.validation.elements.ResponderIV;
 	import suites.navigator.validation.elements.ResponderIVO;
+
+	import com.epologee.navigator.NavigationState;
+	import com.epologee.navigator.Navigator;
+	import com.epologee.time.TimeDelay;
+
+	import org.flexunit.assertAfterDelay;
+	import org.flexunit.assertThat;
+	import org.flexunit.async.Async;
+	import org.hamcrest.core.not;
+	import org.hamcrest.object.equalTo;
+
+	import flash.events.Event;
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
@@ -102,23 +103,22 @@ package suites.navigator.validation {
 		public function asyncValidation() : void {
 			var start : NavigationState = navigator.getCurrentState();
 			var request : NavigationState = new NavigationState("segment1d", "segment2d");
-			new TimeDelay(Async.asyncHandler(this, handleAsyncValidation, 0, request), responderAsyncIV.durationMS + 100);
-
+			assertAfterDelay(responderAsyncIV.durationMS + 100, thatAsyncValidationWorks, request);
 			navigator.requestNewState(request);
 
 			// Path should still be unchanged.
 			assertThat(navigator.getCurrentState().path, equalTo(start.path));
 		}
 
-		private function handleAsyncValidation(inBSEvent : Event, inRequest : NavigationState) : void {
-			assertThat(navigator.getCurrentState().path, equalTo(inRequest.path));
+		private function thatAsyncValidationWorks(inBSEvent : Event, inRequest : NavigationState) : void {
+			assertThat(navigator.getCurrentState().path, not(inRequest.path));
 		}
 
 		[Test(async,order=60,timeout=5000)]
 		public function asyncInvalidation() : void {
 			var start : NavigationState = navigator.getCurrentState();
 			var request : NavigationState = new NavigationState("segment1d", "segment2e");
-			new TimeDelay(Async.asyncHandler(this, handleAsyncInvalidation, 0, request), responderAsyncIV.durationMS + 100);
+			assertAfterDelay(responderAsyncIV.durationMS + 100, thatAsyncInvalidationWorks, request);
 
 			navigator.requestNewState(request);
 
@@ -126,8 +126,8 @@ package suites.navigator.validation {
 			assertThat(navigator.getCurrentState().path, equalTo(start.path));
 		}
 
-		private function handleAsyncInvalidation(inBSEvent : Event, inRequest : NavigationState) : void {
-			assertThat(navigator.getCurrentState().path, not(inRequest.path));
+		private function thatAsyncInvalidationWorks(request : NavigationState) : void {
+			assertThat(navigator.getCurrentState().path, not(request.path));
 		}
 
 		[Test(order=70)]

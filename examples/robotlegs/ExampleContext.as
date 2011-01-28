@@ -27,22 +27,22 @@ package {
 		}
 
 		override public function startup() : void {
-			stateCommandMap.mapState("/", HelloWorldCommand, true, true);
+			stateControllerMap.mapCommand("/", HelloWorldCommand, true, true);
 			
-			stateMediatorMap.mapStateWithoutMediator("/", ExampleTextBox);
+			stateViewMap.mapView("/", ExampleTextBox);
 			
-			stateMediatorMap.mapState("red", RedSquare, RedSquareMediator);
-			stateMediatorMap.mapState("green", GreenSquare, GreenSquareMediator);
-			stateMediatorMap.mapState("blue", BlueSquare, BlueSquareMediator);
-			stateMediatorMap.mapState(["black", "*/black"], BlackCircle, BlackCircleMediator);
+			stateViewMap.mapViewMediator("red", RedSquare, RedSquareMediator);
+			stateViewMap.mapViewMediator("green", GreenSquare, GreenSquareMediator);
+			stateViewMap.mapViewMediator("blue", BlueSquare, BlueSquareMediator);
+			stateViewMap.mapViewMediator(["black", "*/black"], BlackCircle, BlackCircleMediator);
 			
-			stateMediatorMap.mapAdditionalStates("*/red", RedSquare);
-			stateMediatorMap.mapAdditionalStates("*/green", GreenSquare);
-			stateMediatorMap.mapAdditionalStates("*/blue", BlueSquare);
+			stateViewMap.mapView("*/red", RedSquare);
+			stateViewMap.mapView("*/green", GreenSquare);
+			stateViewMap.mapView("*/blue", BlueSquare);
 			
 			
 			// Navigator debug console, very nice for development. Toggle with the tilde key, "~". You can type in new states by hand!
-			stateMediatorMap.mapStateWithoutMediator("/", DebugStatusDisplay, navigator);
+			stateViewMap.mapView("/", DebugStatusDisplay, navigator);
 			
 			navigator.start("", "red");
 			

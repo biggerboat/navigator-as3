@@ -15,7 +15,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
-	public class StateMediatorMap implements IStateMediatorMap, IHasStateValidationOptional {
+	public class StateViewMap implements IStateViewMap, IHasStateValidationOptional {
 		private var _navigator : Navigator;
 		private var _recipesByPath : Dictionary;
 		private var _recipesByLayer : Array;
@@ -23,7 +23,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		private var _contextView : DisplayObjectContainer;
 		private var _injector : IInjector;
 
-		public function StateMediatorMap(inNavigator : Navigator, inInjector : IInjector, inMediatorMap : IMediatorMap, inContextView : DisplayObjectContainer) {
+		public function StateViewMap(inNavigator : Navigator, inInjector : IInjector, inMediatorMap : IMediatorMap, inContextView : DisplayObjectContainer) {
 			_navigator = inNavigator;
 			_injector = inInjector;
 			_mediatorMap = inMediatorMap;
@@ -55,7 +55,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		/**
 		 * @inheritDoc
 		 */
-		public function mapState(inStatesOrPaths : *, inViewClass : Class, inMediatorClass : Class, ...inViewConstructionParams : Array) : void {
+		public function mapViewMediator(inStatesOrPaths : *, inViewClass : Class, inMediatorClass : Class, ...inViewConstructionParams : Array) : void {
 			if (inMediatorClass != null) {
 				_mediatorMap.mapView(inViewClass, inMediatorClass);
 			}
@@ -68,14 +68,14 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		 * 
 		 * FIXME: This method is called "without mediator", yet we're in a class called the "state mediator map". One of these names needs a change...
 		 */
-		public function mapStateWithoutMediator(inStatesOrPaths : *, inViewClass : Class, ...inViewConstructionParams : Array) : void {
+		public function mapView(inStatesOrPaths : *, inViewClass : Class, ...inViewConstructionParams : Array) : void {
 			addRecipe(inStatesOrPaths, inViewClass, inViewConstructionParams);
 		}
 
 		/**
 		 * @inheritDoc
 		 */
-		public function mapStateViewAs(inStatesOrPaths : *, inViewClass : Class, inMediatorClass : Class, inInjectViewAs : *, ...inViewConstructionParams : Array) : void {
+		public function mapViewAs(inStatesOrPaths : *, inViewClass : Class, inMediatorClass : Class, inInjectViewAs : *, ...inViewConstructionParams : Array) : void {
 			if (inMediatorClass != null) {
 				_mediatorMap.mapView(inViewClass, inMediatorClass, inInjectViewAs);
 			}
