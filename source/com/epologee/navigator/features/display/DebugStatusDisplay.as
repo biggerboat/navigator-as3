@@ -39,7 +39,7 @@ package com.epologee.navigator.features.display {
 			_boxHeader.backgroundColor = 0x222222;
 			_boxHeader.embedFonts = false;
 			_boxHeader.selectable = true;
-			_boxHeader.restrict = "/ A-Z a-z 0-9 \\-";
+			_boxHeader.restrict = "/A-Za-z0-9\\-";
 			_boxHeader.addEventListener(KeyboardEvent.KEY_DOWN, handleInputKeystroke);
 
 			_boxLeft = new DebugTextBox(12, 0xFF9900);
