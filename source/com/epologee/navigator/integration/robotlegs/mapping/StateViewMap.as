@@ -29,7 +29,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			_mediatorMap = inMediatorMap;
 			_contextView = inContextView;
 			
-			_navigator.addEventListener(NavigatorEvent.STATE_CHANGED, handleStateChanged);
+			_navigator.addEventListener(NavigatorEvent.STATE_REQUESTED, handleStateRequested);
 			_navigator.add(this, "", NavigationBehaviors.AUTO);
 
 
@@ -108,7 +108,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			}
 		}
 
-		private function handleStateChanged(event : NavigatorEvent) : void {
+		private function handleStateRequested(event : NavigatorEvent) : void {
 			for (var path:String in _recipesByPath) {
 				// create a state object for comparison:
 				var state : NavigationState = new NavigationState(path);
