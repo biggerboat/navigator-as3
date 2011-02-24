@@ -46,7 +46,7 @@ package com.epologee.navigator {
 	[Event(name="TRANSITION_STATUS_UPDATED", type="com.epologee.navigator.NavigatorEvent")]
 	[Event(name="STATE_CHANGED", type="com.epologee.navigator.NavigatorEvent")]
 	//
-	public class Navigator extends EventDispatcher {
+	public class Navigator extends EventDispatcher implements INavigator {
 		public static var MAX_HISTORY_LENGTH : Number = 50;
 		//
 		protected var _current : NavigationState;
@@ -71,74 +71,31 @@ package com.epologee.navigator {
 			_statusByResponder = new Dictionary();
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public function add(inResponder : INavigationResponder, inPathOrStates : *, inBehavior : String = null) : void {
-			if (inPathOrStates is Array) {
-				for each (var pathOrState : * in inPathOrStates) {
-					add(inResponder, pathOrState, inBehavior);
-				}
-				return;
-			}
-			
-			inBehavior ||= NavigationBehaviors.AUTO;
-			if (!inResponder)
-				throw new Error("add: responder is null");
-
-			if (inBehavior == NavigationBehaviors.AUTO) {
-				autoAdd(inResponder, inPathOrStates);
-				return;
-			}
-
-			// Using the path variable as dictionary key to break instance referencing.
-			var path : String = NavigationState.make(inPathOrStates).path;
-			var list : Array;
-			var matchingInterface : Class;
-
-			// Create, store and retrieve the list that matches the desired behavior.
-			switch(inBehavior) {
-				case NavigationBehaviors.SHOW:
-					matchingInterface = IHasStateTransition;
-					list = _responders.showByPath[path] ||= [];
-					break;
-				case NavigationBehaviors.HIDE:
-					matchingInterface = IHasStateTransition;
-					list = _responders.hideByPath[path] ||= [];
-					break;
-				case NavigationBehaviors.VALIDATE:
-					matchingInterface = IHasStateValidation;
-					list = _responders.validateByPath[path] ||= [];
-					break;
-				case NavigationBehaviors.UPDATE:
-					matchingInterface = IHasStateUpdate;
-					list = _responders.updateByPath[path] ||= [];
-					break;
-				case NavigationBehaviors.SWAP:
-					matchingInterface = IHasStateSwap;
-					list = _responders.swapByPath[path] ||= [];
-					break;
-				default:
-					throw new Error("Unknown behavior: " + inBehavior);
-			}
-
-			if (!(inResponder is matchingInterface)) {
-				throw new Error("Responder " + inResponder + " should implement " + matchingInterface + " to respond to " + inBehavior);
-			}
-
-			if (list.indexOf(inResponder) >= 0) {
-				logger.warn("Ignoring duplicate addition of " + inResponder + " to " + inBehavior + " at " + path);
-			} else {
-				list.push(inResponder);
-			}
-
-			// If the responder has no status yet, initialize it to UNINITIALIZED:
-			_statusByResponder[inResponder] ||= TransitionStatus.UNINITIALIZED;
-			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+			modify(true, inResponder, inPathOrStates, inBehavior);
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public function remove(inResponder : INavigationResponder, inPathOrStates : *, inBehavior : String = null) : void {
+			modify(false, inResponder, inPathOrStates, inBehavior);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
 		public function registerRedirect(inFrom : NavigationState, inTo : NavigationState) : void {
 			_redirects ||= new Dictionary();
 			_redirects[inFrom.path] = inTo;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public function start(inDefaultStateOrPath : * = "", inStartStateOrPath : * = null) : void {
 			_defaultState = NavigationState.make(inDefaultStateOrPath);
 
@@ -150,8 +107,7 @@ package com.epologee.navigator {
 		}
 
 		/**
-		 * Request a new state by providing a #NavigationState instance.
-		 * If the new state is different from the current, it will be validated and granted.
+		 * @inheritDoc
 		 */
 		public function requestNewState(inNavigationStateOrPath : *) : void {
 			if (inNavigationStateOrPath == null) {
@@ -182,7 +138,7 @@ package com.epologee.navigator {
 					}
 				}
 			}
-			
+
 			// this event makes it possible to add responders just in time to participate in the validation process.
 			var ne : NavigatorEvent = new NavigatorEvent(NavigatorEvent.STATE_REQUESTED);
 			ne.state = requested;
@@ -195,6 +151,95 @@ package com.epologee.navigator {
 			performRequestCascade(requested);
 		}
 
+		protected function modify(inAdd : Boolean, inResponder : INavigationResponder, inPathOrStates : *, inBehavior : String = null) : void {
+			if (inPathOrStates is Array) {
+				for each (var pathOrState : * in inPathOrStates) {
+					modify(inAdd, inResponder, pathOrState, inBehavior);
+				}
+				return;
+			}
+
+			inBehavior ||= NavigationBehaviors.AUTO;
+			if (!inResponder)
+				throw new Error("add/remove: responder is null");
+
+			if (inBehavior == NavigationBehaviors.AUTO) {
+				autoModify(inAdd, inResponder, inPathOrStates);
+				return;
+			}
+
+			var respondersByPath : Dictionary = matchingRespondersWithBehavior(inResponder, inBehavior);
+			if (!respondersByPath) {
+				return;
+			}
+
+			// Using the path variable as dictionary key to break instance referencing.
+			var path : String = NavigationState.make(inPathOrStates).path;
+			var list : Array = respondersByPath[path] ||= [];
+			
+			var index : int = list.indexOf(inResponder);
+
+			if (inAdd) {
+				if (index == -1) {
+					list.push(inResponder);
+
+					// If the responder has no status yet, initialize it to UNINITIALIZED:
+					_statusByResponder[inResponder] ||= TransitionStatus.UNINITIALIZED;
+				}
+			} else {
+				if (index >= 0) {
+					list.splice(index, 1);
+
+					// Remove the responder's status:
+					delete _statusByResponder[inResponder];
+				}
+				
+				if (list.length == 0) {
+					delete respondersByPath[path];
+				}
+			}
+
+			notice(_responders);
+			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+		}
+
+		private function matchingRespondersWithBehavior(inResponder : *, inBehavior : String) : Dictionary {
+			var behaviorListByPath : Dictionary;
+			var matchingInterface : Class;
+
+			// Create, store and retrieve the list that matches the desired behavior.
+			switch(inBehavior) {
+				case NavigationBehaviors.SHOW:
+					matchingInterface = IHasStateTransition;
+					behaviorListByPath = _responders.showByPath;
+					break;
+				case NavigationBehaviors.HIDE:
+					matchingInterface = IHasStateTransition;
+					behaviorListByPath = _responders.hideByPath;
+					break;
+				case NavigationBehaviors.VALIDATE:
+					matchingInterface = IHasStateValidation;
+					behaviorListByPath = _responders.validateByPath;
+					break;
+				case NavigationBehaviors.UPDATE:
+					matchingInterface = IHasStateUpdate;
+					behaviorListByPath = _responders.updateByPath;
+					break;
+				case NavigationBehaviors.SWAP:
+					matchingInterface = IHasStateSwap;
+					behaviorListByPath = _responders.swapByPath;
+					break;
+				default:
+					throw new Error("Unknown behavior: " + inBehavior);
+			}
+			
+			if (inResponder is matchingInterface) {
+				return behaviorListByPath;
+			}
+
+			return null;
+		}
+
 		private function performRequestCascade(inRequested : NavigationState, inStartAsyncValidation : Boolean = true) : void {
 			// Request cascade starts here.
 			//
@@ -202,9 +247,9 @@ package com.epologee.navigator {
 				// Exact match on default state bypasses validation.
 				grantRequest(_defaultState);
 			} else if (_asyncValidationOccurred && (_asyncValidated && !_asyncInvalidated)) {
-				// Async operation completed 
+				// Async operation completed
 				grantRequest(inRequested);
-			} else if (validate(inRequested, true, inStartAsyncValidation)) { 
+			} else if (validate(inRequested, true, inStartAsyncValidation)) {
 				// Any other state needs to be validated.
 				grantRequest(inRequested);
 			} else if (_validating.isBusy()) {
@@ -234,6 +279,9 @@ package com.epologee.navigator {
 			}
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public function getCurrentState() : NavigationState {
 			// not returning the _current instance to prevent possible reference conflicts.
 			if (!_current)
@@ -243,7 +291,11 @@ package com.epologee.navigator {
 		}
 
 		transition function notifyComplete(inResponder : INavigationResponder, inStatus : int, inBehavior : String) : void {
-			_statusByResponder[inResponder] = inStatus;
+			if (_statusByResponder[inResponder] != null) { 
+				_statusByResponder[inResponder] = inStatus;
+			} else {
+				notice("niet");
+			}
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 
 			var asynch : AsynchResponders;
@@ -292,7 +344,7 @@ package com.epologee.navigator {
 
 			var path : String;
 			for (path in _responders.showByPath) {
-				list[new NavigationState(path).path] = true;
+				list[NavigationState.make(path).path] = true;
 			}
 
 			var known : Array = [];
@@ -317,8 +369,8 @@ package com.epologee.navigator {
 
 		protected function notifyStateChange(inNewState : NavigationState) : void {
 			logger.notice(inNewState);
-			
-			// Do call the super.notifyStateChange() when overriding.
+
+			// Please do call the super.notifyStateChange() when overriding.
 			if (inNewState != _previous) {
 				var ne : NavigatorEvent = new NavigatorEvent(NavigatorEvent.STATE_CHANGED, _statusByResponder);
 				ne.state = getCurrentState();
@@ -326,10 +378,10 @@ package com.epologee.navigator {
 			}
 		}
 
-		private function autoAdd(inResponder : INavigationResponder, inPathOrState : *) : void {
+		private function autoModify(inAdd : Boolean, inResponder : INavigationResponder, inPathOrState : *) : void {
 			for each (var behavior : String in NavigationBehaviors.ALL_AUTO) {
 				try {
-					add(inResponder, inPathOrState, behavior);
+					modify(inAdd, inResponder, inPathOrState, behavior);
 				} catch(e : Error) {
 					// ignore error
 				}
@@ -346,7 +398,7 @@ package com.epologee.navigator {
 					logger.info("Asynchronously validated.");
 					_asyncValidated = true;
 				} else {
-					logger.warn("Asynchronously invalidated by "+inValidator);
+					logger.warn("Asynchronously invalidated by " + inValidator);
 					_asyncInvalidated = true;
 				}
 
@@ -431,9 +483,9 @@ package com.epologee.navigator {
 						}
 
 						if (_asyncValidationOccurred) {
-//						// If there are active async validators, stop the validation chain and wait for the prepration to finish.
-//						if (_validating.isBusy()) return false;
-//						if (_asyncValidationOccurred && (_asyncValidated || _asyncInvalidated) {
+							//						//  If there are active async validators, stop the validation chain and wait for the prepration to finish.
+							// if (_validating.isBusy()) return false;
+							// if (_asyncValidationOccurred && (_asyncValidated || _asyncInvalidated) {
 							// async validation was instantaneous, which means that the validation was approved or denied elsewhere
 							// in the stack. this method should return false any which way.
 							return false;
@@ -510,8 +562,8 @@ package com.epologee.navigator {
 
 		flow function transitionOut() : Array {
 			var toShow : Array = getRespondersToShow();
-			
-			// This initialize call is to catch responders that were put on stage to show, 
+
+			// This initialize call is to catch responders that were put on stage to show,
 			// yet still need to wait for async out transitions before they actually transition in.
 			initializeIfNeccessary(toShow);
 
@@ -742,6 +794,8 @@ import com.epologee.development.logging.logger;
 import com.epologee.navigator.behaviors.INavigationResponder;
 
 import flash.utils.Dictionary;
+import flash.utils.describeType;
+import flash.utils.getQualifiedClassName;
 /**	
  * The flow namespace is used privately, to mark methods that belong to the transition flow group.
  */
@@ -753,6 +807,25 @@ class ResponderLists {
 	public var showByPath : Dictionary = new Dictionary();
 	public var hideByPath : Dictionary = new Dictionary();
 	public var swappedBefore : Dictionary = new Dictionary();
+
+	public function toString() : String {
+		var described : XML = describeType(this);
+		var variables : XMLList = described.child("variable");
+		var s : String = "ResponderLists [";
+		for each (var variable : XML in variables) {
+			if (variable.@type == getQualifiedClassName(Dictionary)) {
+				var list : Dictionary = this[variable.@name];
+				var contents : Array = [];
+				for (var key:* in list) {
+					contents.push("[" + key + " = " + list[key] + "]");
+				}
+				s += "\n\t[" + variable.@name + ": " + contents.join(", ") + "], ";
+			}
+		}
+
+		s += "]";
+		return s;
+	}
 }
 class AsynchResponders {
 	public var responders : Array = [];

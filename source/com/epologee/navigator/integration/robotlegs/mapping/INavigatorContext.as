@@ -1,10 +1,14 @@
 package com.epologee.navigator.integration.robotlegs.mapping {
-	import com.epologee.navigator.Navigator;
+	import com.epologee.navigator.INavigator;
+
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public interface INavigatorContext {
-		function get navigator() : Navigator;
+		/**
+		 * Accessor for the Navigator instance mapped to INavigator
+		 */
+		function get navigator() : INavigator;
 
 		/**
 		 * For mapping your models or other subclasses of Actor to states.

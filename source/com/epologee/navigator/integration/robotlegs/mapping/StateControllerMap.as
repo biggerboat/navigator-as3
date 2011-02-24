@@ -1,7 +1,7 @@
 package com.epologee.navigator.integration.robotlegs.mapping {
 	import com.epologee.development.logging.logger;
+	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.NavigationState;
-	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.behaviors.IHasStateUpdate;
 
 	import org.robotlegs.base.ContextError;
@@ -15,12 +15,12 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public class StateControllerMap implements IStateControllerMap, IHasStateUpdate {
-		private var _navigator : Navigator;
+		private var _navigator : INavigator;
 		private var _injector : IInjector;
 		private var _commandsByState : Dictionary;
 		private var _verifiedCommandClasses : Dictionary;
 
-		public function StateControllerMap(inNavigator : Navigator, inInjector : IInjector) {
+		public function StateControllerMap(inNavigator : INavigator, inInjector : IInjector) {
 			_navigator = inNavigator;
 			_injector = inInjector;
 

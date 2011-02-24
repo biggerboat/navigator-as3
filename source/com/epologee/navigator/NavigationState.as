@@ -37,7 +37,7 @@ package com.epologee.navigator {
 		 * replaced by dashes -.
 		 */
 		public function set path(inPath : String) : void {
-			_path = DELIMITER + inPath.toLowerCase() + DELIMITER;
+			_path = DELIMITER + inPath + DELIMITER;
 			_path = _path.replace(new RegExp("\/+", "g"), "/");
 			_path = _path.replace(/\s+/g, "-");
 		}

@@ -1,12 +1,12 @@
 package com.epologee.navigator.integration.robotlegs.mapping {
-	import org.robotlegs.core.IInjector;
+	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.NavigationState;
-	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.behaviors.IHasStateValidationOptional;
 	import com.epologee.navigator.behaviors.INavigationResponder;
 	import com.epologee.navigator.behaviors.NavigationBehaviors;
 
+	import org.robotlegs.core.IInjector;
 	import org.robotlegs.core.IMediatorMap;
 
 	import flash.display.DisplayObjectContainer;
@@ -16,22 +16,21 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public class StateViewMap implements IStateViewMap, IHasStateValidationOptional {
-		private var _navigator : Navigator;
+		private var _navigator : INavigator;
 		private var _recipesByPath : Dictionary;
 		private var _recipesByLayer : Array;
 		private var _mediatorMap : IMediatorMap;
 		private var _contextView : DisplayObjectContainer;
 		private var _injector : IInjector;
 
-		public function StateViewMap(inNavigator : Navigator, inInjector : IInjector, inMediatorMap : IMediatorMap, inContextView : DisplayObjectContainer) {
+		public function StateViewMap(inNavigator : INavigator, inInjector : IInjector, inMediatorMap : IMediatorMap, inContextView : DisplayObjectContainer) {
 			_navigator = inNavigator;
 			_injector = inInjector;
 			_mediatorMap = inMediatorMap;
 			_contextView = inContextView;
-			
-			_navigator.addEventListener(NavigatorEvent.STATE_CHANGED, handleStateChanged);
-			_navigator.add(this, "", NavigationBehaviors.AUTO);
 
+			_navigator.addEventListener(NavigatorEvent.STATE_REQUESTED, handleStateRequested);
+			_navigator.add(this, "", NavigationBehaviors.AUTO);
 
 			_recipesByPath = new Dictionary();
 			_recipesByLayer = [];
@@ -56,7 +55,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		 * @inheritDoc
 		 */
 		public function mapViewMediator(inStatesOrPaths : *, inViewClass : Class, inMediatorClass : Class, ...inViewConstructionParams : Array) : void {
-			if (inMediatorClass != null) {
+			if (inMediatorClass != null && !_mediatorMap.hasMapping(inViewClass)) {
 				_mediatorMap.mapView(inViewClass, inMediatorClass);
 			}
 
@@ -108,7 +107,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			}
 		}
 
-		private function handleStateChanged(event : NavigatorEvent) : void {
+		private function handleStateRequested(event : NavigatorEvent) : void {
 			for (var path:String in _recipesByPath) {
 				// create a state object for comparison:
 				var state : NavigationState = new NavigationState(path);
@@ -142,7 +141,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		 */
 		private function addProductToContextView(inRecipe : DisplayObjectRecipe) : void {
 			_injector.injectInto(inRecipe.object);
-			
+
 			var start : int = _recipesByLayer.indexOf(inRecipe);
 			var leni : int = _recipesByLayer.length;
 			for (var i : int = start + 1; i < leni ; i++) {

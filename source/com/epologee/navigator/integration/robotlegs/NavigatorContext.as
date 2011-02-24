@@ -1,4 +1,5 @@
 package com.epologee.navigator.integration.robotlegs {
+	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.integration.robotlegs.mapping.INavigatorContext;
 	import com.epologee.navigator.integration.robotlegs.mapping.IStateActorMap;
@@ -20,18 +21,24 @@ package com.epologee.navigator.integration.robotlegs {
 		private var _stateCommandMap : IStateControllerMap;
 		private var _stateActorMap : IStateActorMap;
 
-		public function NavigatorContext(inContextView : DisplayObjectContainer, inAutoStartUp : Boolean = true) {
+		public function NavigatorContext(inContextView : DisplayObjectContainer, inCustomNavigator:Class = null, inAutoStartUp : Boolean = true) {
+			if (inCustomNavigator != null) {
+				injector.mapSingletonOf(inCustomNavigator, inCustomNavigator);
+			}
 			super(inContextView, inAutoStartUp);
 		}
 
-		public function get navigator() : Navigator {
+		/**
+		 * @inheritDoc
+		 */
+		public function get navigator() : INavigator {
 			// Map a subclass of the Navigator, like SWFAddressNavigator, before constructing the context if you need to substitute it:
-			// Example: injector.mapSingletonOf(Navigator, SWFAddressNavigator);
-			if (!injector.hasMapping(Navigator)) {
-				injector.mapSingleton(Navigator);
+			// Example: injector.mapSingletonOf(INavigator, SWFAddressNavigator);
+			if (!injector.hasMapping(INavigator)) {
+				injector.mapSingletonOf(INavigator, Navigator);
 			}
 
-			return injector.getInstance(Navigator);
+			return injector.getInstance(INavigator);
 		}
 
 		/**
@@ -53,6 +60,14 @@ package com.epologee.navigator.integration.robotlegs {
 		 */
 		public function get stateControllerMap() : IStateControllerMap {
 			return _stateCommandMap ||= new StateControllerMap(navigator, injector);
+		}
+
+		override protected function mapInjections() : void {
+			super.mapInjections();
+
+			injector.mapValue(IStateActorMap, stateActorMap);
+			injector.mapValue(IStateViewMap, stateViewMap);
+			injector.mapValue(IStateControllerMap, stateControllerMap);
 		}
 	}
 }
