@@ -410,7 +410,10 @@ package com.epologee.navigator {
 					var list : Array = _responders.validateByPath[path];
 					var responder : INavigationResponder;
 
+					initializeIfNeccessary(list);
+
 					if (allowAsyncValidation) {
+
 						// check for async validators first. If this does not
 						for each (responder in list) {
 							var asyncValidator : IHasStateValidationAsync = responder as IHasStateValidationAsync;
