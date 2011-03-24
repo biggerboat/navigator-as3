@@ -6,7 +6,7 @@ package {
 	import util.BaseExample;
 
 	import com.epologee.navigator.Navigator;
-	import com.epologee.navigator.features.display.DebugStatusDisplay;
+	import com.epologee.navigator.features.display.DebugConsole;
 
 	import flash.events.TextEvent;
 	import flash.text.TextField;
@@ -17,7 +17,7 @@ package {
 	[SWF(backgroundColor="#FFFFFF", frameRate="31", width="640", height="480")]
 	public class SimpleNavigatorExample extends BaseExample {
 		private var navigator : Navigator;
-		private var display : DebugStatusDisplay;
+		private var display : DebugConsole;
 		//
 		private var intro : TextField;
 		private var redSquare : Square;
@@ -41,7 +41,7 @@ package {
 			addRow(redSquare, greenSquare, blueSquare, blackCircle);
 
 			// Navigator debug console, very nice for development. Toggle with the tilde key, "~". You can type in new states by hand!
-			display = new DebugStatusDisplay(navigator);
+			display = new DebugConsole(navigator);
 			addChild(display);
 			
 			// Here we add the responders to the navigation states they represent.			

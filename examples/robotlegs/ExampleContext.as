@@ -1,5 +1,6 @@
 package {
 	import controller.HelloWorldCommand;
+
 	import view.BlackCircleMediator;
 	import view.BlueSquareMediator;
 	import view.GreenSquareMediator;
@@ -10,7 +11,7 @@ package {
 	import view.components.GreenSquare;
 	import view.components.RedSquare;
 
-	import com.epologee.navigator.features.display.DebugStatusDisplay;
+	import com.epologee.navigator.features.display.DebugConsole;
 	import com.epologee.navigator.integration.robotlegs.NavigatorContext;
 
 	import flash.display.DisplayObjectContainer;
@@ -42,7 +43,7 @@ package {
 			
 			
 			// Navigator debug console, very nice for development. Toggle with the tilde key, "~". You can type in new states by hand!
-			stateViewMap.mapView("/", DebugStatusDisplay, navigator);
+			stateViewMap.mapView("/", DebugConsole, navigator);
 			
 			navigator.start("", "red");
 			
