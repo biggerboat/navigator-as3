@@ -1,5 +1,5 @@
 package com.epologee.navigator.integration.puremvc {
-	import com.epologee.navigator.features.display.DebugStatusDisplay;
+	import com.epologee.navigator.features.display.DebugConsole;
 	import com.epologee.navigator.namespaces.hidden;
 	import flash.display.Sprite;
 	import flash.utils.getQualifiedClassName;
@@ -11,7 +11,7 @@ package com.epologee.navigator.integration.puremvc {
 	public class DebugTransitionMediator extends TimelineMediator {
 		public static const NAME : String = getQualifiedClassName(DebugTransitionMediator);
 		private var _alignMode : String;
-		private var _display : DebugStatusDisplay;
+		private var _display : DebugConsole;
 
 		/**
 		 * @param inContainer pass in a Sprite, otherwise the container getter will fail.
@@ -23,7 +23,7 @@ package com.epologee.navigator.integration.puremvc {
 
 		override public function onRegister() : void {
 			var np : NavigationProxy = NavigationProxy(facade.retrieveProxy(NavigationProxy.NAME));
-			_display = new DebugStatusDisplay(np.hidden::navigator, _alignMode);
+			_display = new DebugConsole(np.hidden::navigator, _alignMode);
 
 			timeline.addChild(_display);
 		}

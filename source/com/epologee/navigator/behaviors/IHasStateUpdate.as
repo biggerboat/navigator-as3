@@ -22,6 +22,6 @@ package com.epologee.navigator.behaviors {
 		 * 	and inTruncated.firstSegment will render you with "categoryA",
 		 * 	inTruncated.lastSegment will give you "244".
 		 */
-		function updateState(inTruncated:NavigationState, inFull : NavigationState) : void;
+		function updateState(truncated:NavigationState, full : NavigationState) : void;
 	}
 }

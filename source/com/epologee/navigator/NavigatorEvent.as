@@ -17,9 +17,9 @@ package com.epologee.navigator {
 		public var statusByResponder : Dictionary;
 		public var state : NavigationState;
 
-		public function NavigatorEvent(inType : String, inStatusByResponder:Dictionary = null) {
-			super(inType, false);
-			statusByResponder = inStatusByResponder;
+		public function NavigatorEvent(type : String, statusByResponder:Dictionary = null) {
+			super(type, false);
+			statusByResponder = statusByResponder;
 		}
 
 		override public function toString() : String {

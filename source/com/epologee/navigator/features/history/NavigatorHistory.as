@@ -51,8 +51,8 @@ package com.epologee.navigator.features.history {
 		 * 
 		 * @param navigator Navigator reference
 		 */
-		public function NavigatorHistory(inNavigator : Navigator) {
-			_navigator = inNavigator;
+		public function NavigatorHistory(navigator : Navigator) {
+			_navigator = navigator;
 			_navigator.addEventListener(NavigatorEvent.STATE_CHANGED, handleStateChange);
 			_history = new Array();
 		}
@@ -60,8 +60,8 @@ package com.epologee.navigator.features.history {
 		/**
 		 * Set the maximum number of states
 		 */
-		public function set maxLength(inValue : int) : void {
-			_maxLength = inValue;
+		public function set maxLength(value : int) : void {
+			_maxLength = value;
 		}
 
 		/**
@@ -81,14 +81,14 @@ package com.epologee.navigator.features.history {
 		/**
 		 * Go back in the history
 		 * 
-		 * @param positions The number of steps to go back in history
+		 * @param steps The number of steps to go back in history
 		 * @return Returns false if there was no previous state
 		 */
-		public function back(inPositions : int = 1) : Boolean {
+		public function back(steps : int = 1) : Boolean {
 			if (_historyPosition == _history.length - 1) {
 				return false;
 			}
-			_historyPosition = Math.min(_history.length - 1, _historyPosition + inPositions);
+			_historyPosition = Math.min(_history.length - 1, _historyPosition + steps);
 			_navigationDirection = NavigatorHistory.DIRECTION_BACK;
 			navigateToCurrentHistoryPosition();
 			return true;
@@ -97,14 +97,14 @@ package com.epologee.navigator.features.history {
 		/**
 		 * Go forward in the history
 		 * 
-		 * @param positions The number of steps to go forward in history
+		 * @param steps The number of steps to go forward in history
 		 * @return Returns false if there was no next state
 		 */
-		public function forward(inPositions : int = 1) : Boolean {
+		public function forward(steps : int = 1) : Boolean {
 			if (_historyPosition == 0) {
 				return false;
 			}
-			_historyPosition = Math.max(0, _historyPosition - inPositions);
+			_historyPosition = Math.max(0, _historyPosition - steps);
 			_navigationDirection = NavigatorHistory.DIRECTION_FORWARD;
 			navigateToCurrentHistoryPosition();
 			return true;
@@ -116,11 +116,11 @@ package com.epologee.navigator.features.history {
 		 * @param position The position in history
 		 * @return The found state or null if no state was found
 		 */
-		public function getStateByPosition(inPosition : int) : NavigationState {
-			if (inPosition < 0 || inPosition > _history.length - 1) {
+		public function getStateByPosition(position : int) : NavigationState {
+			if (position < 0 || position > _history.length - 1) {
 				return null;
 			}
-			return _history[inPosition] as NavigationState;
+			return _history[position] as NavigationState;
 		}
 
 		/**
@@ -129,8 +129,8 @@ package com.epologee.navigator.features.history {
 		 * @param state The state in history
 		 * @return The found position or -1 if no position was found
 		 */
-		public function getPositionByState(inState : NavigationState) : int {
-			return _history.indexOf(inState);
+		public function getPositionByState(state : NavigationState) : int {
+			return _history.indexOf(state);
 		}
 
 		/**

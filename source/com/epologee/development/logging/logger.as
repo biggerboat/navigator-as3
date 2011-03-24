@@ -9,24 +9,24 @@ package com.epologee.development.logging {
 import com.epologee.development.logging.ITraceable;
 
 class LogNone implements ITraceable {
-	public function critical(inMessage : * = "") : void {
+	public function critical(message : * = "") : void {
 	}
 
-	public function debug(inMessage : * = "") : void {
+	public function debug(message : * = "") : void {
 	}
 
-	public function error(inMessage : * = "") : void {
+	public function error(message : * = "") : void {
 	}
 
-	public function fatal(inMessage : * = "") : void {
+	public function fatal(message : * = "") : void {
 	}
 
-	public function info(inMessage : * = "") : void {
+	public function info(message : * = "") : void {
 	}
 
-	public function notice(inMessage : * = "") : void {
+	public function notice(message : * = "") : void {
 	}
 
-	public function warn(inMessage : * = "") : void {
+	public function warn(message : * = "") : void {
 	}
 }

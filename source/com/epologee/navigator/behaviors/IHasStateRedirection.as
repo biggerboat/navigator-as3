@@ -6,6 +6,6 @@ package com.epologee.navigator.behaviors {
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public interface IHasStateRedirection extends IHasStateValidation {
-		function redirect(inTruncated : NavigationState, inFull : NavigationState) : NavigationState;
+		function redirect(truncated : NavigationState, full : NavigationState) : NavigationState;
 	}
 }

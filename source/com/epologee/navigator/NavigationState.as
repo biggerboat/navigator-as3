@@ -15,8 +15,8 @@ package com.epologee.navigator {
 		//
 		private var _path : String;
 		
-		public static function make(inFromStateOrPath : *) : NavigationState {
-			return inFromStateOrPath is NavigationState ? inFromStateOrPath : new NavigationState(inFromStateOrPath);
+		public static function make(stateOrPath : *) : NavigationState {
+			return stateOrPath is NavigationState ? stateOrPath : new NavigationState(stateOrPath);
 		}
 
 		/**
@@ -27,8 +27,8 @@ package com.epologee.navigator {
 		 * 		new NavigationState("beginning/end");
 		 * 		new NavigationState("beginning", "end");
 		 */
-		public function NavigationState(...inSegments : Array) {
-			path = inSegments.join(DELIMITER);
+		public function NavigationState(...segments : Array) {
+			path = segments.join(DELIMITER);
 		}
 
 		/**
@@ -36,8 +36,8 @@ package com.epologee.navigator {
 		 * All double slashes // will be removed and white spaces are 
 		 * replaced by dashes -.
 		 */
-		public function set path(inPath : String) : void {
-			_path = DELIMITER + inPath.toLowerCase() + DELIMITER;
+		public function set path(path : String) : void {
+			_path = DELIMITER + path.toLowerCase() + DELIMITER;
 			_path = _path.replace(new RegExp("\/+", "g"), "/");
 			_path = _path.replace(/\s+/g, "-");
 		}
@@ -50,8 +50,8 @@ package com.epologee.navigator {
 		 * Set the path as a list of segments (or path components).
 		 * Example: ["a", "b", "c"] will result in a path /a/b/c/
 		 */
-		public function set segments(inSegments : Array) : void {
-			path = inSegments.join(DELIMITER);
+		public function set segments(segments : Array) : void {
+			path = segments.join(DELIMITER);
 		}
 
 		/**
@@ -97,8 +97,8 @@ package com.epologee.navigator {
 		 * 	b.contains(a) will return false.
 		 * 	
 		 */
-		public function contains(inForeignState : NavigationState) : Boolean {
-			var foreignSegments : Array = inForeignState.segments;
+		public function contains(foreignState : NavigationState) : Boolean {
+			var foreignSegments : Array = foreignState.segments;
 			var nativeSegments : Array = segments;
 
 			if (foreignSegments.length > nativeSegments.length) {
@@ -132,8 +132,8 @@ package com.epologee.navigator {
 		 * @example: 
 		 * 		a/b/c equals a/b/*
 		 */
-		public function equals(inState : NavigationState) : Boolean {
-			var sub : NavigationState = subtract(inState);
+		public function equals(state : NavigationState) : Boolean {
+			var sub : NavigationState = subtract(state);
 			if (!sub)
 				return false;
 
@@ -147,29 +147,29 @@ package com.epologee.navigator {
 		 * 		/portfolio/editorial/84/3 - /portfolio/ = /editorial/84/3
 		 * 		/portfolio/editorial/84/3 - * = /editorial/84/3
 		 */
-		public function subtract(inOperand : NavigationState) : NavigationState {
-			if (!contains(inOperand))
+		public function subtract(operand : NavigationState) : NavigationState {
+			if (!contains(operand))
 				return null;
 
 			var ns : NavigationState = new NavigationState();
 			var subtract : Array = segments;
-			subtract.splice(0, inOperand.segments.length);
+			subtract.splice(0, operand.segments.length);
 			ns.segments = subtract;
 			return ns;
 		}
 
-		public function add(inTrailingStateOrPath : *) : NavigationState {
-			return new NavigationState(path, make(inTrailingStateOrPath).path);
+		public function add(trailingStateOrPath : *) : NavigationState {
+			return new NavigationState(path, make(trailingStateOrPath).path);
 		}
 
-		public function addSegments(...inTrailingSegments : Array) : NavigationState {
+		public function addSegments(...trailingSegments : Array) : NavigationState {
 			var trailingState : NavigationState = new NavigationState();
-			trailingState.segments = inTrailingSegments;
+			trailingState.segments = trailingSegments;
 			return add(trailingState);
 		}
 
-		public function prefix(inLeadingStateOrPath : *) : NavigationState {
-			return new NavigationState(make(inLeadingStateOrPath), path);
+		public function prefix(leadingStateOrPath : *) : NavigationState {
+			return new NavigationState(make(leadingStateOrPath), path);
 		}
 
 		public function hasWildcard() : Boolean {
@@ -179,21 +179,21 @@ package com.epologee.navigator {
 		/**
 		 * Will mask wildcards with values from the provided state.
 		 */
-		public function mask(inSource : NavigationState) : NavigationState {
-			if (!inSource)
+		public function mask(source : NavigationState) : NavigationState {
+			if (!source)
 				return clone();
 
-			var unmasked : Array = segments;
-			var source : Array = inSource.segments;
-			var leni : int = Math.min(source.length, unmasked.length);
+			var unmaskedSegments : Array = segments;
+			var sourceSegments : Array = source.segments;
+			var leni : int = Math.min(sourceSegments.length, unmaskedSegments.length);
 			for (var i : int = 0;i < leni ;i++) {
-				if (unmasked[i] == NavigationState.WILDCARD && source[i]) {
-					unmasked[i] = source[i];
+				if (unmaskedSegments[i] == NavigationState.WILDCARD && sourceSegments[i]) {
+					unmaskedSegments[i] = sourceSegments[i];
 				}
 			}
 
 			var masked : NavigationState = new NavigationState();
-			masked.segments = unmasked;
+			masked.segments = unmaskedSegments;
 			return masked;
 		}
 

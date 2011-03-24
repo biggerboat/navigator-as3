@@ -42,8 +42,8 @@ package com.epologee.navigator.integration.puremvc {
 			return _history;
 		}
 
-		public function start(inDefaultState : NavigationState, inStartState : NavigationState = null) : void {
-			_navigator.start(inDefaultState, inStartState);
+		public function start(inDefaultStateOrPath : *, inStartStateOrPath : * = null) : void {
+			_navigator.start(inDefaultStateOrPath, inStartStateOrPath);
 			sendNotification(NAVIGATION_STARTED);
 		}
 

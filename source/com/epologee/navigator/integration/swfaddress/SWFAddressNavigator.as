@@ -22,9 +22,9 @@ package com.epologee.navigator.integration.swfaddress {
 			super();
 		}
 
-		override public function start(inDefaultStateOrPath : * = "", inStartStateOrPath : * = null) : void {
-			_defaultState = new NavigationState(inDefaultStateOrPath);
-			_startState = new NavigationState(inStartStateOrPath);
+		override public function start(defaultStateOrPath : * = "", startStateOrPath : * = null) : void {
+			_defaultState = NavigationState.make(defaultStateOrPath);
+			_startState = NavigationState.make(startStateOrPath);
 
 			SWFAddress.addEventListener(SWFAddressEvent.INIT, handleSWFAddressInit);
 		}
@@ -63,22 +63,22 @@ package com.epologee.navigator.integration.swfaddress {
 		 * 		/a/b/d/		-> hidden
 		 * 		
 		 */
-		public function registerHiddenState(inState : NavigationState, inExactMatch : Boolean = false) : void {
-			if (inExactMatch) {
+		public function registerHiddenState(state : NavigationState, exactMatch : Boolean = false) : void {
+			if (exactMatch) {
 				_hiddenStateEquals ||= [];
-				_hiddenStateEquals.push(inState);
+				_hiddenStateEquals.push(state);
 			} else {
 				_hiddenStateContains ||= [];
-				_hiddenStateContains.push(inState);
+				_hiddenStateContains.push(state);
 			}
 		}
 
-		override protected function notifyStateChange(inNewState : NavigationState) : void {
-			if (!isHidden(inNewState)) {
-				SWFAddress.setValue(inNewState.path);
+		override protected function notifyStateChange(state : NavigationState) : void {
+			if (!isHidden(state)) {
+				SWFAddress.setValue(state.path);
 			}
 
-			super.notifyStateChange(inNewState);
+			super.notifyStateChange(state);
 		}
 
 		private function handleSWFAddressInit(event : SWFAddressEvent) : void {
@@ -125,17 +125,17 @@ package com.epologee.navigator.integration.swfaddress {
 			}
 		}
 
-		private function isHidden(inState : NavigationState) : Boolean {
+		private function isHidden(state : NavigationState) : Boolean {
 			for each (var containedState : NavigationState in _hiddenStateContains) {
-				if (inState.contains(containedState)) {
-					logger.info("State is hidden (by containment): " + inState);
+				if (state.contains(containedState)) {
+					logger.info("State is hidden (by containment): " + state);
 					return true;
 				}
 			}
 
 			for each (var equalsState : NavigationState in _hiddenStateEquals) {
-				if (inState.equals(equalsState)) {
-					logger.info("State is hidden (exact match): " + inState);
+				if (state.equals(equalsState)) {
+					logger.info("State is hidden (exact match): " + state);
 					return true;
 				}
 			}

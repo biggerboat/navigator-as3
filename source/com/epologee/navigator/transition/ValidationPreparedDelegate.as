@@ -14,11 +14,11 @@ package com.epologee.navigator.transition {
 		private var _truncated : NavigationState;
 		private var _full : NavigationState;
 
-		public function ValidationPreparedDelegate(inValidator : IHasStateValidation, inTruncated : NavigationState, inFull : NavigationState, inNavigator : Navigator) {
-			_validator = IHasStateValidationAsync(inValidator);
-			_truncated = inTruncated;
-			_full = inFull;
-			_navigator = inNavigator;
+		public function ValidationPreparedDelegate(validator : IHasStateValidation, truncated : NavigationState, full : NavigationState, navigator : Navigator) {
+			_validator = IHasStateValidationAsync(validator);
+			_truncated = truncated;
+			_full = full;
+			_navigator = navigator;
 		}
 
 		/**
@@ -28,7 +28,7 @@ package com.epologee.navigator.transition {
 		 * 
 		 * The arguments are ignored.
 		 */
-		validation function call(...inAnyArgument : Array) : void {
+		validation function call(...ignoreParameters) : void {
 			_navigator.validation::notifyValidationPrepared(_validator, _truncated, _full);
 			_validator = null;
 			_truncated = null;

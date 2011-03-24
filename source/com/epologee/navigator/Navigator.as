@@ -71,30 +71,30 @@ package com.epologee.navigator {
 			_statusByResponder = new Dictionary();
 		}
 
-		public function add(inResponder : INavigationResponder, inPathOrStates : *, inBehavior : String = null) : void {
-			if (inPathOrStates is Array) {
-				for each (var pathOrState : * in inPathOrStates) {
-					add(inResponder, pathOrState, inBehavior);
+		public function add(responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : void {
+			if (pathsOrStates is Array) {
+				for each (var pathOrState : * in pathsOrStates) {
+					add(responder, pathOrState, behaviors);
 				}
 				return;
 			}
 			
-			inBehavior ||= NavigationBehaviors.AUTO;
-			if (!inResponder)
+			behaviors ||= NavigationBehaviors.AUTO;
+			if (!responder)
 				throw new Error("add: responder is null");
 
-			if (inBehavior == NavigationBehaviors.AUTO) {
-				autoAdd(inResponder, inPathOrStates);
+			if (behaviors == NavigationBehaviors.AUTO) {
+				autoAdd(responder, pathsOrStates);
 				return;
 			}
 
 			// Using the path variable as dictionary key to break instance referencing.
-			var path : String = NavigationState.make(inPathOrStates).path;
+			var path : String = NavigationState.make(pathsOrStates).path;
 			var list : Array;
 			var matchingInterface : Class;
 
 			// Create, store and retrieve the list that matches the desired behavior.
-			switch(inBehavior) {
+			switch(behaviors) {
 				case NavigationBehaviors.SHOW:
 					matchingInterface = IHasStateTransition;
 					list = _responders.showByPath[path] ||= [];
@@ -116,34 +116,34 @@ package com.epologee.navigator {
 					list = _responders.swapByPath[path] ||= [];
 					break;
 				default:
-					throw new Error("Unknown behavior: " + inBehavior);
+					throw new Error("Unknown behavior: " + behaviors);
 			}
 
-			if (!(inResponder is matchingInterface)) {
-				throw new Error("Responder " + inResponder + " should implement " + matchingInterface + " to respond to " + inBehavior);
+			if (!(responder is matchingInterface)) {
+				throw new Error("Responder " + responder + " should implement " + matchingInterface + " to respond to " + behaviors);
 			}
 
-			if (list.indexOf(inResponder) >= 0) {
-				logger.warn("Ignoring duplicate addition of " + inResponder + " to " + inBehavior + " at " + path);
+			if (list.indexOf(responder) >= 0) {
+				logger.warn("Ignoring duplicate addition of " + responder + " to " + behaviors + " at " + path);
 			} else {
-				list.push(inResponder);
+				list.push(responder);
 			}
 
 			// If the responder has no status yet, initialize it to UNINITIALIZED:
-			_statusByResponder[inResponder] ||= TransitionStatus.UNINITIALIZED;
+			_statusByResponder[responder] ||= TransitionStatus.UNINITIALIZED;
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 		}
 
-		public function registerRedirect(inFrom : NavigationState, inTo : NavigationState) : void {
+		public function registerRedirect(fromStateOrPath : *, toStateOrPath : *) : void {
 			_redirects ||= new Dictionary();
-			_redirects[inFrom.path] = inTo;
+			_redirects[NavigationState.make(fromStateOrPath).path] = NavigationState.make(toStateOrPath);
 		}
 
-		public function start(inDefaultStateOrPath : * = "", inStartStateOrPath : * = null) : void {
-			_defaultState = NavigationState.make(inDefaultStateOrPath);
+		public function start(defaultStateOrPath : * = "", startStateOrPath : * = null) : void {
+			_defaultState = NavigationState.make(defaultStateOrPath);
 
-			if (inStartStateOrPath) {
-				requestNewState(inStartStateOrPath);
+			if (startStateOrPath) {
+				requestNewState(startStateOrPath);
 			} else {
 				grantRequest(_defaultState);
 			}
@@ -153,14 +153,14 @@ package com.epologee.navigator {
 		 * Request a new state by providing a #NavigationState instance.
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
-		public function requestNewState(inNavigationStateOrPath : *) : void {
-			if (inNavigationStateOrPath == null) {
+		public function requestNewState(stateOrPath : *) : void {
+			if (stateOrPath == null) {
 				logger.error("Requested a null state. Aborting request.");
 				return;
 			}
 
 			// Store and possibly mask the requested state
-			var requested : NavigationState = NavigationState.make(inNavigationStateOrPath);
+			var requested : NavigationState = NavigationState.make(stateOrPath);
 			if (requested.hasWildcard()) {
 				requested = requested.mask(_current);
 			}
@@ -195,23 +195,23 @@ package com.epologee.navigator {
 			performRequestCascade(requested);
 		}
 
-		private function performRequestCascade(inRequested : NavigationState, inStartAsyncValidation : Boolean = true) : void {
+		private function performRequestCascade(requested : NavigationState, startAsyncValidation : Boolean = true) : void {
 			// Request cascade starts here.
 			//
-			if (inRequested.path == _defaultState.path) {
+			if (requested.path == _defaultState.path) {
 				// Exact match on default state bypasses validation.
 				grantRequest(_defaultState);
 			} else if (_asyncValidationOccurred && (_asyncValidated && !_asyncInvalidated)) {
 				// Async operation completed 
-				grantRequest(inRequested);
-			} else if (validate(inRequested, true, inStartAsyncValidation)) { 
+				grantRequest(requested);
+			} else if (validate(requested, true, startAsyncValidation)) { 
 				// Any other state needs to be validated.
-				grantRequest(inRequested);
+				grantRequest(requested);
 			} else if (_validating.isBusy()) {
 				// Waiting for async validation.
 				// FIXME: What do we do in the mean time, dispatch an event or sth?
 				logger.notice("waiting for async validation to complete");
-			} else if (inStartAsyncValidation && _asyncValidationOccurred) {
+			} else if (startAsyncValidation && _asyncValidationOccurred) {
 				// any async prepration happened instantaneuously
 				logger.notice("request should have been granted already");
 			} else if (_inlineRedirection) {
@@ -220,17 +220,17 @@ package com.epologee.navigator {
 				// If validation fails, the notifyStateChange() is called with the current state as a parameter,
 				// mainly for subclasses to respond to the blocked navigation (e.g. SWFAddress).
 				notifyStateChange(_current);
-			} else if (inRequested.hasWildcard()) {
+			} else if (requested.hasWildcard()) {
 				// If we get here, after validateWithWildcards has failed, this means there are still
 				// wildcards in the requested state that didn't match the previous state. This,
 				// unfortunately means your application has a logic error. Go fix it!
-				throw new Error("Check wildcard masking: " + inRequested);
+				throw new Error("Check wildcard masking: " + requested);
 			} else if (_defaultState) {
 				// If all else fails, we'll put up the default state.
 				grantRequest(_defaultState);
 			} else {
 				// If you don't provide a default state, at least make sure your first request makes sense!
-				throw new Error("First request is invalid: " + inRequested);
+				throw new Error("First request is invalid: " + requested);
 			}
 		}
 
@@ -242,14 +242,14 @@ package com.epologee.navigator {
 			return _current.clone();
 		}
 
-		transition function notifyComplete(inResponder : INavigationResponder, inStatus : int, inBehavior : String) : void {
-			_statusByResponder[inResponder] = inStatus;
+		transition function notifyComplete(responder : INavigationResponder, status : int, behavior : String) : void {
+			_statusByResponder[responder] = status;
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 
 			var asynch : AsynchResponders;
 			var method : Function;
 
-			switch(inBehavior) {
+			switch(behavior) {
 				case NavigationBehaviors.HIDE:
 					asynch = _disappearing;
 					method = flow::performUpdates;
@@ -263,17 +263,17 @@ package com.epologee.navigator {
 					method = flow::swapIn;
 					break;
 				default:
-					throw new Error("Don't know how to handle notification of behavior " + inBehavior);
+					throw new Error("Don't know how to handle notification of behavior " + behavior);
 			}
 
 			// If the notifyComplete is called instantly, the array of asynchronous responders is not yet assigned, and therefore not busy.
 			if (asynch.isBusy()) {
-				asynch.takeOutResponder(inResponder);
+				asynch.takeOutResponder(responder);
 
 				if (!asynch.isBusy()) {
 					method();
 				} else {
-					logger.notice("waiting for " + asynch.responders.length + " responders to " + inBehavior);
+					logger.notice("waiting for " + asynch.responders.length + " responders to " + behavior);
 				}
 			}
 		}
@@ -282,8 +282,8 @@ package com.epologee.navigator {
 			return _statusByResponder;
 		}
 
-		hidden function getStatus(inResponder : IHasStateTransition) : int {
-			return _statusByResponder[inResponder];
+		hidden function getStatus(responder : IHasStateTransition) : int {
+			return _statusByResponder[responder];
 		}
 
 		hidden function getKnownPaths() : Array {
@@ -304,61 +304,61 @@ package com.epologee.navigator {
 			return known;
 		}
 
-		protected function grantRequest(inNavigationState : NavigationState) : void {
+		protected function grantRequest(state : NavigationState) : void {
 			_asyncInvalidated = false;
 			_asyncValidated = false;
 			_previous = _current;
-			_current = inNavigationState;
+			_current = state;
 
 			notifyStateChange(_current);
 
 			flow::startTransition();
 		}
 
-		protected function notifyStateChange(inNewState : NavigationState) : void {
-			logger.notice(inNewState);
+		protected function notifyStateChange(state : NavigationState) : void {
+			logger.notice(state);
 			
 			// Do call the super.notifyStateChange() when overriding.
-			if (inNewState != _previous) {
+			if (state != _previous) {
 				var ne : NavigatorEvent = new NavigatorEvent(NavigatorEvent.STATE_CHANGED, _statusByResponder);
 				ne.state = getCurrentState();
 				dispatchEvent(ne);
 			}
 		}
 
-		private function autoAdd(inResponder : INavigationResponder, inPathOrState : *) : void {
+		private function autoAdd(responder : INavigationResponder, pathOrState : *) : void {
 			for each (var behavior : String in NavigationBehaviors.ALL_AUTO) {
 				try {
-					add(inResponder, inPathOrState, behavior);
+					add(responder, pathOrState, behavior);
 				} catch(e : Error) {
 					// ignore error
 				}
 			}
 		}
 
-		validation function notifyValidationPrepared(inValidator : IHasStateValidationAsync, inTruncated : NavigationState, inFull : NavigationState) : void {
-			logger.notice("Prepared validation of " + inValidator);
+		validation function notifyValidationPrepared(validator : IHasStateValidationAsync, truncated : NavigationState, full : NavigationState) : void {
+			logger.notice("Prepared validation of " + validator);
 
 			// If the takeOutResponder() method returns false, it was not in the responder list to begin with.
 			// This happens if a second navigation state is requested before the async validation preparation of the first completes.
-			if (_validating.takeOutResponder(inValidator)) {
-				if (inValidator.validate(inTruncated, inFull)) {
+			if (_validating.takeOutResponder(validator)) {
+				if (validator.validate(truncated, full)) {
 					logger.info("Asynchronously validated.");
 					_asyncValidated = true;
 				} else {
-					logger.warn("Asynchronously invalidated by "+inValidator);
+					logger.warn("Asynchronously invalidated by "+validator);
 					_asyncInvalidated = true;
 				}
 
 				if (!_validating.isBusy()) {
 					logger.notice("All async preparations complete");
-					performRequestCascade(inFull, false);
+					performRequestCascade(full, false);
 				} else {
 					logger.notice("Waiting for " + _validating.responders.length + " validators to prepare");
 				}
 			} else {
 				// ignore async preparations of former requests.
-				logger.debug("Ignoring validation preparation of " + inValidator);
+				logger.debug("Ignoring validation preparation of " + validator);
 			}
 		}
 
@@ -372,8 +372,8 @@ package com.epologee.navigator {
 		 * Secondly, if not already granted, it will continue to look for existing validators in the _responders.validateByPath.
 		 * If found, will call those and have the grant rely on the external validators.
 		 */
-		private function validate(inState : NavigationState, inAllowRedirection : Boolean = true, inAllowAsyncValidation : Boolean = true) : Boolean {
-			var unvalidatedState : NavigationState = inState;
+		private function validate(stateToValidate : NavigationState, allowRedirection : Boolean = true, allowAsyncValidation : Boolean = true) : Boolean {
+			var unvalidatedState : NavigationState = stateToValidate;
 
 			// check to see if there are still wildcards left
 			if (unvalidatedState.hasWildcard()) {
@@ -385,7 +385,7 @@ package com.epologee.navigator {
 				return true;
 			}
 
-			if (inAllowAsyncValidation) {
+			if (allowAsyncValidation) {
 				// This conditional is only true if we enter the validation the first (synchronous) time.
 				_asyncValidationOccurred = false;
 				_asyncInvalidated = false;
@@ -410,7 +410,7 @@ package com.epologee.navigator {
 					var list : Array = _responders.validateByPath[path];
 					var responder : INavigationResponder;
 
-					if (inAllowAsyncValidation) {
+					if (allowAsyncValidation) {
 						// check for async validators first. If this does not
 						for each (responder in list) {
 							var asyncValidator : IHasStateValidationAsync = responder as IHasStateValidationAsync;
@@ -458,7 +458,7 @@ package com.epologee.navigator {
 							logger.warn("Invalidated by validator: " + validator);
 							invalidated = true;
 
-							if (inAllowRedirection && validator is IHasStateRedirection) {
+							if (allowRedirection && validator is IHasStateRedirection) {
 								_inlineRedirection = IHasStateRedirection(validator).redirect(remainder, unvalidatedState);
 							}
 						}
@@ -488,9 +488,9 @@ package com.epologee.navigator {
 		}
 
 		// Check hard wiring of states to transition responders in the show list.
-		private function validateImplicitly(inState : NavigationState) : Boolean {
+		private function validateImplicitly(state : NavigationState) : Boolean {
 			for (var path : String in _responders.showByPath) {
-				if (new NavigationState(path).equals(inState)) {
+				if (new NavigationState(path).equals(state)) {
 					// info("Validation passed based on transition responder.");
 					return true;
 				}
@@ -715,8 +715,8 @@ package com.epologee.navigator {
 			return toShow;
 		}
 
-		private function initializeIfNeccessary(inResponderList : Array) : void {
-			for each (var responder : INavigationResponder in inResponderList) {
+		private function initializeIfNeccessary(responderList : Array) : void {
+			for each (var responder : INavigationResponder in responderList) {
 				if (_statusByResponder[responder] == TransitionStatus.UNINITIALIZED && responder is IHasStateInitialization) {
 					// first initialize the responder.
 					IHasStateInitialization(responder).initialize();
@@ -725,12 +725,12 @@ package com.epologee.navigator {
 			}
 		}
 
-		private function getResponderList(inList : Dictionary, inState : NavigationState) : Array {
+		private function getResponderList(list : Dictionary, state : NavigationState) : Array {
 			var responders : Array = [];
 
-			for (var path:String in inList) {
-				if (inState.contains(new NavigationState(path))) {
-					responders = responders.concat(inList[path]);
+			for (var path:String in list) {
+				if (state.contains(new NavigationState(path))) {
+					responders = responders.concat(list[path]);
 				}
 			}
 
@@ -761,12 +761,12 @@ class AsynchResponders {
 		return responders && responders.length;
 	}
 
-	public function hasResponder(inResponder : INavigationResponder) : Boolean {
-		return responders.indexOf(inResponder) >= 0;
+	public function hasResponder(responder : INavigationResponder) : Boolean {
+		return responders.indexOf(responder) >= 0;
 	}
 
-	public function takeOutResponder(inResponder : INavigationResponder) : Boolean {
-		var index : int = responders.indexOf(inResponder);
+	public function takeOutResponder(responder : INavigationResponder) : Boolean {
+		var index : int = responders.indexOf(responder);
 		if (index >= 0) {
 			responders.splice(index, 1);
 			return true;

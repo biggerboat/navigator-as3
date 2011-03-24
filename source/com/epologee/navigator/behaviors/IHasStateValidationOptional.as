@@ -18,6 +18,6 @@ package com.epologee.navigator.behaviors {
 	 * path. If they then return false, the validate() method will not be called. 
 	 */
 	public interface IHasStateValidationOptional extends IHasStateValidation {
-		function willValidate(inTruncated : NavigationState, inFull : NavigationState):Boolean;
+		function willValidate(truncated : NavigationState, full : NavigationState):Boolean;
 	}
 }

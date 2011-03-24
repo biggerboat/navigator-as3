@@ -8,6 +8,6 @@ package com.epologee.navigator.behaviors {
 		 * Synchronous validation.
 		 * Will provide the result of subtracting the registered state from the requested (inFull) state to give you the inTruncated state.
 		 */
-		function validate(inTruncated:NavigationState, inFull : NavigationState):Boolean;
+		function validate(truncated:NavigationState, full : NavigationState):Boolean;
 	}
 }

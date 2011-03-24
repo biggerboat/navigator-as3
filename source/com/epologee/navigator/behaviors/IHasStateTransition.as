@@ -9,13 +9,13 @@ package com.epologee.navigator.behaviors {
 		 * 
 		 * Call @param inCallOnComplete when the transition is ready. This may be instant or asynchronous.
 		 */
-		function transitionIn(inCallOnComplete:Function):void;
+		function transitionIn(callOnComplete:Function):void;
 		/**
 		 * Called when the responder needs to hide itself.
 		 * The transitionOut() is never called before a transitionIn().
 		 * 
 		 * Call @param inCallOnComplete when the transition is  ready. This may be instant or asynchronous.
 		 */
-		function transitionOut(inCallOnComplete:Function):void;
+		function transitionOut(callOnComplete:Function):void;
 	}
 }

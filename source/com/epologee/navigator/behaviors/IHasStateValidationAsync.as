@@ -16,6 +16,6 @@ package com.epologee.navigator.behaviors {
 		 * Typically, you would store your validation data in a kind of model, which your validate() method can
 		 * poll when actually validating the data.
 		 */
-		function prepareValidation(inTruncated : NavigationState, inFull : NavigationState, inCallOnPrepared:Function):void;
+		function prepareValidation(truncated : NavigationState, full : NavigationState, callOnPrepared:Function):void;
 	}
 }

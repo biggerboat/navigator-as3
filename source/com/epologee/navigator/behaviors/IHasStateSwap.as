@@ -10,18 +10,18 @@ package com.epologee.navigator.behaviors {
 		 * You should *not* assume that a willSwapAtState call is immediately followed by a swap call, because some validation may
 		 * prevent the state from changing.
 		 */
-		function willSwapToState(inTruncated : NavigationState, inFull : NavigationState) : Boolean;
+		function willSwapToState(truncated : NavigationState, full : NavigationState) : Boolean;
 
 		/**
 		 * This method should perform the actual swap.
 		 * The swap will wait for the inSwapComplete call before the swapIn is called.
 		 */
-		function swapOut(inSwapOutComplete : Function) : void;
+		function swapOut(swapOutComplete : Function) : void;
 
 		/**
 		 * Called with full options.
 		 * Swapping in has no completion callback.
 		 */
-		function swapIn(inTruncated : NavigationState, inFull:NavigationState) : void;
+		function swapIn(truncated : NavigationState, full:NavigationState) : void;
 	}
 }

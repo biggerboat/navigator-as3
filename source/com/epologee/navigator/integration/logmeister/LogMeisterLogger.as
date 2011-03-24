@@ -14,32 +14,32 @@ package com.epologee.navigator.integration.logmeister {
 	public class LogMeisterLogger implements ITraceable {
 		use namespace NSLogMeister;
 		
-		public function critical(inMessage : * = "") : void {
-			LogMeister.critical(inMessage);
+		public function critical(message : * = "") : void {
+			LogMeister.critical(message);
 		}
 
-		public function debug(inMessage : * = "") : void {
-			LogMeister.debug(inMessage);
+		public function debug(message : * = "") : void {
+			LogMeister.debug(message);
 		}
 
-		public function error(inMessage : * = "") : void {
-			LogMeister.error(inMessage);
+		public function error(message : * = "") : void {
+			LogMeister.error(message);
 		}
 
-		public function fatal(inMessage : * = "") : void {
-			LogMeister.fatal(inMessage);
+		public function fatal(message : * = "") : void {
+			LogMeister.fatal(message);
 		}
 
-		public function info(inMessage : * = "") : void {
-			LogMeister.info(inMessage);
+		public function info(message : * = "") : void {
+			LogMeister.info(message);
 		}
 
-		public function notice(inMessage : * = "") : void {
-			LogMeister.notice(inMessage);
+		public function notice(message : * = "") : void {
+			LogMeister.notice(message);
 		}
 
-		public function warn(inMessage : * = "") : void {
-			LogMeister.warn(inMessage);
+		public function warn(message : * = "") : void {
+			LogMeister.warn(message);
 		}
 	}
 }

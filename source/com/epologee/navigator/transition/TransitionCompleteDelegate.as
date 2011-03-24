@@ -13,11 +13,11 @@ package com.epologee.navigator.transition {
 		private var _responder : INavigationResponder;
 		private var _called : Boolean;
 
-		public function TransitionCompleteDelegate(inResponder : INavigationResponder, inStatus : int, inBehavior:String, inNavigator : Navigator) {
-			_responder = inResponder;
-			_status = inStatus;
-			_behavior = inBehavior;
-			_navigator = inNavigator;
+		public function TransitionCompleteDelegate(responder : INavigationResponder, status : int, behavior:String, navigator : Navigator) {
+			_responder = responder;
+			_status = status;
+			_behavior = behavior;
+			_navigator = navigator;
 		}
 
 		/**
@@ -27,7 +27,7 @@ package com.epologee.navigator.transition {
 		 * 
 		 * The arguments are ignored.
 		 */
-		transition function call(...inAnyArgument : Array) : void {
+		transition function call(...ignoreParameters) : void {
 			if (_called) throw new Error("Illegal second call to transition complete. This instance is already prepared for garbage collection!");
 			
 			_called = true;
