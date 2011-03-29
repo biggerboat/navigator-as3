@@ -46,7 +46,7 @@ package com.epologee.navigator {
 	[Event(name="TRANSITION_STATUS_UPDATED", type="com.epologee.navigator.NavigatorEvent")]
 	[Event(name="STATE_CHANGED", type="com.epologee.navigator.NavigatorEvent")]
 	//
-	public class Navigator extends EventDispatcher {
+	public class Navigator extends EventDispatcher implements INavigator {
 		public static var MAX_HISTORY_LENGTH : Number = 50;
 		//
 		protected var _current : NavigationState;
@@ -234,7 +234,14 @@ package com.epologee.navigator {
 			}
 		}
 
+		/**
+		 * DEPRECATED, USE THE NATIVE ACCESSOR `get currentState()`
+		 */
 		public function getCurrentState() : NavigationState {
+			return currentState;
+		}
+
+		public function get currentState() : NavigationState {
 			// not returning the _current instance to prevent possible reference conflicts.
 			if (!_current)
 				return null;

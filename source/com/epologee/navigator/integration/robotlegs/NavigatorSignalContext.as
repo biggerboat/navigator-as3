@@ -22,8 +22,8 @@ package com.epologee.navigator.integration.robotlegs {
 		private var _stateCommandMap : IStateControllerMap;
 		private var _stateActorMap : IStateActorMap;
 
-		public function NavigatorSignalContext(inContextView : DisplayObjectContainer, inAutoStartUp : Boolean = true) {
-			super(inContextView, inAutoStartUp);
+		public function NavigatorSignalContext(contextView : DisplayObjectContainer, autoStartup : Boolean = true) {
+			super(contextView, autoStartup);
 		}
 
 		public function get navigator() : Navigator {

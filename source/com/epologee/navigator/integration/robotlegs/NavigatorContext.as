@@ -20,17 +20,15 @@ package com.epologee.navigator.integration.robotlegs {
 		private var _stateCommandMap : IStateControllerMap;
 		private var _stateActorMap : IStateActorMap;
 
-		public function NavigatorContext(inContextView : DisplayObjectContainer, inAutoStartUp : Boolean = true) {
-			super(inContextView, inAutoStartUp);
-		}
-
-		public function get navigator() : Navigator {
-			// Map a subclass of the Navigator, like SWFAddressNavigator, before constructing the context if you need to substitute it:
-			// Example: injector.mapSingletonOf(Navigator, SWFAddressNavigator);
+		public function NavigatorContext(contextView : DisplayObjectContainer, autoStartup : Boolean = true, navigatorClass:Class = Navigator) {
 			if (!injector.hasMapping(Navigator)) {
 				injector.mapSingleton(Navigator);
 			}
 
+			super(contextView, autoStartup);
+		}
+
+		public function get navigator() : Navigator {
 			return injector.getInstance(Navigator);
 		}
 
