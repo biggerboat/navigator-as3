@@ -16,11 +16,11 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		private var _classesByPath : Dictionary;
 		private var _injector : IInjector;
 
-		public function StateActorMap(inNavigator : INavigator, inInjector : IInjector) {
-			_navigator = inNavigator;
+		public function StateActorMap(navigator : INavigator, iInjector : IInjector) {
+			_navigator = navigator;
 			_navigator.addEventListener(NavigatorEvent.STATE_REQUESTED, handleStateRequested);
 
-			_injector = inInjector;
+			_injector = iInjector;
 
 			_classesByPath = new Dictionary();
 		}
@@ -28,26 +28,26 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		/**
 		 * @param inStateOrPath can be one of three types. A string containing a path, a NavigationState object, or an array of those mixed.
 		 */
-		public function mapSingleton(inStatesOrPaths : *, inActorClass : Class) : void {
-			_injector.mapSingleton(inActorClass);
+		public function mapSingleton(statesOrPaths : *, actorClass : Class) : void {
+			_injector.mapSingleton(actorClass);
 			
-			addStateClass(inStatesOrPaths, inActorClass);			
+			addStateClass(statesOrPaths, actorClass);			
 		}
 
 		/**
 		 * @param inStateOrPath can be one of three types. A string containing a path, a NavigationState object, or an array of those mixed.
 		 */
-		public function mapSingletonOf(inStatesOrPaths : *, inActorClass : Class, inUseSingletonOf :Class) : void {
-			_injector.mapSingletonOf(inActorClass, inUseSingletonOf);
-			addStateClass(inStatesOrPaths, inActorClass);			
+		public function mapSingletonOf(statesOrPaths : *, actorClass : Class, useSingletonOf :Class) : void {
+			_injector.mapSingletonOf(actorClass, useSingletonOf);
+			addStateClass(statesOrPaths, actorClass);			
 		}
 
-		private function addStateClass(inStatesOrPaths : *, inActorClass : Class) : void {
-			var statesOrPaths : Array = (inStatesOrPaths is Array) ? inStatesOrPaths : [inStatesOrPaths];
-			for each (var stateOrPath : * in statesOrPaths) {
+		private function addStateClass(statesOrPaths : *, actorClass : Class) : void {
+			var statesOrPathsList : Array = (statesOrPaths is Array) ? statesOrPaths : [statesOrPaths];
+			for each (var stateOrPath : * in statesOrPathsList) {
 				var stateClasses : Array = _classesByPath[NavigationState.make(stateOrPath).path] ||= [];
-				if (stateClasses.indexOf(inActorClass) < 0) {
-					stateClasses.push(inActorClass);
+				if (stateClasses.indexOf(actorClass) < 0) {
+					stateClasses.push(actorClass);
 				} else {
 					// ignoring duplicate
 				}
