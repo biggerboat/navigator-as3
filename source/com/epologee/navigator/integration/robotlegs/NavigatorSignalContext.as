@@ -1,4 +1,5 @@
 package com.epologee.navigator.integration.robotlegs {
+	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.integration.robotlegs.mapping.INavigatorContext;
 	import com.epologee.navigator.integration.robotlegs.mapping.IStateActorMap;
@@ -22,19 +23,18 @@ package com.epologee.navigator.integration.robotlegs {
 		private var _stateCommandMap : IStateControllerMap;
 		private var _stateActorMap : IStateActorMap;
 
-		public function NavigatorSignalContext(contextView : DisplayObjectContainer, autoStartup : Boolean = true) {
+		public function NavigatorSignalContext(contextView : DisplayObjectContainer, autoStartup : Boolean = true, navigatorClass:Class = null) {
+			if (!injector.hasMapping(Navigator)) {
+				injector.mapSingletonOf(INavigator, navigatorClass || Navigator);
+			}
+
 			super(contextView, autoStartup);
 		}
 
-		public function get navigator() : Navigator {
-			// Map a subclass of the Navigator, like SWFAddressNavigator, before constructing the context if you need to substitute it:
-			// Example: injector.mapSingletonOf(Navigator, SWFAddressNavigator);
-			if (!injector.hasMapping(Navigator)) {
-				injector.mapSingleton(Navigator);
-			}
-
-			return injector.getInstance(Navigator);
+		public function get navigator() : INavigator {
+			return injector.getInstance(INavigator);
 		}
+
 
 		/**
 		 * @inheritDoc
