@@ -1,6 +1,6 @@
 package com.epologee.navigator.integration.robotlegs.mapping {
+	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.NavigationState;
-	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.behaviors.INavigationResponder;
 
@@ -12,11 +12,11 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public class StateActorMap implements IStateActorMap {
-		private var _navigator : Navigator;
+		private var _navigator : INavigator;
 		private var _classesByPath : Dictionary;
 		private var _injector : IInjector;
 
-		public function StateActorMap(inNavigator : Navigator, inInjector : IInjector) {
+		public function StateActorMap(inNavigator : INavigator, inInjector : IInjector) {
 			_navigator = inNavigator;
 			_navigator.addEventListener(NavigatorEvent.STATE_REQUESTED, handleStateRequested);
 

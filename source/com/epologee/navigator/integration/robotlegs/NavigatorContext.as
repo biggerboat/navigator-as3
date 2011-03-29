@@ -1,4 +1,5 @@
 package com.epologee.navigator.integration.robotlegs {
+	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.integration.robotlegs.mapping.INavigatorContext;
 	import com.epologee.navigator.integration.robotlegs.mapping.IStateActorMap;
@@ -20,15 +21,15 @@ package com.epologee.navigator.integration.robotlegs {
 		private var _stateCommandMap : IStateControllerMap;
 		private var _stateActorMap : IStateActorMap;
 
-		public function NavigatorContext(contextView : DisplayObjectContainer, autoStartup : Boolean = true, navigatorClass:Class = Navigator) {
+		public function NavigatorContext(contextView : DisplayObjectContainer, autoStartup : Boolean = true, NavigatorClass:Class = null) {
 			if (!injector.hasMapping(Navigator)) {
-				injector.mapSingleton(Navigator);
+				injector.mapSingletonOf(INavigator, NavigatorClass || Navigator);
 			}
 
 			super(contextView, autoStartup);
 		}
 
-		public function get navigator() : Navigator {
+		public function get navigator() : INavigator {
 			return injector.getInstance(Navigator);
 		}
 

@@ -1,7 +1,7 @@
 package com.epologee.navigator.integration.robotlegs.mapping {
 	import com.epologee.development.logging.logger;
+	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.NavigationState;
-	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.behaviors.IHasStateUpdate;
 
 	import org.robotlegs.base.ContextError;
@@ -15,14 +15,14 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public class StateControllerMap implements IStateControllerMap, IHasStateUpdate {
-		private var _navigator : Navigator;
+		private var _navigator : INavigator;
 		private var _injector : IInjector;
 		private var _commandsByState : Dictionary;
 		private var _verifiedCommandClasses : Dictionary;
 
-		public function StateControllerMap(inNavigator : Navigator, inInjector : IInjector) {
-			_navigator = inNavigator;
-			_injector = inInjector;
+		public function StateControllerMap(navigator : INavigator, injector : IInjector) {
+			_navigator = navigator;
+			_injector = injector;
 
 			_commandsByState = new Dictionary();
 			_verifiedCommandClasses = new Dictionary();
@@ -30,47 +30,47 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			_navigator.add(this, "");
 		}
 
-		public function mapCommand(inStateOrPath : *, inCommandClass : Class, inExactMatch : Boolean = false, inOneShot : Boolean = false) : void {
-			var state : NavigationState = NavigationState.make(inStateOrPath);
+		public function mapCommand(stateOrPath : *, commandClass : Class, exactMatch : Boolean = false, oneShot : Boolean = false) : void {
+			var state : NavigationState = NavigationState.make(stateOrPath);
 			var commands : Array = _commandsByState[state.path] ||= [];
 
-			if (hasCommand(commands, inCommandClass)) {
-				logger.warn("Already mapped " + inCommandClass + " to state " + state);
+			if (hasCommand(commands, commandClass)) {
+				logger.warn("Already mapped " + commandClass + " to state " + state);
 				return;
 			}
 
-			verifyCommandClass(inCommandClass);
+			verifyCommandClass(commandClass);
 
-			commands.push(new CommandWrapper(inCommandClass, state, inExactMatch, inOneShot));
+			commands.push(new CommandWrapper(commandClass, state, exactMatch, oneShot));
 		}
 
-		public function unmapCommand(inStateOrPath : *, inCommandClass : Class) : void {
-			var state : NavigationState = NavigationState.make(inStateOrPath);
+		public function unmapCommand(stateOrPath : *, commandClass : Class) : void {
+			var state : NavigationState = NavigationState.make(stateOrPath);
 			var commands : Array = _commandsByState[state.path] ||= [];
 
 			for (var i : int = commands.length; --i >= 0; ) {
 				var wrapper : CommandWrapper = CommandWrapper(commands[i]);
-				if (wrapper.CommandClass == inCommandClass) {
+				if (wrapper.CommandClass == commandClass) {
 					commands.splice(i, 1);
 					return;
 				}
 			}
 		}
 
-		public function updateState(inTruncated : NavigationState, inFull : NavigationState) : void {
+		public function updateState(truncated : NavigationState, full : NavigationState) : void {
 			for (var path : String in _commandsByState) {
 				var mappedState : NavigationState = NavigationState.make(path);
-				if (inFull.contains(mappedState)) {
+				if (full.contains(mappedState)) {
 					var commands : Array = _commandsByState[path];
-					var exact : Boolean = inFull.equals(mappedState);
+					var exact : Boolean = full.equals(mappedState);
 
 					// reverse loop to accomodate for oneshot removal
 					for (var i : int = commands.length; --i >= 0; ) {
 						var wrapper : CommandWrapper = CommandWrapper(commands[i]);
 						if (!exact && wrapper.exactMatch) continue;
 
-						_injector.mapValue(NavigationState, inFull);
-						_injector.mapValue(NavigationState, inFull.subtract(wrapper.state), "truncated");
+						_injector.mapValue(NavigationState, full);
+						_injector.mapValue(NavigationState, full.subtract(wrapper.state), "truncated");
 						
 						var command : Command = Command(_injector.instantiate(wrapper.CommandClass));
 						command.execute();
@@ -83,9 +83,9 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			}
 		}
 
-		protected function hasCommand(inWrappedCommandsList : Array, inTestForCommandClass : Class) : Boolean {
-			for each (var cw : CommandWrapper in inWrappedCommandsList) {
-				if (cw.CommandClass == inTestForCommandClass) return true;
+		protected function hasCommand(wrappedCommandsList : Array, testForCommandClass : Class) : Boolean {
+			for each (var cw : CommandWrapper in wrappedCommandsList) {
+				if (cw.CommandClass == testForCommandClass) return true;
 			}
 			return false;
 		}
@@ -107,10 +107,10 @@ class CommandWrapper {
 	public var state : NavigationState;
 	public var exactMatch : Boolean;
 
-	public function CommandWrapper(inCommandClass : Class, inState : NavigationState, inExactMatch : Boolean, inOneShot : Boolean) {
-		oneShot = inOneShot;
-		state = inState;
-		exactMatch = inExactMatch;
-		CommandClass = inCommandClass;
+	public function CommandWrapper(CommandClass : Class, state : NavigationState, exactMatch : Boolean, oneShot : Boolean) {
+		this.oneShot = oneShot;
+		this.state = state;
+		this.exactMatch = exactMatch;
+		this.CommandClass = CommandClass;
 	}
 }
