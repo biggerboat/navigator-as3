@@ -3,7 +3,7 @@ package com.epologee.navigator.features.display {
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 * 
-	 * THIS CLASS IS DEPRICATED, USE DEBUGCONSOLE INSTEAD!
+	 * THIS CLASS IS DEPRECATED, USE DEBUGCONSOLE INSTEAD!
 	 */
 	public class DebugStatusDisplay extends DebugConsole {
 		public function DebugStatusDisplay(navigator : Navigator, alignMode : String) {
