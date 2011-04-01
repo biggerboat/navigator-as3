@@ -24,7 +24,12 @@ package com.epologee.navigator.integration.swfaddress {
 
 		override public function start(defaultStateOrPath : * = "", startStateOrPath : * = null) : void {
 			_defaultState = NavigationState.make(defaultStateOrPath);
-			_startState = NavigationState.make(startStateOrPath);
+
+			if (!startStateOrPath) {
+				_startState = _defaultState;
+			} else {
+				_startState = NavigationState.make(startStateOrPath);
+			}
 
 			SWFAddress.addEventListener(SWFAddressEvent.INIT, handleSWFAddressInit);
 		}
@@ -32,7 +37,7 @@ package com.epologee.navigator.integration.swfaddress {
 		public function get startState() : NavigationState {
 			return _startState;
 		}
-		
+
 		/**
 		 * Register a state as hidden to prevent it from showing up in the browser's address bar.
 		 * Hidden states also work with wildcard.
