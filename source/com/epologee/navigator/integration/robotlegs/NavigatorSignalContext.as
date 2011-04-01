@@ -24,7 +24,7 @@ package com.epologee.navigator.integration.robotlegs {
 		private var _stateActorMap : IStateActorMap;
 
 		public function NavigatorSignalContext(contextView : DisplayObjectContainer, autoStartup : Boolean = true, navigatorClass:Class = null) {
-			if (!injector.hasMapping(Navigator)) {
+			if (!injector.hasMapping(INavigator)) {
 				injector.mapSingletonOf(INavigator, navigatorClass || Navigator);
 			}
 
@@ -34,7 +34,6 @@ package com.epologee.navigator.integration.robotlegs {
 		public function get navigator() : INavigator {
 			return injector.getInstance(INavigator);
 		}
-
 
 		/**
 		 * @inheritDoc
