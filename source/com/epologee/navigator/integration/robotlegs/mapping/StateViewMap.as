@@ -1,4 +1,5 @@
 package com.epologee.navigator.integration.robotlegs.mapping {
+	import flash.display.DisplayObject;
 	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.NavigatorEvent;
@@ -28,10 +29,9 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			_injector = injector;
 			_mediatorMap = mediatorMap;
 			_contextView = contextView;
-			
+
 			_navigator.addEventListener(NavigatorEvent.STATE_REQUESTED, handleStateRequested);
 			_navigator.add(this, "", NavigationBehaviors.AUTO);
-
 
 			_recipesByPath = new Dictionary();
 			_recipesByLayer = [];
@@ -55,32 +55,30 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		/**
 		 * @inheritDoc
 		 */
-		public function mapViewMediator(inStatesOrPaths : *, inViewClass : Class, inMediatorClass : Class, ...inViewConstructionParams : Array) : void {
+		public function mapViewMediator(inStatesOrPaths : *, inViewClass : Class, inMediatorClass : Class, ...inViewConstructionParams : Array) : ViewRecipe {
 			if (inMediatorClass != null) {
 				_mediatorMap.mapView(inViewClass, inMediatorClass);
 			}
 
-			addRecipe(inStatesOrPaths, inViewClass, inViewConstructionParams);
-		}
-
-		/**
-		 * @inheritDoc
-		 * 
-		 * FIXME: This method is called "without mediator", yet we're in a class called the "state mediator map". One of these names needs a change...
-		 */
-		public function mapView(statesOrPaths : *, viewClass : Class, ...viewConstructionParams : Array) : void {
-			addRecipe(statesOrPaths, viewClass, viewConstructionParams);
+			return addRecipe(inStatesOrPaths, inViewClass, inViewConstructionParams);
 		}
 
 		/**
 		 * @inheritDoc
 		 */
-		public function mapViewAs(statesOrPaths : *, viewClass : Class, mediatorClass : Class, injectViewAs : *, ...viewConstructionParams : Array) : void {
+		public function mapView(statesOrPaths : *, viewClass : Class, ...viewConstructionParams : Array) : ViewRecipe {
+			return addRecipe(statesOrPaths, viewClass, viewConstructionParams);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function mapViewAs(statesOrPaths : *, viewClass : Class, mediatorClass : Class, injectViewAs : *, ...viewConstructionParams : Array) : ViewRecipe {
 			if (mediatorClass != null) {
 				_mediatorMap.mapView(viewClass, mediatorClass, injectViewAs);
 			}
 
-			addRecipe(statesOrPaths, viewClass, viewConstructionParams);
+			return addRecipe(statesOrPaths, viewClass, viewConstructionParams);
 		}
 
 		/**
@@ -94,8 +92,8 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			}
 		}
 
-		private function addRecipe(statesOrPaths : *, viewClass : Class, viewConstructionParams : Array) : void {
-			var recipe : DisplayObjectRecipe = uniqueRecipeOf(viewClass, viewConstructionParams);
+		private function addRecipe(statesOrPaths : *, viewClass : Class, viewConstructionParams : Array) : ViewRecipe {
+			var recipe : ViewRecipe = uniqueRecipeOf(viewClass, viewConstructionParams);
 
 			var statesOrPathsList : Array = (statesOrPaths is Array) ? statesOrPaths : [statesOrPaths];
 			for each (var stateOrPath : * in statesOrPathsList) {
@@ -106,6 +104,8 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 					// ignoring duplicate
 				}
 			}
+
+			return recipe;
 		}
 
 		private function handleStateRequested(event : NavigatorEvent) : void {
@@ -118,7 +118,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 
 					if (stateRecipes) {
 						for (var i : int = stateRecipes.length; --i >= 0; ) {
-							var recipe : DisplayObjectRecipe = DisplayObjectRecipe(stateRecipes[i]);
+							var recipe : ViewRecipe = ViewRecipe(stateRecipes[i]);
 
 							addProductToContextView(recipe);
 							if (recipe.object is INavigationResponder) {
@@ -140,16 +140,17 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		/**
 		 * Takes care of ordering the products in the order their recipes were added.
 		 */
-		private function addProductToContextView(recipe : DisplayObjectRecipe) : void {
-			_injector.injectInto(recipe.object);
+		private function addProductToContextView(recipe : ViewRecipe) : void {
+			var container : DisplayObject = recipe.parent ? recipe.parent.displayObject : _contextView;
 			
 			var start : int = _recipesByLayer.indexOf(recipe);
 			var leni : int = _recipesByLayer.length;
 			for (var i : int = start + 1; i < leni ; i++) {
-				var testRecipe : DisplayObjectRecipe = DisplayObjectRecipe(_recipesByLayer[i]);
-				if (testRecipe.instantiated && testRecipe.displayObject.parent == _contextView) {
+				var testRecipe : ViewRecipe = ViewRecipe(_recipesByLayer[i]);
+				// If the tested recipe has it's object on the container's display list
+				if (testRecipe.instantiated && testRecipe.displayObject.parent == container) {
 					// add the product right below the current test's product.
-					_contextView.addChildAt(recipe.object, _contextView.getChildIndex(testRecipe.object));
+					_contextView.addChildAt(recipe.displayObject, _contextView.getChildIndex(testRecipe.object));
 					return;
 				}
 			}
@@ -159,19 +160,19 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		}
 
 		private function recipeExistsOf(viewComponentClass : Class) : Boolean {
-			for each (var recipe : DisplayObjectRecipe in _recipesByLayer) {
-				if (recipe.OfClass == viewComponentClass) return true;
+			for each (var recipe : ViewRecipe in _recipesByLayer) {
+				if (recipe.ObjectClass == viewComponentClass) return true;
 			}
 
 			return false;
 		}
 
-		private function uniqueRecipeOf(viewComponentClass : Class, constructorParams : Array) : DisplayObjectRecipe {
-			for each (var recipe : DisplayObjectRecipe in _recipesByLayer) {
-				if (recipe.OfClass == viewComponentClass) return recipe;
+		private function uniqueRecipeOf(viewComponentClass : Class, constructorParams : Array) : ViewRecipe {
+			for each (var recipe : ViewRecipe in _recipesByLayer) {
+				if (recipe.ObjectClass == viewComponentClass) return recipe;
 			}
 
-			var newRecipe : DisplayObjectRecipe = new DisplayObjectRecipe(viewComponentClass, constructorParams);
+			var newRecipe : ViewRecipe = new ViewRecipe(_injector, viewComponentClass, constructorParams);
 			_recipesByLayer.push(newRecipe);
 			return newRecipe;
 		}
