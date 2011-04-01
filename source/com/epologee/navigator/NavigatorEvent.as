@@ -19,7 +19,7 @@ package com.epologee.navigator {
 
 		public function NavigatorEvent(type : String, statusByResponder:Dictionary = null) {
 			super(type, false);
-			statusByResponder = statusByResponder;
+			this.statusByResponder = statusByResponder;
 		}
 
 		override public function toString() : String {

@@ -1,5 +1,5 @@
 package com.epologee.navigator.integration.robotlegs.mapping {
-	import flash.display.DisplayObject;
+	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.NavigatorEvent;
@@ -141,8 +141,8 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		 * Takes care of ordering the products in the order their recipes were added.
 		 */
 		private function addProductToContextView(recipe : ViewRecipe) : void {
-			var container : DisplayObject = recipe.parent ? recipe.parent.displayObject : _contextView;
-			
+			var container : DisplayObjectContainer = recipe.parent ? recipe.parent.displayObject as DisplayObjectContainer : _contextView;
+
 			var start : int = _recipesByLayer.indexOf(recipe);
 			var leni : int = _recipesByLayer.length;
 			for (var i : int = start + 1; i < leni ; i++) {
@@ -150,13 +150,15 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 				// If the tested recipe has it's object on the container's display list
 				if (testRecipe.instantiated && testRecipe.displayObject.parent == container) {
 					// add the product right below the current test's product.
-					_contextView.addChildAt(recipe.displayObject, _contextView.getChildIndex(testRecipe.object));
+					logger.debug("adding " + recipe.displayObject + " at index " + container.getChildIndex(testRecipe.object) + " to "+container);
+					container.addChildAt(recipe.displayObject, container.getChildIndex(testRecipe.object));
 					return;
 				}
 			}
 
 			// otherwise add on top
-			_contextView.addChild(recipe.object);
+			logger.debug("adding " + recipe.displayObject + " on top of "+container);
+			container.addChild(recipe.object);
 		}
 
 		private function recipeExistsOf(viewComponentClass : Class) : Boolean {

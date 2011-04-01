@@ -67,6 +67,8 @@ package com.epologee.navigator {
 		private var _asyncValidationOccurred : Boolean;
 
 		public function Navigator() {
+			logger.info("Navigator constructed");
+
 			_responders = new ResponderLists();
 			_statusByResponder = new Dictionary();
 		}
@@ -78,7 +80,7 @@ package com.epologee.navigator {
 				}
 				return;
 			}
-			
+
 			behaviors ||= NavigationBehaviors.AUTO;
 			if (!responder)
 				throw new Error("add: responder is null");
@@ -125,13 +127,14 @@ package com.epologee.navigator {
 
 			if (list.indexOf(responder) >= 0) {
 				logger.warn("Ignoring duplicate addition of " + responder + " to " + behaviors + " at " + path);
-			} else {
+			} else if (list.indexOf(responder) == -1) {
+				logger.info("Added " + responder + " with " +matchingInterface);
 				list.push(responder);
-			}
 
-			// If the responder has no status yet, initialize it to UNINITIALIZED:
-			_statusByResponder[responder] ||= TransitionStatus.UNINITIALIZED;
-			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+				// If the responder has no status yet, initialize it to UNINITIALIZED:
+				_statusByResponder[responder] ||= TransitionStatus.UNINITIALIZED;
+				dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+			}
 		}
 
 		public function registerRedirect(fromStateOrPath : *, toStateOrPath : *) : void {
@@ -182,7 +185,7 @@ package com.epologee.navigator {
 					}
 				}
 			}
-			
+
 			// this event makes it possible to add responders just in time to participate in the validation process.
 			var ne : NavigatorEvent = new NavigatorEvent(NavigatorEvent.STATE_REQUESTED);
 			ne.state = requested;
@@ -202,9 +205,9 @@ package com.epologee.navigator {
 				// Exact match on default state bypasses validation.
 				grantRequest(_defaultState);
 			} else if (_asyncValidationOccurred && (_asyncValidated && !_asyncInvalidated)) {
-				// Async operation completed 
+				// Async operation completed
 				grantRequest(requested);
-			} else if (validate(requested, true, startAsyncValidation)) { 
+			} else if (validate(requested, true, startAsyncValidation)) {
 				// Any other state needs to be validated.
 				grantRequest(requested);
 			} else if (_validating.isBusy()) {
@@ -324,7 +327,7 @@ package com.epologee.navigator {
 
 		protected function notifyStateChange(state : NavigationState) : void {
 			logger.notice(state);
-			
+
 			// Do call the super.notifyStateChange() when overriding.
 			if (state != _previous) {
 				var ne : NavigatorEvent = new NavigatorEvent(NavigatorEvent.STATE_CHANGED, _statusByResponder);
@@ -353,7 +356,7 @@ package com.epologee.navigator {
 					logger.info("Asynchronously validated.");
 					_asyncValidated = true;
 				} else {
-					logger.warn("Asynchronously invalidated by "+validator);
+					logger.warn("Asynchronously invalidated by " + validator);
 					_asyncInvalidated = true;
 				}
 
@@ -420,7 +423,6 @@ package com.epologee.navigator {
 					initializeIfNeccessary(list);
 
 					if (allowAsyncValidation) {
-
 						// check for async validators first. If this does not
 						for each (responder in list) {
 							var asyncValidator : IHasStateValidationAsync = responder as IHasStateValidationAsync;
@@ -441,9 +443,9 @@ package com.epologee.navigator {
 						}
 
 						if (_asyncValidationOccurred) {
-//						// If there are active async validators, stop the validation chain and wait for the prepration to finish.
-//						if (_validating.isBusy()) return false;
-//						if (_asyncValidationOccurred && (_asyncValidated || _asyncInvalidated) {
+							//						//  If there are active async validators, stop the validation chain and wait for the prepration to finish.
+							// if (_validating.isBusy()) return false;
+							// if (_asyncValidationOccurred && (_asyncValidated || _asyncInvalidated) {
 							// async validation was instantaneous, which means that the validation was approved or denied elsewhere
 							// in the stack. this method should return false any which way.
 							return false;
@@ -520,8 +522,8 @@ package com.epologee.navigator {
 
 		flow function transitionOut() : Array {
 			var toShow : Array = getRespondersToShow();
-			
-			// This initialize call is to catch responders that were put on stage to show, 
+
+			// This initialize call is to catch responders that were put on stage to show,
 			// yet still need to wait for async out transitions before they actually transition in.
 			initializeIfNeccessary(toShow);
 
