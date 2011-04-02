@@ -55,18 +55,11 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		/**
 		 * @inheritDoc
 		 */
-		public function mapViewMediator(inStatesOrPaths : *, inViewClass : Class, inMediatorClass : Class, ...inViewConstructionParams : Array) : ViewRecipe {
-			if (inMediatorClass != null) {
-				_mediatorMap.mapView(inViewClass, inMediatorClass);
+		public function mapViewMediator(statesOrPaths : *, viewClass : Class, mediatorClass : Class, ...viewConstructionParams : Array) : ViewRecipe {
+			if (mediatorClass != null) {
+				_mediatorMap.mapView(viewClass, mediatorClass);
 			}
 
-			return addRecipe(inStatesOrPaths, inViewClass, inViewConstructionParams);
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public function mapView(statesOrPaths : *, viewClass : Class, ...viewConstructionParams : Array) : ViewRecipe {
 			return addRecipe(statesOrPaths, viewClass, viewConstructionParams);
 		}
 
@@ -92,16 +85,24 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			}
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public function mapView(statesOrPaths : *, viewClass : Class, ...viewConstructionParams : Array) : ViewRecipe {
+			return addRecipe(statesOrPaths, viewClass, viewConstructionParams);
+		}
+
 		private function addRecipe(statesOrPaths : *, viewClass : Class, viewConstructionParams : Array) : ViewRecipe {
 			var recipe : ViewRecipe = uniqueRecipeOf(viewClass, viewConstructionParams);
+			if (_recipesByLayer.indexOf(recipe) == -1) {
+				_recipesByLayer.push(recipe);
+			}
 
 			var statesOrPathsList : Array = (statesOrPaths is Array) ? statesOrPaths : [statesOrPaths];
 			for each (var stateOrPath : * in statesOrPathsList) {
 				var stateRecipes : Array = _recipesByPath[NavigationState.make(stateOrPath).path] ||= [];
-				if (stateRecipes.indexOf(recipe) < 0) {
+				if (stateRecipes.indexOf(recipe) == -1) {
 					stateRecipes.push(recipe);
-				} else {
-					// ignoring duplicate
 				}
 			}
 
@@ -141,8 +142,21 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		 * Takes care of ordering the products in the order their recipes were added.
 		 */
 		private function addProductToContextView(recipe : ViewRecipe) : void {
-			var container : DisplayObjectContainer = recipe.parent ? recipe.parent.displayObject as DisplayObjectContainer : _contextView;
+			if (recipe.instantiated && recipe.displayObject.parent != null) {
+				// recipe object is already on stage, skip the rest of this method.
+				logger.info("Recipe of "+recipe.displayObject+" is already on stage");
+				return;
+			}
 
+			if (recipe.parent && !recipe.parent.instantiated) {
+				// first add the parent recipe's object to the displaylist, otherwise
+				// the robotlegs added_to_stage event is not triggered.
+				logger.info("First adding parent recipe");
+				addProductToContextView(recipe.parent);
+			}
+			
+			var container : DisplayObjectContainer = recipe.parent ? recipe.parent.displayObject as DisplayObjectContainer : _contextView;
+			
 			var start : int = _recipesByLayer.indexOf(recipe);
 			var leni : int = _recipesByLayer.length;
 			for (var i : int = start + 1; i < leni ; i++) {
@@ -150,14 +164,15 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 				// If the tested recipe has it's object on the container's display list
 				if (testRecipe.instantiated && testRecipe.displayObject.parent == container) {
 					// add the product right below the current test's product.
-					logger.debug("adding " + recipe.displayObject + " at index " + container.getChildIndex(testRecipe.object) + " to "+container);
-					container.addChildAt(recipe.displayObject, container.getChildIndex(testRecipe.object));
+					var index : int = container.getChildIndex(testRecipe.displayObject);
+					logger.debug("adding " + recipe.displayObject + " at index " + index + " of " + container);
+					container.addChildAt(recipe.displayObject, index);
 					return;
 				}
 			}
 
 			// otherwise add on top
-			logger.debug("adding " + recipe.displayObject + " on top of "+container);
+			logger.debug("adding " + recipe.displayObject + " on top of " + container);
 			container.addChild(recipe.object);
 		}
 
@@ -175,7 +190,6 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			}
 
 			var newRecipe : ViewRecipe = new ViewRecipe(_injector, viewComponentClass, constructorParams);
-			_recipesByLayer.push(newRecipe);
 			return newRecipe;
 		}
 	}

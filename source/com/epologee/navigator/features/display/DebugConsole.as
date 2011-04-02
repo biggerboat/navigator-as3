@@ -1,5 +1,4 @@
 package com.epologee.navigator.features.display {
-	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;

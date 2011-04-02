@@ -128,7 +128,7 @@ package com.epologee.navigator {
 			if (list.indexOf(responder) >= 0) {
 				logger.warn("Ignoring duplicate addition of " + responder + " to " + behaviors + " at " + path);
 			} else if (list.indexOf(responder) == -1) {
-				logger.info("Added " + responder + " with " +matchingInterface);
+				logger.info("Added " + responder + " with " + matchingInterface);
 				list.push(responder);
 
 				// If the responder has no status yet, initialize it to UNINITIALIZED:
@@ -153,10 +153,17 @@ package com.epologee.navigator {
 		}
 
 		/**
+		 * DEPRECATED USE request() INSTEAD
+		 */
+		public function requestNewState(stateOrPath : *) : void {
+			request(stateOrPath);
+		}
+		
+		/**
 		 * Request a new state by providing a #NavigationState instance.
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
-		public function requestNewState(stateOrPath : *) : void {
+		public function request(stateOrPath : *) : void {
 			if (stateOrPath == null) {
 				logger.error("Requested a null state. Aborting request.");
 				return;
@@ -709,7 +716,7 @@ package com.epologee.navigator {
 		}
 
 		flow function finishTransition() : void {
-			// logger.notice();
+			logger.notice();
 		}
 
 		private function getRespondersToShow() : Array {
