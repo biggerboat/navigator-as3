@@ -6,7 +6,7 @@ package com.epologee.navigator.features.display {
 	 * THIS CLASS IS DEPRECATED, USE DEBUGCONSOLE INSTEAD!
 	 */
 	public class DebugStatusDisplay extends DebugConsole {
-		public function DebugStatusDisplay(navigator : Navigator, alignMode : String) {
+		public function DebugStatusDisplay(navigator : Navigator, alignMode : String = "BL") {
 			super(navigator, alignMode);
 		}
 	}
