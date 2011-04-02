@@ -11,7 +11,7 @@ package com.epologee.navigator {
 
 		function start(defaultStateOrPath : * = "", startStateOrPath : * = null) : void;
 
-		function requestNewState(stateOrPath : *) : void;
+		function request(stateOrPath : *) : void;
 		
 		function get currentState() : NavigationState;
 	}

@@ -8,13 +8,12 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 	 */
 	public class ViewRecipe extends ObjectRecipe {
 		public var parent : ViewRecipe = null;
-		public var index : int = -1;
 		//
 		private var _injector : IInjector;
 
 		public function ViewRecipe(injector : IInjector, displayObjectClass : Class, constructorParams : Array) {
 			super(displayObjectClass, constructorParams);
-			
+
 			_injector = injector;
 		}
 
