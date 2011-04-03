@@ -1,7 +1,9 @@
 package com.epologee.navigator.integration.robotlegs.mapping {
+	import com.epologee.navigator.NavigationState;
+
 	import org.robotlegs.core.IInjector;
 
-	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
@@ -10,6 +12,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		public var parent : ViewRecipe = null;
 		//
 		private var _injector : IInjector;
+		private var _states : Array = [];
 
 		public function ViewRecipe(injector : IInjector, displayObjectClass : Class, constructorParams : Array) {
 			super(displayObjectClass, constructorParams);
@@ -17,8 +20,12 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			_injector = injector;
 		}
 
-		public function get displayObject() : DisplayObject {
-			return object as DisplayObject;
+		public function get states() : Array {
+			return _states;
+		}
+
+		public function get displayObject() : DisplayObjectContainer {
+			return object as DisplayObjectContainer;
 		}
 
 		override public function get object() : * {
@@ -27,6 +34,19 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			}
 
 			return super.object;
+		}
+
+		/**
+		 * Adds a state to the states list, after checking uniqueness
+		 */
+		public function addState(state : NavigationState) : void {
+			for each (var existing : NavigationState in _states) {
+				// check for strict path equality
+				// /*/something/ should not match /anything/something/, so we're not using equals();
+				if (existing.path == state.path) return;
+			}
+
+			_states.push(state);
 		}
 	}
 }
