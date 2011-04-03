@@ -44,7 +44,10 @@ package com.epologee.navigator {
 	 * come in handy when you use the SWFAddressNavigator subclass of this Navigator.
 	 */
 	[Event(name="TRANSITION_STATUS_UPDATED", type="com.epologee.navigator.NavigatorEvent")]
+	[Event(name="STATE_REQUESTED", type="com.epologee.navigator.NavigatorEvent")]
 	[Event(name="STATE_CHANGED", type="com.epologee.navigator.NavigatorEvent")]
+	[Event(name="TRANSITION_STARTED", type="com.epologee.navigator.NavigatorEvent")]
+	[Event(name="TRANSITION_FINISHED", type="com.epologee.navigator.NavigatorEvent")]
 	//
 	public class Navigator extends EventDispatcher implements INavigator {
 		public static var MAX_HISTORY_LENGTH : Number = 50;
@@ -52,6 +55,7 @@ package com.epologee.navigator {
 		protected var _current : NavigationState;
 		protected var _previous : NavigationState;
 		protected var _defaultState : NavigationState;
+		protected var _isTransitioning : Boolean;
 		//
 		private var _responders : ResponderLists;
 		private var _statusByResponder : Dictionary;
@@ -128,7 +132,6 @@ package com.epologee.navigator {
 			if (list.indexOf(responder) >= 0) {
 				logger.warn("Ignoring duplicate addition of " + responder + " to " + behaviors + " at " + path);
 			} else if (list.indexOf(responder) == -1) {
-				logger.info("Added " + responder + " with " + matchingInterface);
 				list.push(responder);
 
 				// If the responder has no status yet, initialize it to UNINITIALIZED:
@@ -156,9 +159,10 @@ package com.epologee.navigator {
 		 * DEPRECATED USE request() INSTEAD
 		 */
 		public function requestNewState(stateOrPath : *) : void {
+			logger.warn("Using deprecated method requestNewState()");
 			request(stateOrPath);
 		}
-		
+
 		/**
 		 * Request a new state by providing a #NavigationState instance.
 		 * If the new state is different from the current, it will be validated and granted.
@@ -205,7 +209,12 @@ package com.epologee.navigator {
 			performRequestCascade(requested);
 		}
 
+		public function get isTransitioning() : Boolean {
+			return _isTransitioning;
+		}
+
 		private function performRequestCascade(requested : NavigationState, startAsyncValidation : Boolean = true) : void {
+			if (!_defaultState) throw new Error("No default state set. Call start() before the first request!");
 			// Request cascade starts here.
 			//
 			if (requested.path == _defaultState.path) {
@@ -519,6 +528,9 @@ package com.epologee.navigator {
 		}
 
 		flow function startTransition() : void {
+			_isTransitioning = true;
+			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STARTED));
+
 			_disappearing = new AsynchResponders();
 			_disappearing.responders = flow::transitionOut();
 
@@ -717,6 +729,8 @@ package com.epologee.navigator {
 
 		flow function finishTransition() : void {
 			logger.notice();
+			_isTransitioning = false;
+			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_FINISHED));
 		}
 
 		private function getRespondersToShow() : Array {
@@ -761,6 +775,8 @@ import com.epologee.development.logging.logger;
 import com.epologee.navigator.behaviors.INavigationResponder;
 
 import flash.utils.Dictionary;
+import flash.utils.describeType;
+import flash.utils.getQualifiedClassName;
 /**	
  * The flow namespace is used privately, to mark methods that belong to the transition flow group.
  */
@@ -772,6 +788,25 @@ class ResponderLists {
 	public var showByPath : Dictionary = new Dictionary();
 	public var hideByPath : Dictionary = new Dictionary();
 	public var swappedBefore : Dictionary = new Dictionary();
+
+	public function toString() : String {
+		var described : XML = describeType(this);
+		var variables : XMLList = described.child("variable");
+		var s : String = "ResponderLists [";
+		for each (var variable : XML in variables) {
+			if (variable.@type == getQualifiedClassName(Dictionary)) {
+				var list : Dictionary = this[variable.@name];
+				var contents : Array = [];
+				for (var key:* in list) {
+					contents.push("[" + key + " = " + list[key] + "]");
+				}
+				s += "\n\t[" + variable.@name + ": " + contents.join(", ") + "], ";
+			}
+		}
+
+		s += "]";
+		return s;
+	}
 }
 class AsynchResponders {
 	public var responders : Array = [];
