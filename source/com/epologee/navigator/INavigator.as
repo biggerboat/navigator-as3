@@ -14,5 +14,7 @@ package com.epologee.navigator {
 		function requestNewState(stateOrPath : *) : void;
 		
 		function get currentState() : NavigationState;
+
+		function getCurrentState() : NavigationState;
 	}
 }
