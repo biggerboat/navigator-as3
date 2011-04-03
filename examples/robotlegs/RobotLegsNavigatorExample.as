@@ -1,6 +1,6 @@
 package {
-	import logmeister.LogMeister;
-	import logmeister.connectors.TrazzleConnector;
+	import com.epologee.development.logging.TraceLogger;
+	import com.epologee.development.logging.logger;
 
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -14,7 +14,7 @@ package {
 		private var context : ExampleContext;
 
 		public function RobotLegsNavigatorExample() {
-			LogMeister.addLogger(new TrazzleConnector(stage, "Example"));
+			logger = new TraceLogger();
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 
