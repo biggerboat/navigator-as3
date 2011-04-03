@@ -5,6 +5,8 @@ package {
 
 	import util.BaseExample;
 
+	import com.epologee.development.logging.TraceLogger;
+	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.features.display.DebugConsole;
 
@@ -26,8 +28,9 @@ package {
 		private var blackCircle : Circle;
 
 		public function SimpleNavigatorExample() {
+			logger = new TraceLogger();
 			navigator = new Navigator();
-			
+
 			// Example description and menu
 			intro = new ExampleTextBox();
 			intro.addEventListener(TextEvent.LINK, handleTextLinkEvent);
@@ -43,20 +46,20 @@ package {
 			// Navigator debug console, very nice for development. Toggle with the tilde key, "~". You can type in new states by hand!
 			display = new DebugConsole(navigator);
 			addChild(display);
-			
-			// Here we add the responders to the navigation states they represent.			
+
+			// Here we add the responders to the navigation states they represent.
 			navigator.add(redSquare, "red");
 			navigator.add(greenSquare, "green");
 			navigator.add(blueSquare, "blue");
 			navigator.add(blackCircle, "black");
-			
+
 			// We can add one responder to as many states as we like.
 			navigator.add(redSquare, "*/red");
 			navigator.add(greenSquare, "*/green");
 			navigator.add(blueSquare, "*/blue");
 			navigator.add(blackCircle, "*/black");
-		
-			// And then we decide the point at which the Navigator takes over	
+
+			// And then we decide the point at which the Navigator takes over
 			navigator.start();
 		}
 
@@ -64,10 +67,10 @@ package {
 			// New states are 'requested' at the Navigator. It will run a few validation tests on your requested state.
 			// States that make no sense to the Navigator are denied, but if you stick to the states we added
 			// responders to, we'll be perfectly fine.
-			
+
 			navigator.requestNewState(event.text);
-			
-			// You can influence the validation of states by adding components that implement IHasStateValidation*** interfaces. 
+
+			// You can influence the validation of states by adding components that implement IHasStateValidation*** interfaces.
 		}
 	}
 }
