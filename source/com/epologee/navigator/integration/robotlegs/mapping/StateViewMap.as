@@ -11,15 +11,14 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 	import org.robotlegs.core.IMediatorMap;
 
 	import flash.display.DisplayObjectContainer;
-	import flash.utils.Dictionary;
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public class StateViewMap implements IStateViewMap, IHasStateValidationOptional {
 		private var _navigator : INavigator;
-		private var _recipesByPath : Dictionary;
-		private var _recipesByLayer : Array;
+		private var _orderedRecipes : Array;
+		private var _uniquePaths : Array;
 		private var _mediatorMap : IMediatorMap;
 		private var _contextView : DisplayObjectContainer;
 		private var _injector : IInjector;
@@ -33,8 +32,8 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			_navigator.addEventListener(NavigatorEvent.STATE_REQUESTED, handleStateRequested);
 			_navigator.add(this, "", NavigationBehaviors.AUTO);
 
-			_recipesByPath = new Dictionary();
-			_recipesByLayer = [];
+			_orderedRecipes = [];
+			_uniquePaths = [];
 		}
 
 		/**
@@ -45,7 +44,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		}
 
 		public function validate(truncated : NavigationState, full : NavigationState) : Boolean {
-			for (var path : String in _recipesByPath) {
+			for each (var path : String in _uniquePaths) {
 				if (NavigationState.make(path).equals(full)) return true;
 			}
 
@@ -94,44 +93,31 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 
 		private function addRecipe(statesOrPaths : *, viewClass : Class, viewConstructionParams : Array) : ViewRecipe {
 			var recipe : ViewRecipe = uniqueRecipeOf(viewClass, viewConstructionParams);
-			if (_recipesByLayer.indexOf(recipe) == -1) {
-				_recipesByLayer.push(recipe);
-			}
+			if (_orderedRecipes.indexOf(recipe) < 0) _orderedRecipes.push(recipe);
 
 			var statesOrPathsList : Array = (statesOrPaths is Array) ? statesOrPaths : [statesOrPaths];
 			for each (var stateOrPath : * in statesOrPathsList) {
-				var stateRecipes : Array = _recipesByPath[NavigationState.make(stateOrPath).path] ||= [];
-				if (stateRecipes.indexOf(recipe) == -1) {
-					stateRecipes.push(recipe);
-				}
+				var state : NavigationState = NavigationState.make(stateOrPath);
+				if (_uniquePaths.indexOf(state.path) < 0) _uniquePaths.push(state.path);
+				recipe.addState(state);
 			}
 
 			return recipe;
 		}
 
 		private function handleStateRequested(event : NavigatorEvent) : void {
-			for (var path:String in _recipesByPath) {
-				// create a state object for comparison:
-				var state : NavigationState = new NavigationState(path);
+			for each (var recipe : ViewRecipe in _orderedRecipes) {
+				for each (var state : NavigationState in recipe.states) {
+					if (event.state.contains(state)) {
+						addProductToContextView(recipe);
 
-				if (event.state.contains(state)) {
-					var stateRecipes : Array = _recipesByPath[path];
+						if (recipe.object is INavigationResponder) {
+							_navigator.add(recipe.object, state);
+						}
 
-					if (stateRecipes) {
-						for (var i : int = stateRecipes.length; --i >= 0; ) {
-							var recipe : ViewRecipe = ViewRecipe(stateRecipes[i]);
-
-							addProductToContextView(recipe);
-							if (recipe.object is INavigationResponder) {
-								_navigator.add(recipe.object, state);
-							}
-
-							var mediatorResponder : INavigationResponder = _mediatorMap.retrieveMediator(recipe.displayObject) as INavigationResponder;
-							if (mediatorResponder) {
-								_navigator.add(mediatorResponder, state);
-							}
-
-							stateRecipes.splice(i, 1);
+						var mediatorResponder : INavigationResponder = _mediatorMap.retrieveMediator(recipe.displayObject) as INavigationResponder;
+						if (mediatorResponder) {
+							_navigator.add(mediatorResponder, state);
 						}
 					}
 				}
@@ -144,7 +130,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		private function addProductToContextView(recipe : ViewRecipe) : void {
 			if (recipe.instantiated && recipe.displayObject.parent != null) {
 				// recipe object is already on stage, skip the rest of this method.
-				logger.info("Recipe of "+recipe.displayObject+" is already on stage");
+				logger.info("Recipe of " + recipe.displayObject + " is already on stage");
 				return;
 			}
 
@@ -154,30 +140,29 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 				logger.info("First adding parent recipe");
 				addProductToContextView(recipe.parent);
 			}
-			
-			var container : DisplayObjectContainer = recipe.parent ? recipe.parent.displayObject as DisplayObjectContainer : _contextView;
-			
-			var start : int = _recipesByLayer.indexOf(recipe);
-			var leni : int = _recipesByLayer.length;
-			for (var i : int = start + 1; i < leni ; i++) {
-				var testRecipe : ViewRecipe = ViewRecipe(_recipesByLayer[i]);
+
+			var container : DisplayObjectContainer = recipe.parent ? recipe.parent.displayObject : _contextView;
+
+			var leni : int = _orderedRecipes.length;
+			for (var i : int = _orderedRecipes.indexOf(recipe) + 1; i < leni; i++) {
+				var testRecipe : ViewRecipe = ViewRecipe(_orderedRecipes[i]);
 				// If the tested recipe has it's object on the container's display list
 				if (testRecipe.instantiated && testRecipe.displayObject.parent == container) {
 					// add the product right below the current test's product.
 					var index : int = container.getChildIndex(testRecipe.displayObject);
-					logger.debug("adding " + recipe.displayObject + " at index " + index + " of " + container);
+					logger.debug("Adding " + recipe.displayObject + " to " + container + " @ " + index);
 					container.addChildAt(recipe.displayObject, index);
 					return;
 				}
 			}
 
 			// otherwise add on top
-			logger.debug("adding " + recipe.displayObject + " on top of " + container);
+			logger.debug("Adding " + recipe.displayObject + " to " + container + " @ top");
 			container.addChild(recipe.object);
 		}
 
 		private function recipeExistsOf(viewComponentClass : Class) : Boolean {
-			for each (var recipe : ViewRecipe in _recipesByLayer) {
+			for each (var recipe : ViewRecipe in _orderedRecipes) {
 				if (recipe.ObjectClass == viewComponentClass) return true;
 			}
 
@@ -185,7 +170,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		}
 
 		private function uniqueRecipeOf(viewComponentClass : Class, constructorParams : Array) : ViewRecipe {
-			for each (var recipe : ViewRecipe in _recipesByLayer) {
+			for each (var recipe : ViewRecipe in _orderedRecipes) {
 				if (recipe.ObjectClass == viewComponentClass) return recipe;
 			}
 
