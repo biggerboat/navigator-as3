@@ -29,12 +29,11 @@ package com.epologee.navigator.integration.robotlegs {
 			}
 
 			super(contextView, autoStartup);
-
-			if (injector.hasMapping(Navigator)) {
-				throw new Error("Warning: Injector mapping found for Navigator. Remove the mapping and pass any subclass of the Navigator to the context's constructor");
-			}
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public function get navigator() : INavigator {
 			return injector.getInstance(INavigator);
 		}
