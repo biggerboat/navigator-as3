@@ -1,6 +1,7 @@
 package com.epologee.navigator.integration.puremvc {
 	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.NavigationState;
+	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
@@ -25,7 +26,7 @@ package com.epologee.navigator.integration.puremvc {
 		public static const NAVIGATION_STARTED : String = NAME + ":NAVIGATION_STARTED";
 		public static const STATE_CHANGED : String = NAME + ":STATE_CHANGED";
 		//
-		private var _navigator : Navigator;
+		private var _navigator : INavigator;
 		private var _history : NavigatorHistory;
 
 		public function NavigationProxy(inUseSWFAddress : Boolean) {
@@ -132,19 +133,33 @@ package com.epologee.navigator.integration.puremvc {
 		}
 
 		/**
+		 * DEPRECATED.
+		 */
+		public function requestNewState(stateOrPath : *) : void {
+			logger.warn("Using deprecated method requestNewState(). Use request() instead.");
+			request(stateOrPath);
+		}
+
+		/**
 		 * Request a new state by providing a #NavigationState instance.
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
-		public function requestNewState(inStateOrPath : *) : void {
-			_navigator.requestNewState(inStateOrPath);
+		public function request(stateOrPath : *) : void {
+			logger.warn("Using deprecated method requestNewState(). Use request() instead.");
+			_navigator.request(stateOrPath);
 		}
 
-		public function getStatus(inResponder : IHasStateTransition) : int {
-			return _navigator.hidden::getStatus(inResponder);
+		public function getStatus(responder : IHasStateTransition) : int {
+			return _navigator.hidden::getStatus(responder);
 		}
 
 		public function getCurrentState() : NavigationState {
-			return _navigator.getCurrentState();
+			logger.warn("Using deprecated method getCurrentState(). Use currentState instead.");
+			return _navigator.currentState;
+		}
+
+		public function currentState() : NavigationState {
+			return _navigator.currentState;
 		}
 
 		private function handleTransitionStatusUpdate(event : NavigatorEvent) : void {

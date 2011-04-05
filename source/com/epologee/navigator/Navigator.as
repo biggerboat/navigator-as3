@@ -346,7 +346,7 @@ package com.epologee.navigator {
 			// Do call the super.notifyStateChange() when overriding.
 			if (state != _previous) {
 				var ne : NavigatorEvent = new NavigatorEvent(NavigatorEvent.STATE_CHANGED, _statusByResponder);
-				ne.state = getCurrentState();
+				ne.state = currentState;
 				dispatchEvent(ne);
 			}
 		}
