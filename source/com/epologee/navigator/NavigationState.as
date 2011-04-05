@@ -11,10 +11,11 @@ package com.epologee.navigator {
 	 */
 	public class NavigationState {
 		public static const WILDCARD : String = "*";
+		public static const DOUBLE_WILDCARD : String = WILDCARD + WILDCARD;
 		public static const DELIMITER : String = "/";
 		//
 		private var _path : String;
-		
+
 		public static function make(stateOrPath : *) : NavigationState {
 			return stateOrPath is NavigationState ? stateOrPath : new NavigationState(stateOrPath);
 		}
@@ -71,10 +72,21 @@ package com.epologee.navigator {
 			return s;
 		}
 
+		public function get length() : int {
+			return segments.length;
+		}
+
+		public function set length(length : int) : void {
+			if (length > segments.length) throw new Error("Can't extend the segment length by number, use segments = [...]");
+
+			var s : Array = segments;
+			segments = s.slice(0, length);
+		}
+
 		/**
 		 * Convenience method for not having to call segments[0] all the time.
 		 */
-		public function get firstSegment():String {
+		public function get firstSegment() : String {
 			return segments[0];
 		}
 
