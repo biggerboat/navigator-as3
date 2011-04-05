@@ -106,7 +106,7 @@ package com.epologee.navigator.features.display {
 		}
 
 		private function updateDisplay(statusByResponder : Dictionary) : void {
-			var currentState : NavigationState = _navigator.getCurrentState();
+			var currentState : NavigationState = _navigator.currentState;
 			if (!currentState) return;
 
 			var sLeft : String = "<font color=\"#AAAAAA\">Path:</font>\n";
