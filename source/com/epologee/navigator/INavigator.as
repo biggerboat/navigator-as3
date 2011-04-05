@@ -1,6 +1,8 @@
 package com.epologee.navigator {
 	import flash.events.IEventDispatcher;
+
 	import com.epologee.navigator.behaviors.INavigationResponder;
+
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
@@ -11,10 +13,17 @@ package com.epologee.navigator {
 
 		function start(defaultStateOrPath : * = "", startStateOrPath : * = null) : void;
 
-		function requestNewState(stateOrPath : *) : void;
-		
+		function request(stateOrPath : *) : void;
+
 		function get currentState() : NavigationState;
 
+		//
+		// DEPRECATED METHODS:
+		//
+		/** DEPRECATED. use request() instead */
+		function requestNewState(stateOrPath : *) : void;
+
+		/** DEPRECATED. use currentState accessor instead */
 		function getCurrentState() : NavigationState;
 	}
 }
