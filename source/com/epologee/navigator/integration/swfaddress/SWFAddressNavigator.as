@@ -95,9 +95,9 @@ package com.epologee.navigator.integration.swfaddress {
 				_startState = ns;
 			} else {
 				if (_startState) {
-					requestNewState(_startState);
+					request(_startState);
 				} else {
-					requestNewState(_defaultState);
+					request(_defaultState);
 				}
 			}
 
@@ -119,13 +119,13 @@ package com.epologee.navigator.integration.swfaddress {
 				if (_current) {
 					notifyStateChange(_current);
 				} else {
-					requestNewState(_defaultState);
+					request(_defaultState);
 				}
 			} else {
 				try {
-					requestNewState(toRequest);
+					request(toRequest);
 				} catch(error : Error) {
-					requestNewState(_defaultState);
+					request(_defaultState);
 				}
 			}
 		}

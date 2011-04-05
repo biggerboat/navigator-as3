@@ -157,7 +157,7 @@ package com.epologee.navigator {
 		 * DEPRECATED USE request() INSTEAD
 		 */
 		public function requestNewState(stateOrPath : *) : void {
-			logger.warn("Using deprecated method requestNewState()");
+			logger.warn("Using deprecated method requestNewState(). Use request() instead.");
 			request(stateOrPath);
 		}
 
@@ -255,6 +255,7 @@ package com.epologee.navigator {
 		 * DEPRECATED, USE THE NATIVE ACCESSOR `get currentState()`
 		 */
 		public function getCurrentState() : NavigationState {
+			logger.warn("Using deprecated method getCurrentState(). Use currentState instead.");
 			return currentState;
 		}
 
