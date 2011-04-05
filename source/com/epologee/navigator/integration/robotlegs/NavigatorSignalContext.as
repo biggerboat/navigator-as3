@@ -23,12 +23,16 @@ package com.epologee.navigator.integration.robotlegs {
 		private var _stateCommandMap : IStateControllerMap;
 		private var _stateActorMap : IStateActorMap;
 
-		public function NavigatorSignalContext(contextView : DisplayObjectContainer, autoStartup : Boolean = true, navigatorClass:Class = null) {
+		public function NavigatorSignalContext(contextView : DisplayObjectContainer, autoStartup : Boolean = true, CustomNavigator : Class = null) {
 			if (!injector.hasMapping(INavigator)) {
-				injector.mapSingletonOf(INavigator, navigatorClass || Navigator);
+				injector.mapSingletonOf(INavigator, CustomNavigator || Navigator);
 			}
 
 			super(contextView, autoStartup);
+
+			if (injector.hasMapping(Navigator)) {
+				throw new Error("Warning: Injector mapping found for Navigator. Remove the mapping and pass any subclass of the Navigator to the context's constructor");
+			}
 		}
 
 		public function get navigator() : INavigator {
