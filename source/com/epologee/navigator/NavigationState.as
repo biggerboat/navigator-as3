@@ -93,7 +93,7 @@ package com.epologee.navigator {
 		/**
 		 * Convenience method for not having to call segments[segments.length-1] all the time.
 		 */
-		public function lastSegment() : String {
+		public function get lastSegment() : String {
 			var s : Array = segments;
 			return s[s.length - 1];
 		}
