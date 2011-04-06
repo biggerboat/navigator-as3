@@ -373,6 +373,10 @@ package com.epologee.navigator {
 				} else {
 					logger.warn("Asynchronously invalidated by " + validator);
 					_asyncInvalidated = true;
+
+					if (validator is IHasStateRedirection) {
+						_inlineRedirection = IHasStateRedirection(validator).redirect(truncated, full);
+					}
 				}
 
 				if (!_validating.isBusy()) {
