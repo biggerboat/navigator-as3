@@ -147,7 +147,7 @@ package com.epologee.navigator {
 			_defaultState = NavigationState.make(defaultStateOrPath);
 
 			if (startStateOrPath) {
-				requestNewState(startStateOrPath);
+				request(startStateOrPath);
 			} else {
 				grantRequest(_defaultState);
 			}
@@ -189,7 +189,7 @@ package com.epologee.navigator {
 					if (from.equals(requested)) {
 						var to : NavigationState = NavigationState(_redirects[path]);
 						logger.info("Redirecting " + from + " to " + to);
-						requestNewState(to);
+						request(to);
 						return;
 					}
 				}
@@ -200,7 +200,7 @@ package com.epologee.navigator {
 			ne.state = requested;
 			dispatchEvent(ne);
 
-			// Inline redirection is reset with every requestNewState call.
+			// Inline redirection is reset with every request call.
 			// It can be changed by a responder implementing the IHasStateRedirection interface.
 			_inlineRedirection = null;
 
@@ -232,7 +232,7 @@ package com.epologee.navigator {
 				// any async prepration happened instantaneuously
 				logger.notice("request should have been granted already");
 			} else if (_inlineRedirection) {
-				requestNewState(_inlineRedirection);
+				request(_inlineRedirection);
 			} else if (_current) {
 				// If validation fails, the notifyStateChange() is called with the current state as a parameter,
 				// mainly for subclasses to respond to the blocked navigation (e.g. SWFAddress).
