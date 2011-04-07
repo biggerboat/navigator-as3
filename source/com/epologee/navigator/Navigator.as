@@ -262,7 +262,7 @@ package com.epologee.navigator {
 		public function get currentState() : NavigationState {
 			// not returning the _current instance to prevent possible reference conflicts.
 			if (!_current)
-				return null;
+				return _defaultState.clone();
 
 			return _current.clone();
 		}
@@ -731,7 +731,6 @@ package com.epologee.navigator {
 		}
 
 		flow function finishTransition() : void {
-			logger.notice();
 			_isTransitioning = false;
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_FINISHED));
 		}
