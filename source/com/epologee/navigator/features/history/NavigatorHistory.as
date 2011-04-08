@@ -79,6 +79,44 @@ package com.epologee.navigator.features.history {
 		}
 
 		/**
+		 * Go back in the history and return that NavigationState
+		 * 
+		 * @param steps The number of steps to go back in history
+		 * @return The found state or null if no state was found
+		 */
+		public function getPreviousState(steps : int = 1) : NavigationState {
+			if (_historyPosition == _history.length - 1) {
+				return null;
+			}
+
+			var pos : int = Math.min(_history.length - 1, _historyPosition + steps);
+			return _history[pos];
+		}
+
+		/**
+		 * Go forward in the history and return that NavigationState
+		 * 
+		 * @param steps The number of steps to go back in history
+		 * @return The found state or null if no state was found
+		 */
+		public function getNextState(steps : int = 1) : NavigationState {
+			if (_historyPosition == 0) {
+				return null;
+			}
+
+			var pos : int = Math.max(0, _historyPosition - steps);
+			return _history[pos];
+		}
+
+		/**
+		 * Clear up navigation history
+		 */
+		public function clearHistory() : void {
+			_history = new Array();
+			_historyPosition = 1;
+		}
+
+		/**
 		 * Go back in the history
 		 * 
 		 * @param steps The number of steps to go back in history
