@@ -51,6 +51,7 @@ package com.epologee.navigator {
 	//
 	public class Navigator extends EventDispatcher implements INavigator {
 		public static var MAX_HISTORY_LENGTH : Number = 50;
+		public static var INSTANCE_COUNT : int = 0;
 		//
 		protected var _current : NavigationState;
 		protected var _previous : NavigationState;
@@ -71,7 +72,8 @@ package com.epologee.navigator {
 		private var _asyncValidationOccurred : Boolean;
 
 		public function Navigator() {
-			logger.info("Navigator constructed");
+			INSTANCE_COUNT++;
+			logger.info("Navigator "+INSTANCE_COUNT+" constructed");
 
 			_responders = new ResponderLists();
 			_statusByResponder = new Dictionary();
@@ -230,7 +232,6 @@ package com.epologee.navigator {
 				logger.notice("waiting for async validation to complete");
 			} else if (startAsyncValidation && _asyncValidationOccurred) {
 				// any async prepration happened instantaneuously
-				logger.notice("request should have been granted already");
 			} else if (_inlineRedirection) {
 				request(_inlineRedirection);
 			} else if (_current) {
@@ -362,13 +363,10 @@ package com.epologee.navigator {
 		}
 
 		validation function notifyValidationPrepared(validator : IHasStateValidationAsync, truncated : NavigationState, full : NavigationState) : void {
-			logger.notice("Prepared validation of " + validator);
-
 			// If the takeOutResponder() method returns false, it was not in the responder list to begin with.
 			// This happens if a second navigation state is requested before the async validation preparation of the first completes.
 			if (_validating.takeOutResponder(validator)) {
 				if (validator.validate(truncated, full)) {
-					logger.info("Asynchronously validated.");
 					_asyncValidated = true;
 				} else {
 					logger.warn("Asynchronously invalidated by " + validator);
@@ -380,14 +378,12 @@ package com.epologee.navigator {
 				}
 
 				if (!_validating.isBusy()) {
-					logger.notice("All async preparations complete");
 					performRequestCascade(full, false);
 				} else {
 					logger.notice("Waiting for " + _validating.responders.length + " validators to prepare");
 				}
 			} else {
 				// ignore async preparations of former requests.
-				logger.debug("Ignoring validation preparation of " + validator);
 			}
 		}
 

@@ -130,14 +130,14 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		private function addProductToContextView(recipe : ViewRecipe) : void {
 			if (recipe.instantiated && recipe.displayObject.parent != null) {
 				// recipe object is already on stage, skip the rest of this method.
-				logger.info("Recipe of " + recipe.displayObject + " is already on stage");
+				// logger.info("Recipe of " + recipe.displayObject + " is already on stage");
 				return;
 			}
 
 			if (recipe.parent && !recipe.parent.instantiated) {
 				// first add the parent recipe's object to the displaylist, otherwise
 				// the robotlegs added_to_stage event is not triggered.
-				logger.info("First adding parent recipe");
+				// logger.info("First adding parent recipe");
 				addProductToContextView(recipe.parent);
 			}
 
@@ -150,14 +150,14 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 				if (testRecipe.instantiated && testRecipe.displayObject.parent == container) {
 					// add the product right below the current test's product.
 					var index : int = container.getChildIndex(testRecipe.displayObject);
-					logger.debug("Adding " + recipe.displayObject + " to " + container + " @ " + index);
+					// logger.debug("Adding " + recipe.displayObject + " to " + container + " @ " + index);
 					container.addChildAt(recipe.displayObject, index);
 					return;
 				}
 			}
 
 			// otherwise add on top
-			logger.debug("Adding " + recipe.displayObject + " to " + container + " @ top");
+			// logger.debug("Adding " + recipe.displayObject + " to " + container + " @ top");
 			container.addChild(recipe.object);
 		}
 
