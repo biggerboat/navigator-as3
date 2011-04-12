@@ -16,14 +16,5 @@ package com.epologee.navigator {
 		function request(stateOrPath : *) : void;
 
 		function get currentState() : NavigationState;
-
-		//
-		// DEPRECATED METHODS:
-		//
-		/** DEPRECATED. use request() instead */
-		function requestNewState(stateOrPath : *) : void;
-
-		/** DEPRECATED. use currentState accessor instead */
-		function getCurrentState() : NavigationState;
 	}
 }
