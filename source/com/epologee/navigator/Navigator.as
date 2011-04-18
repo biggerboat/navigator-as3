@@ -148,11 +148,7 @@ package com.epologee.navigator {
 		public function start(defaultStateOrPath : * = "", startStateOrPath : * = null) : void {
 			_defaultState = NavigationState.make(defaultStateOrPath);
 
-			if (startStateOrPath) {
-				request(startStateOrPath);
-			} else {
-				grantRequest(_defaultState);
-			}
+			request(startStateOrPath || _defaultState);
 		}
 
 		/**
