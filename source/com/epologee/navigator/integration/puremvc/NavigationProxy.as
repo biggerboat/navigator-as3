@@ -1,7 +1,7 @@
 package com.epologee.navigator.integration.puremvc {
 	import com.epologee.development.logging.logger;
-	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.INavigator;
+	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
@@ -9,8 +9,10 @@ package com.epologee.navigator.integration.puremvc {
 	import com.epologee.navigator.features.history.NavigatorHistory;
 	import com.epologee.navigator.integration.swfaddress.SWFAddressNavigator;
 	import com.epologee.navigator.namespaces.hidden;
-	import flash.utils.getQualifiedClassName;
+
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
+
+	import flash.utils.getQualifiedClassName;
 
 
 
@@ -173,7 +175,7 @@ package com.epologee.navigator.integration.puremvc {
 		/**
 		 * Use this getter only for development feedback.
 		 */
-		hidden function get navigator() : Navigator {
+		hidden function get navigator() : INavigator {
 			return _navigator;
 		}
 	}

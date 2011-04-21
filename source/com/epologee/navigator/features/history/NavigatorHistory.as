@@ -1,6 +1,6 @@
 package com.epologee.navigator.features.history {
+	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.NavigationState;
-	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 
 	/**
@@ -33,7 +33,7 @@ package com.epologee.navigator.features.history {
 		public static const DIRECTION_FORWARD : int = 1;
 		//
 		// The navigator it is controlling
-		private var _navigator : Navigator;
+		private var _navigator : INavigator;
 		// The history, last state is at start of Array
 		private var _history : Array;
 		// The current position in history
@@ -51,7 +51,7 @@ package com.epologee.navigator.features.history {
 		 * 
 		 * @param navigator Navigator reference
 		 */
-		public function NavigatorHistory(navigator : Navigator) {
+		public function NavigatorHistory(navigator : INavigator) {
 			_navigator = navigator;
 			_navigator.addEventListener(NavigatorEvent.STATE_CHANGED, handleStateChange);
 			_history = new Array();

@@ -73,7 +73,7 @@ package com.epologee.navigator {
 
 		public function Navigator() {
 			INSTANCE_COUNT++;
-			logger.info("Navigator "+INSTANCE_COUNT+" constructed");
+			logger.info("Navigator " + INSTANCE_COUNT + " constructed");
 
 			_responders = new ResponderLists();
 			_statusByResponder = new Dictionary();
@@ -258,8 +258,12 @@ package com.epologee.navigator {
 
 		public function get currentState() : NavigationState {
 			// not returning the _current instance to prevent possible reference conflicts.
-			if (!_current)
-				return _defaultState.clone();
+			if (!_current) {
+				if (_defaultState)
+					return _defaultState.clone();
+
+				return null;
+			}
 
 			return _current.clone();
 		}
