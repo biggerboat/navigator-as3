@@ -25,7 +25,7 @@ package com.epologee.navigator.integration.puremvc {
 		}
 
 		protected function addChildAt(inChild : DisplayObject, inIndex : int) : void {
-			timeline.addChildAt(inChild, inIndex)
+			timeline.addChildAt(inChild, inIndex);
 		}
 
 		protected function removeChild(inChild : DisplayObject) : void {

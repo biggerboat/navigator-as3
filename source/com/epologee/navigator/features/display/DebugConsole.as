@@ -1,6 +1,6 @@
 package com.epologee.navigator.features.display {
+	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.NavigationState;
-	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
 	import com.epologee.navigator.behaviors.IHasStateInitialization;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
@@ -26,10 +26,10 @@ package com.epologee.navigator.features.display {
 		private var _boxLeft : DebugTextBox;
 		private var _boxRight : DebugTextBox;
 		private var _boxHeader : DebugTextField;
-		private var _navigator : Navigator;
+		private var _navigator : INavigator;
 		private var _alignMode : String;
 
-		public function DebugConsole(navigator : Navigator, alignMode : String = "BL") {
+		public function DebugConsole(navigator : INavigator, alignMode : String = "BL") {
 			_navigator = navigator;
 			_alignMode = alignMode;
 
@@ -196,16 +196,16 @@ package com.epologee.navigator.features.display {
 		}
 	}
 }
-import com.epologee.navigator.Navigator;
+import com.epologee.navigator.INavigator;
 
 import flash.events.ContextMenuEvent;
 import flash.events.EventDispatcher;
 
 class ContextMenuHandler {
 	private var _path : String;
-	private var _navigator : Navigator;
+	private var _navigator : INavigator;
 
-	public function ContextMenuHandler(path : String, navigator : Navigator) {
+	public function ContextMenuHandler(path : String, navigator : INavigator) {
 		_path = path;
 		_navigator = navigator;
 	}
