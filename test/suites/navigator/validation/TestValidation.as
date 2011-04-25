@@ -7,11 +7,9 @@ package suites.navigator.validation {
 
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.Navigator;
-	import com.epologee.time.TimeDelay;
 
 	import org.flexunit.assertAfterDelay;
 	import org.flexunit.assertThat;
-	import org.flexunit.async.Async;
 	import org.hamcrest.core.not;
 	import org.hamcrest.object.equalTo;
 
@@ -64,70 +62,70 @@ package suites.navigator.validation {
 		public function implicitValidation() : void {
 			var request : NavigationState = NavigationState.make("segment1a");
 			navigator.requestNewState(request);
-			assertThat(navigator.getCurrentState().path, equalTo(request.path));
+			assertThat(navigator.currentState.path, equalTo(request.path));
 		}
 
 		[Test(order=20)]
 		public function implicitInvalidation() : void {
 			var request : NavigationState = NavigationState.make("segment1x");
 			navigator.requestNewState(request);
-			assertThat(navigator.getCurrentState().path, not(request.path));
+			assertThat(navigator.currentState.path, not(request.path));
 		}
 
 		[Test(order=21)]
 		public function implicitWildcardValidation() : void {
 			var request : NavigationState = new NavigationState("segment1h/segment2a/segment3a/segment4a");
 			navigator.requestNewState(request);
-			assertThat(navigator.getCurrentState().path, equalTo(request.path));
+			assertThat(navigator.currentState.path, equalTo(request.path));
 
 			request = new NavigationState("*/*/*/segment4b");
 			navigator.requestNewState(request);
-			assertThat(navigator.getCurrentState().path, equalTo(NavigationState.make("segment1h/segment2a/segment3a/segment4b").path));
+			assertThat(navigator.currentState.path, equalTo(NavigationState.make("segment1h/segment2a/segment3a/segment4b").path));
 		}
 
 		[Test(order=30)]
 		public function explicitValidation() : void {
 			var request : NavigationState = new NavigationState("segment1c", "segment2a");
 			navigator.requestNewState(request);
-			assertThat(navigator.getCurrentState().path, equalTo(request.path));
+			assertThat(navigator.currentState.path, equalTo(request.path));
 		}
 
 		[Test(order=40)]
 		public function explicitInvalidation() : void {
 			var request : NavigationState = new NavigationState("segment1c", "segment2b");
 			navigator.requestNewState(request);
-			assertThat(navigator.getCurrentState().path, not(request.path));
+			assertThat(navigator.currentState.path, not(request.path));
 		}
 
 		[Test(async,order=50,timeout=5000)]
 		public function asyncValidation() : void {
-			var start : NavigationState = navigator.getCurrentState();
+			var start : NavigationState = navigator.currentState;
 			var request : NavigationState = new NavigationState("segment1d", "segment2d");
 			assertAfterDelay(responderAsyncIV.durationMS + 100, thatAsyncValidationWorks, request);
 			navigator.requestNewState(request);
 
 			// Path should still be unchanged.
-			assertThat(navigator.getCurrentState().path, equalTo(start.path));
+			assertThat(navigator.currentState.path, equalTo(start.path));
 		}
 
-		private function thatAsyncValidationWorks(inBSEvent : Event, inRequest : NavigationState) : void {
-			assertThat(navigator.getCurrentState().path, not(inRequest.path));
+		private function thatAsyncValidationWorks(inRequest : NavigationState) : void {
+			assertThat(navigator.currentState.path, not(inRequest.path));
 		}
 
 		[Test(async,order=60,timeout=5000)]
 		public function asyncInvalidation() : void {
-			var start : NavigationState = navigator.getCurrentState();
+			var start : NavigationState = navigator.currentState;
 			var request : NavigationState = new NavigationState("segment1d", "segment2e");
 			assertAfterDelay(responderAsyncIV.durationMS + 100, thatAsyncInvalidationWorks, request);
 
 			navigator.requestNewState(request);
 
 			// Path should still be unchanged.
-			assertThat(navigator.getCurrentState().path, equalTo(start.path));
+			assertThat(navigator.currentState.path, equalTo(start.path));
 		}
 
 		private function thatAsyncInvalidationWorks(request : NavigationState) : void {
-			assertThat(navigator.getCurrentState().path, not(request.path));
+			assertThat(navigator.currentState.path, not(request.path));
 		}
 
 		[Test(order=70)]
@@ -136,28 +134,28 @@ package suites.navigator.validation {
 			responderAsyncIV.instantPreparation = true;
 			navigator.requestNewState(request);
 
-			assertThat(navigator.getCurrentState().path, equalTo(request.path));
+			assertThat(navigator.currentState.path, equalTo(request.path));
 		}
 
 		[Test(order=80)]
 		public function instantAsyncInvalidation() : void {
-			var start : NavigationState = navigator.getCurrentState();
+			var start : NavigationState = navigator.currentState;
 			var request : NavigationState = new NavigationState("segment1d", "segment2e");
 			responderAsyncIV.instantPreparation = true;
 			navigator.requestNewState(request);
 
-			assertThat(navigator.getCurrentState().path, equalTo(start.path));
+			assertThat(navigator.currentState.path, equalTo(start.path));
 		}
 
 		[Test(order=90)]
 		public function optionalValidation() : void {
 			var request : NavigationState = new NavigationState("segment1e", "segment2f", "segment3a");
 			navigator.requestNewState(request);
-			assertThat(navigator.getCurrentState().path, equalTo(request.path));
+			assertThat(navigator.currentState.path, equalTo(request.path));
 
 			request = new NavigationState("segment1e", "segment2g", "segment3a");
 			navigator.requestNewState(request);
-			assertThat(navigator.getCurrentState().path, equalTo(request.path));
+			assertThat(navigator.currentState.path, equalTo(request.path));
 		}
 
 		[Test(order=100)]
@@ -167,11 +165,11 @@ package suites.navigator.validation {
 
 			var request : NavigationState = new NavigationState("segment1f", "segment2f", "segment3a");
 			navigator.requestNewState(request);
-			assertThat(navigator.getCurrentState().path, equalTo(request.path));
+			assertThat(navigator.currentState.path, equalTo(request.path));
 
 			request = new NavigationState("segment1f", "segment2g", "segment3a");
 			navigator.requestNewState(request);
-			assertThat(navigator.getCurrentState().path, equalTo(request.path));
+			assertThat(navigator.currentState.path, equalTo(request.path));
 		}
 	}
 }
