@@ -15,31 +15,31 @@ package com.epologee.navigator.integration.logmeister {
 		use namespace NSLogMeister;
 		
 		public function critical(message : * = "") : void {
-			LogMeister.critical(message);
+			LogMeister.critical.apply(null,[message]);
 		}
 
 		public function debug(message : * = "") : void {
-			LogMeister.debug(message);
+			LogMeister.debug.apply(null,[message]);
 		}
 
 		public function error(message : * = "") : void {
-			LogMeister.error(message);
+			LogMeister.error.apply(null,[message]);
 		}
 
 		public function fatal(message : * = "") : void {
-			LogMeister.fatal(message);
+			LogMeister.fatal.apply(null,[message]);
 		}
 
 		public function info(message : * = "") : void {
-			LogMeister.info(message);
+			LogMeister.info.apply(null,[message]);
 		}
 
 		public function notice(message : * = "") : void {
-			LogMeister.notice(message);
+			LogMeister.notice.apply(null,[message]);
 		}
 
 		public function warn(message : * = "") : void {
-			LogMeister.warn(message);
+			LogMeister.warn.apply(null,[message]);
 		}
 	}
 }
