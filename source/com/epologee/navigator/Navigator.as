@@ -80,21 +80,15 @@ package com.epologee.navigator {
 		}
 
 		public function add(responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : void {
-			if (pathsOrStates is Array) {
-				for each (var pathOrState : * in pathsOrStates) {
-					add(responder, pathOrState, behaviors);
-				}
-				return;
-			}
+			modify(true, responder, pathsOrStates, behaviors);
+		}
 
-			behaviors ||= NavigationBehaviors.AUTO;
-			if (!responder)
-				throw new Error("add: responder is null");
-
-			if (behaviors == NavigationBehaviors.AUTO) {
-				autoAdd(responder, pathsOrStates);
-				return;
-			}
+		public function remove(responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : void {
+			modify(false, responder, pathsOrStates, behaviors);
+		}
+		
+		public function modify(addition:Boolean, responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : void {
+			if (relayModification(addition, responder, pathsOrStates, behaviors)) return;
 
 			// Using the path variable as dictionary key to break instance referencing.
 			var path : String = NavigationState.make(pathsOrStates).path;
@@ -138,6 +132,32 @@ package com.epologee.navigator {
 				_statusByResponder[responder] ||= TransitionStatus.UNINITIALIZED;
 				dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 			}
+		}
+
+		public function relayModification(addition : Boolean, responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : Boolean {
+			if (!responder)
+				throw new Error("add: responder is null");
+
+			if (pathsOrStates is Array) {
+				for each (var pathOrState : * in pathsOrStates) {
+					add(responder, pathOrState, behaviors);
+				}
+				return true;
+			}
+
+			behaviors ||= NavigationBehaviors.AUTO;
+			if (behaviors == NavigationBehaviors.AUTO) {
+				for each (var behavior : String in NavigationBehaviors.ALL_AUTO) {
+					try {
+						add(responder, pathsOrStates, behavior);
+					} catch(e : Error) {
+						// ignore error
+					}
+				}
+				return true;
+			}
+			
+			return false;
 		}
 
 		public function registerRedirect(fromStateOrPath : *, toStateOrPath : *) : void {
@@ -349,16 +369,6 @@ package com.epologee.navigator {
 				var ne : NavigatorEvent = new NavigatorEvent(NavigatorEvent.STATE_CHANGED, _statusByResponder);
 				ne.state = currentState;
 				dispatchEvent(ne);
-			}
-		}
-
-		private function autoAdd(responder : INavigationResponder, pathOrState : *) : void {
-			for each (var behavior : String in NavigationBehaviors.ALL_AUTO) {
-				try {
-					add(responder, pathOrState, behavior);
-				} catch(e : Error) {
-					// ignore error
-				}
 			}
 		}
 
