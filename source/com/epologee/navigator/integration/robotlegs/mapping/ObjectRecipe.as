@@ -1,4 +1,6 @@
 package com.epologee.navigator.integration.robotlegs.mapping {
+	import com.epologee.development.logging.logger;
+
 	import flash.utils.getQualifiedClassName;
 
 	/**
@@ -23,7 +25,8 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		 * Lazily instantiates the product.
 		 */
 		public function get object() : * {
-			if (!_object) switch(params.length) {
+			if (!_object) {
+				switch(params.length) {
 					default:
 					case 0:
 						_object = new ObjectClass();
@@ -58,6 +61,9 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 					case 10:
 						_object = new ObjectClass(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[8], params[9]);
 				}
+
+				logger.info("Instantiated "+_object);
+			}
 
 			return _object;
 		}

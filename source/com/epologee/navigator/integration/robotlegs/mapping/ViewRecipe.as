@@ -3,7 +3,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 
 	import org.robotlegs.core.IInjector;
 
-	import flash.display.DisplayObjectContainer;
+	import flash.display.DisplayObject;
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
@@ -24,8 +24,8 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			return _states;
 		}
 
-		public function get displayObject() : DisplayObjectContainer {
-			return object as DisplayObjectContainer;
+		public function get displayObject() : DisplayObject {
+			return object as DisplayObject;
 		}
 
 		override public function get object() : * {

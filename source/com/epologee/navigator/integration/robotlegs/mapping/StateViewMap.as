@@ -1,5 +1,4 @@
 package com.epologee.navigator.integration.robotlegs.mapping {
-	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.NavigatorEvent;
@@ -56,7 +55,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		 */
 		public function mapViewMediator(statesOrPaths : *, viewClass : Class, mediatorClass : Class, ...viewConstructionParams : Array) : ViewRecipe {
 			if (mediatorClass != null) {
-				_mediatorMap.mapView(viewClass, mediatorClass);
+				_mediatorMap.mapView(viewClass, mediatorClass, null, true, false);
 			}
 
 			return addRecipe(statesOrPaths, viewClass, viewConstructionParams);
@@ -67,7 +66,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 		 */
 		public function mapViewAs(statesOrPaths : *, viewClass : Class, mediatorClass : Class, injectViewAs : *, ...viewConstructionParams : Array) : ViewRecipe {
 			if (mediatorClass != null) {
-				_mediatorMap.mapView(viewClass, mediatorClass, injectViewAs);
+				_mediatorMap.mapView(viewClass, mediatorClass, injectViewAs, true, false);
 			}
 
 			return addRecipe(statesOrPaths, viewClass, viewConstructionParams);
@@ -141,7 +140,12 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 				addProductToContextView(recipe.parent);
 			}
 
-			var container : DisplayObjectContainer = recipe.parent ? recipe.parent.displayObject : _contextView;
+			var container : DisplayObjectContainer;
+			if (recipe.parent && recipe.parent is DisplayObjectContainer) {
+				container = DisplayObjectContainer(recipe.parent.displayObject);
+			} else {
+				container = _contextView;
+			}
 
 			var leni : int = _orderedRecipes.length;
 			for (var i : int = _orderedRecipes.indexOf(recipe) + 1; i < leni; i++) {
