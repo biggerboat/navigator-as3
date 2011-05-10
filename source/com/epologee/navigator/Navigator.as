@@ -141,7 +141,7 @@ package com.epologee.navigator {
 
 					delete _statusByResponder[responder];
 				} else return;
-				
+
 				if (matchingInterface == IHasStateSwap && _responders.swappedBefore[responder]) {
 					// cleanup after the special swap case
 					delete _responders.swappedBefore[responder];
@@ -306,8 +306,10 @@ package com.epologee.navigator {
 		}
 
 		transition function notifyComplete(responder : INavigationResponder, status : int, behavior : String) : void {
-			_statusByResponder[responder] = status;
-			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+			if (_statusByResponder[responder]) {
+				_statusByResponder[responder] = status;
+				dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+			}
 
 			var asynch : AsynchResponders;
 			var method : Function;
@@ -340,8 +342,8 @@ package com.epologee.navigator {
 				}
 			}
 		}
-		
-		hidden function hasResponder(responder:INavigationResponder) : Boolean {
+
+		hidden function hasResponder(responder : INavigationResponder) : Boolean {
 			if (_statusByResponder[responder]) return true;
 
 			for each (var respondersByPath : Dictionary in _responders.all) {
@@ -349,7 +351,7 @@ package com.epologee.navigator {
 					if (existingResponders.indexOf(responder) >= 0) return true;
 				}
 			}
-			
+
 			return false;
 		}
 
@@ -825,14 +827,7 @@ class ResponderLists {
 	public var showByPath : Dictionary = new Dictionary();
 	public var hideByPath : Dictionary = new Dictionary();
 	public var swappedBefore : Dictionary = new Dictionary();
-	public var all : Array = [
-		validateByPath,
-		updateByPath,
-		swapByPath,
-		showByPath,
-		hideByPath,
-		swappedBefore
-	];
+	public var all : Array = [validateByPath, updateByPath, swapByPath, showByPath, hideByPath, swappedBefore];
 
 	public function toString() : String {
 		var described : XML = describeType(this);
