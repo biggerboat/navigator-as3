@@ -1,12 +1,11 @@
 package suites.navigator.responders {
-	import com.epologee.navigator.transition.TransitionStatus;
 	import suites.navigator.validation.elements.ResponderAsyncIT;
 	import suites.navigator.validation.elements.ResponderIT;
 
 	import com.epologee.navigator.Navigator;
 	import com.epologee.navigator.NavigatorEvent;
-	import com.epologee.navigator.behaviors.INavigationResponder;
 	import com.epologee.navigator.namespaces.hidden;
+	import com.epologee.navigator.transition.TransitionStatus;
 
 	import org.flexunit.assertAfterDelay;
 	import org.hamcrest.assertThat;

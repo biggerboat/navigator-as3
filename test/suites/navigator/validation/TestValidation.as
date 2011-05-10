@@ -109,7 +109,7 @@ package suites.navigator.validation {
 		}
 
 		private function thatAsyncValidationWorks(inRequest : NavigationState) : void {
-			assertThat(navigator.currentState.path, not(inRequest.path));
+			assertThat(navigator.currentState.path, equalTo(inRequest.path));
 		}
 
 		[Test(async,order=60,timeout=5000)]
