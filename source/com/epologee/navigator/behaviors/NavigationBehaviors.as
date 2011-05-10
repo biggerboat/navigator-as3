@@ -1,4 +1,5 @@
 package com.epologee.navigator.behaviors {
+
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
@@ -17,7 +18,7 @@ package com.epologee.navigator.behaviors {
 		public static const UPDATE : String = "update";
 		/** 
 		 * Will swap out and in, when the state is changed
-		 */ 
+		 */
 		public static const SWAP : String = "swap";
 		/** 
 		 * Will ask for validation of the state, if a state can't be validated, it is denied

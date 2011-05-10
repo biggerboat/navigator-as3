@@ -15,6 +15,10 @@ package suites.navigator.validation.elements {
 		public var transitionedIn : Signal = new Signal();
 		public var transitionedOut : Signal = new Signal();
 		
+		public function get durationMS() : Number {
+			return 500;
+		}
+
 		public function removeAllSignalListeners() : void {
 			initialized.removeAll();
 			transitionedIn.removeAll();
@@ -28,7 +32,7 @@ package suites.navigator.validation.elements {
 
 		public function transitionIn(inCallOnComplete : Function) : void {
 			visible = true;
-			new TimeDelay(finishTransition, 500, [inCallOnComplete, transitionedIn]);
+			new TimeDelay(finishTransition, durationMS, [inCallOnComplete, transitionedIn]);
 		}
 
 		private function finishTransition(inCallOnComplete : Function, inSignalToDispatch:Signal) : void {
@@ -38,8 +42,7 @@ package suites.navigator.validation.elements {
 
 		public function transitionOut(inCallOnComplete : Function) : void {
 			visible = false;
-			new TimeDelay(finishTransition, 500, [inCallOnComplete, transitionedOut]);
+			new TimeDelay(finishTransition, durationMS, [inCallOnComplete, transitionedOut]);
 		}
-
 	}
 }

@@ -4,6 +4,7 @@ package org.flexunit {
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public function assertAfterDelay(delayMS:Number, assertionCallback:Function, ...parameters:Array) : void {
-		new TimeDelay(assertionCallback, delayMS, parameters);
+		var td : TimeDelay = new TimeDelay(assertionCallback, delayMS, parameters);
+		td.catchErrors = false;
 	}
 }

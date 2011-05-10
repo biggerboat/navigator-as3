@@ -86,8 +86,8 @@ package com.epologee.navigator {
 		public function remove(responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : void {
 			modify(false, responder, pathsOrStates, behaviors);
 		}
-		
-		public function modify(addition:Boolean, responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : void {
+
+		public function modify(addition : Boolean, responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : void {
 			if (relayModification(addition, responder, pathsOrStates, behaviors)) return;
 
 			// Using the path variable as dictionary key to break instance referencing.
@@ -125,13 +125,30 @@ package com.epologee.navigator {
 				throw new Error("Responder " + responder + " should implement " + matchingInterface + " to respond to " + behaviors);
 			}
 
-			if (list.indexOf(responder) < 0) {
-				list.push(responder);
+			if (addition) {
+				// add
+				if (list.indexOf(responder) < 0) {
+					list.push(responder);
 
-				// If the responder has no status yet, initialize it to UNINITIALIZED:
-				_statusByResponder[responder] ||= TransitionStatus.UNINITIALIZED;
-				dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+					// If the responder has no status yet, initialize it to UNINITIALIZED:
+					_statusByResponder[responder] ||= TransitionStatus.UNINITIALIZED;
+				} else return;
+			} else {
+				// remove
+				var index : int = list.indexOf(responder);
+				if (index >= 0) {
+					list.splice(index, 1);
+
+					delete _statusByResponder[responder];
+				} else return;
+				
+				if (matchingInterface == IHasStateSwap && _responders.swappedBefore[responder]) {
+					// cleanup after the special swap case
+					delete _responders.swappedBefore[responder];
+				}
 			}
+
+			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
 		}
 
 		public function relayModification(addition : Boolean, responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : Boolean {
@@ -140,7 +157,7 @@ package com.epologee.navigator {
 
 			if (pathsOrStates is Array) {
 				for each (var pathOrState : * in pathsOrStates) {
-					add(responder, pathOrState, behaviors);
+					modify(addition, responder, pathOrState, behaviors);
 				}
 				return true;
 			}
@@ -149,14 +166,14 @@ package com.epologee.navigator {
 			if (behaviors == NavigationBehaviors.AUTO) {
 				for each (var behavior : String in NavigationBehaviors.ALL_AUTO) {
 					try {
-						add(responder, pathsOrStates, behavior);
+						modify(addition, responder, pathsOrStates, behavior);
 					} catch(e : Error) {
-						// ignore error
+						// ignore 'should implement xyz' errors
 					}
 				}
 				return true;
 			}
-			
+
 			return false;
 		}
 
@@ -322,6 +339,18 @@ package com.epologee.navigator {
 					logger.notice("waiting for " + asynch.responders.length + " responders to " + behavior);
 				}
 			}
+		}
+		
+		hidden function hasResponder(responder:INavigationResponder) : Boolean {
+			if (_statusByResponder[responder]) return true;
+
+			for each (var respondersByPath : Dictionary in _responders.all) {
+				for each (var existingResponders : Array in respondersByPath) {
+					if (existingResponders.indexOf(responder) >= 0) return true;
+				}
+			}
+			
+			return false;
 		}
 
 		hidden function get statusByResponder() : Dictionary {
@@ -796,6 +825,14 @@ class ResponderLists {
 	public var showByPath : Dictionary = new Dictionary();
 	public var hideByPath : Dictionary = new Dictionary();
 	public var swappedBefore : Dictionary = new Dictionary();
+	public var all : Array = [
+		validateByPath,
+		updateByPath,
+		swapByPath,
+		showByPath,
+		hideByPath,
+		swappedBefore
+	];
 
 	public function toString() : String {
 		var described : XML = describeType(this);
