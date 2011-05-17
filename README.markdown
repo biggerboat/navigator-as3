@@ -12,7 +12,7 @@ This library was created to take away your pains when it comes to navigating you
 *	History management (courtesy of Laurent)
 *	And many more...
 
-[[Check out the Wiki pages|https://github.com/epologee/navigator-as3/wiki]] if you want to read some more or if you want to see some examples.
+[Check out the Wiki pages](https://github.com/epologee/navigator-as3/wiki) if you want to read some more or if you want to see some examples.
 
 # Feedback
 
