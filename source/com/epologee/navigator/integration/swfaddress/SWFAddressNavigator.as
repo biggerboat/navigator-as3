@@ -68,7 +68,9 @@ package com.epologee.navigator.integration.swfaddress {
 		 * 		/a/b/d/		-> hidden
 		 * 		
 		 */
-		public function registerHiddenState(state : NavigationState, exactMatch : Boolean = false) : void {
+		public function registerHiddenState(stateOrPath : *, exactMatch : Boolean = false) : void {
+			var state : NavigationState = NavigationState.make(stateOrPath);
+			
 			if (exactMatch) {
 				_hiddenStateEquals ||= [];
 				_hiddenStateEquals.push(state);
