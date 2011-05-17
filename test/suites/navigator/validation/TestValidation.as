@@ -13,8 +13,6 @@ package suites.navigator.validation {
 	import org.hamcrest.core.not;
 	import org.hamcrest.object.equalTo;
 
-	import flash.events.Event;
-
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */

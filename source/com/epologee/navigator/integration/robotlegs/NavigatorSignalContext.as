@@ -26,6 +26,9 @@ package com.epologee.navigator.integration.robotlegs {
 		public function NavigatorSignalContext(contextView : DisplayObjectContainer, autoStartup : Boolean = true, CustomNavigator : Class = null) {
 			if (!injector.hasMapping(INavigator)) {
 				injector.mapSingletonOf(INavigator, CustomNavigator || Navigator);
+				
+				// Redundancy check, in case people want to Inject to Navigator.
+				injector.mapValue(Navigator, injector.getInstance(INavigator));
 			}
 
 			super(contextView, autoStartup);
