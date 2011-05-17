@@ -40,26 +40,34 @@ By extending the NavigatorContext, this is no longer the case. Register your vie
 <code>
 	
 	override public function startup() : void {
-		// Map Actor subclasses (like models/proxies) to listen to particular states:
-		stateActorMap.mapStateSingleton("/", ApplicationModel);
+		// Commands are triggered when the navigator enters the corresponding state
+		stateControllerMap.mapCommand("/", HelloWorldCommand, true, true);
 		
-		// Map the /red/ state to the RedSquare view component with it's corresponding mediator RedMediator 
-		stateMediatorMap.mapState("red", RedSquare, RedMediator);
-		// Map the green and blue view components to multiple states at once, with the corresponding mediator
-		stateMediatorMap.mapState(["green", "*/green", "*/*/green", "*/*/*/green"], GreenSquare, GreenMediator);
-		stateMediatorMap.mapState(["blue", "*/blue", "*/*/blue", "*/*/*/blue"], BlueSquare, BlueMediator);
-		// Map /any/ to a square with a custom color and the corresponding mediator  
-		stateMediatorMap.mapState(new NavigationState("any"), AnySquare, AnyMediator, 0xFF9900);
+		// A simple view component mapped to a state needs no mediator
+		stateViewMap.mapView("/", ExampleTextBox);
+		
+		// But if a component and mediator form a pair, we use this syntax 
+		stateViewMap.mapViewMediator("red", RedSquare, RedSquareMediator);
+		stateViewMap.mapViewMediator("green", GreenSquare, GreenSquareMediator);
+		stateViewMap.mapViewMediator("blue", BlueSquare, BlueSquareMediator);
+		
+		// You can add states one by one, or as an array
+		stateViewMap.mapViewMediator(["black", "*/black"], BlackCircle, BlackCircleMediator);
 
-		// Add extra mappings to the red and any square
-		stateMediatorMap.mapAdditionalStates(["*/red", "*/*/red", "*/*/*/red"], RedSquare);
-		stateMediatorMap.mapAdditionalStates(["*/any", "*/*/any", "*/*/*/any"], AnySquare);
+		// By using a mapping's parent property, you can setup nested view components
+		var container : ViewRecipe = stateViewMap.mapViewMediator("move", ContainerSquare, ContainerSquareMediator);
+		stateViewMap.mapViewMediator("move/nested", NestedSquare, NestedSquareMediator).parent = container;
 
-		// Add the debug status display, mediatorless
-		stateMediatorMap.mapState("/", DebugStatusDisplay, null, navigator);
-	
-		// Start the navigation with default state /red/
-		navigator.start("red");
+		// By calling mapView on existing mappings, we can add extra states 			
+		stateViewMap.mapView("*/red", RedSquare);
+		stateViewMap.mapView("*/green", GreenSquare);
+		stateViewMap.mapView("*/blue", BlueSquare);
+		
+		// Navigator debug console, very nice for development. Toggle with the tilde key, "~". You can type in new states by hand!
+		stateViewMap.mapView("/", DebugConsole, navigator);
+		
+		// Finally, start navigating
+		navigator.start("", "red");
 	}
 </code>
 

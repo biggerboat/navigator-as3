@@ -1,12 +1,17 @@
 package {
+	import com.epologee.navigator.integration.robotlegs.mapping.ViewRecipe;
+	import view.NestedSquareMediator;
+	import view.components.NestedSquare;
 	import controller.HelloWorldCommand;
 
 	import view.BlackCircleMediator;
 	import view.BlueSquareMediator;
+	import view.ContainerSquareMediator;
 	import view.GreenSquareMediator;
 	import view.RedSquareMediator;
 	import view.components.BlackCircle;
 	import view.components.BlueSquare;
+	import view.components.ContainerSquare;
 	import view.components.ExampleTextBox;
 	import view.components.GreenSquare;
 	import view.components.RedSquare;
@@ -36,6 +41,10 @@ package {
 			stateViewMap.mapViewMediator("green", GreenSquare, GreenSquareMediator);
 			stateViewMap.mapViewMediator("blue", BlueSquare, BlueSquareMediator);
 			stateViewMap.mapViewMediator(["black", "*/black"], BlackCircle, BlackCircleMediator);
+
+			// By using a mapping's parent property, you can setup nested view components
+			var container : ViewRecipe = stateViewMap.mapViewMediator("move", ContainerSquare, ContainerSquareMediator);
+			stateViewMap.mapViewMediator("move/nested", NestedSquare, NestedSquareMediator).parent = container;
 			
 			stateViewMap.mapView("*/red", RedSquare);
 			stateViewMap.mapView("*/green", GreenSquare);

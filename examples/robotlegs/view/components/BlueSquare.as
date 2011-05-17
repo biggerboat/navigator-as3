@@ -4,7 +4,7 @@ package view.components {
 	 */
 	public class BlueSquare extends Square {
 		public function BlueSquare() {
-			super(0x000099);
+			super(0x000099, "blue");
 		}
 	}
 }

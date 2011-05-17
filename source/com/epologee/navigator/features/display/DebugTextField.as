@@ -13,6 +13,8 @@ package com.epologee.navigator.features.display {
 		public function DebugTextField(font : String, fontSize : Number = 12, color : uint = 0x000000, bold : Boolean = false, italic : Object = false) {
 			super();
 			embedFonts = true;
+			tabEnabled = false;
+			focusRect = false;
 			width = 100;
 			autoSize = TextFieldAutoSize.LEFT;
 			antiAliasType = AntiAliasType.ADVANCED;

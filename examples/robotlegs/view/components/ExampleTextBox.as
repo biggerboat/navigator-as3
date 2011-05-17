@@ -1,16 +1,17 @@
 package view.components {
-	import flash.events.TextEvent;
 	import model.constants.Positions;
 
-	import com.epologee.navigator.Navigator;
+	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.features.display.DebugTextBox;
+
+	import flash.events.TextEvent;
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public class ExampleTextBox extends DebugTextBox {
 		[Inject]
-		public var navigator : Navigator;
+		public var navigator : INavigator;
 		//
 		private var t : String;
 
@@ -28,7 +29,9 @@ package view.components {
 			t += "The view components are added to the stage automatically, in the order you added them with stateMediatorMap.mapState()<br /><br />";
 			t += "<a href='event:red'><u>Red Square</u></a> | <a href='event:green'><u>Green Square</u></a> | <a href='event:blue'><u>Blue Square</u></a> | <a href='event:black'><u>Black Circle</u></a><br /><br />";
 			t += "But what you can also do is show two shapes at the same time, by using state cascading:<br /><br />";
-			t += "<a href='event:red/blue'><u>Red and Blue</u></a> | <a href='event:green/black'><u>Green and Black</u></a> | <a href='event:*/black'><u>Current and Black</u></a>";
+			t += "<a href='event:red/blue'><u>Red and Blue</u></a> | <a href='event:green/black'><u>Green and Black</u></a> | <a href='event:*/black'><u>Current and Black</u></a><br /><br />";
+			t += "Lastly, if you want view components to be nested, you can, by using a mapped view recipe's parent property:<br /><br />";
+			t += "<a href='event:move'><u>Moving Container</u></a> | <a href='event:move/nested'><u>Nested Square</u></a>";
 
 			htmlText = t;
 			
