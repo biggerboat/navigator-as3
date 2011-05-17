@@ -141,7 +141,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			}
 
 			var container : DisplayObjectContainer;
-			if (recipe.parent && recipe.parent is DisplayObjectContainer) {
+			if (recipe.parent && recipe.parent.displayObject is DisplayObjectContainer) {
 				container = DisplayObjectContainer(recipe.parent.displayObject);
 			} else {
 				container = _contextView;
