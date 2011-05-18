@@ -31,7 +31,7 @@ package view.components {
 			t += "But what you can also do is show two shapes at the same time, by using state cascading:<br /><br />";
 			t += "<a href='event:red/blue'><u>Red and Blue</u></a> | <a href='event:green/black'><u>Green and Black</u></a> | <a href='event:*/black'><u>Current and Black</u></a><br /><br />";
 			t += "Lastly, if you want view components to be nested, you can, by using a mapped view recipe's parent property:<br /><br />";
-			t += "<a href='event:move'><u>Moving Container</u></a> | <a href='event:move/nested'><u>Nested Square</u></a>";
+			t += "<a href='event:move'><u>Moving Container</u></a> | <a href='event:move/nested'><u>Nested Square</u></a> | <a href='event:move/nested/deep'><u>Deeply Nested Square</u></a>";
 
 			htmlText = t;
 			

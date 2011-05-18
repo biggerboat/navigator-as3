@@ -1,4 +1,6 @@
 package {
+	import view.DeepNestedSquareMediator;
+	import view.components.DeepNestedSquare;
 	import com.epologee.navigator.integration.swfaddress.SWFAddressNavigator;
 	import com.epologee.navigator.integration.robotlegs.mapping.ViewRecipe;
 	import view.NestedSquareMediator;
@@ -47,7 +49,9 @@ package {
 
 			// By using a mapping's parent property, you can setup nested view components
 			var container : ViewRecipe = stateViewMap.mapViewMediator("move", ContainerSquare, ContainerSquareMediator);
-			stateViewMap.mapViewMediator("move/nested", NestedSquare, NestedSquareMediator).parent = container;
+			var nested : ViewRecipe = stateViewMap.mapViewMediator("move/nested", NestedSquare, NestedSquareMediator);
+			nested.parent = container;
+			stateViewMap.mapViewMediator("move/nested/deep", DeepNestedSquare, DeepNestedSquareMediator).parent = nested;
 
 			// By calling mapView on existing mappings, we can add extra states 			
 			stateViewMap.mapView("*/red", RedSquare);

@@ -1,30 +1,30 @@
 package view {
 	import model.constants.Positions;
 
-	import view.components.NestedSquare;
+	import view.components.DeepNestedSquare;
 
 	import com.epologee.navigator.behaviors.IHasStateInitialization;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
 	import com.greensock.TimelineMax;
 	import com.greensock.TweenMax;
-	import com.greensock.easing.Strong;
+	import com.greensock.easing.Linear;
 
 	import org.robotlegs.mvcs.Mediator;
 
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
-	public class NestedSquareMediator extends Mediator implements IHasStateInitialization, IHasStateTransition {
+	public class DeepNestedSquareMediator extends Mediator implements IHasStateInitialization, IHasStateTransition {
 		[Inject]
-		public var square : NestedSquare;
+		public var square : DeepNestedSquare;
 		private var _animation : TimelineMax;
 
 		/**
 		 * @inheritDoc
 		 */
 		public function initialize() : void {
-			square.x = Positions.MARGIN_LEFT;
-			square.y = Positions.MARGIN_TOP / 2;
+			square.x = Positions.SHAPE_SIZE / 2;
+			square.y = Positions.SHAPE_SIZE / 2;
 			square.alpha = 0;
 			square.visible = false;
 
@@ -32,8 +32,7 @@ package view {
 			_animation.paused = true;
 			_animation.repeat = 999;
 
-			_animation.append(TweenMax.to(square, 1.5, {y:square.y + Positions.MARGIN_TOP, ease:Strong.easeInOut}));
-			_animation.append(TweenMax.to(square, 1.5, {y:square.y, ease:Strong.easeInOut}));
+			_animation.append(TweenMax.to(square, 1, {rotation:360, ease:Linear.easeNone}));
 		}
 
 		public function transitionIn(inCallOnComplete : Function) : void {
