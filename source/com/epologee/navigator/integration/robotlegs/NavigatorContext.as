@@ -27,8 +27,12 @@ package com.epologee.navigator.integration.robotlegs {
 			if (!injector.hasMapping(INavigator)) {
 				injector.mapSingletonOf(INavigator, CustomNavigator || Navigator);
 				
-				// Redundancy check, in case people want to Inject to Navigator.
+				// Redundancy check, in case people want to Inject to Navigator 
+				// or their own custom class (e.g. SWFAddressNavigator)
 				injector.mapValue(Navigator, injector.getInstance(INavigator));
+				if (CustomNavigator && CustomNavigator != Navigator) {
+					injector.mapValue(CustomNavigator, injector.getInstance(INavigator));
+				}
 			}
 
 			super(contextView, autoStartup);
