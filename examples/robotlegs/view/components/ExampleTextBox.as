@@ -40,7 +40,7 @@ package view.components {
 
 		private function handleLinkEvent(event : TextEvent) : void {
 			notice(navigator);
-			navigator.requestNewState(event.text);
+			navigator.request(event.text);
 		}
 	}
 }

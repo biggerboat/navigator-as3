@@ -17,9 +17,9 @@ package com.epologee.navigator.integration.singleton {
 	 *   
 	 *   and
 	 *   
-	 *   Navi.instance.requestNewState();
+	 *   Navi.instance.request();
 	 *   or
-	 *   Navi.gator.requestNewState();
+	 *   Navi.gator.request();
 	 * 
 	 * And if you want to use a subclass of the Navigator, for example SWFAddressNavigator, you should precede the
 	 * very first call to '.instance' with a call like this:
@@ -35,7 +35,7 @@ package com.epologee.navigator.integration.singleton {
 		/**
 		 * Use:
 		 * 
-		 *   Navi.instance.requestNewState("anywhere");
+		 *   Navi.instance.request("anywhere");
 		 */
 		public static function get instance() : Navigator {
 			if (!_instance) {

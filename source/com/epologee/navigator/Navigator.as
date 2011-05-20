@@ -189,14 +189,6 @@ package com.epologee.navigator {
 		}
 
 		/**
-		 * DEPRECATED USE request() INSTEAD
-		 */
-		public function requestNewState(stateOrPath : *) : void {
-			logger.warn("Using deprecated method requestNewState(). Use request() instead.");
-			request(stateOrPath);
-		}
-
-		/**
 		 * Request a new state by providing a #NavigationState instance.
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
@@ -283,14 +275,6 @@ package com.epologee.navigator {
 				// If you don't provide a default state, at least make sure your first request makes sense!
 				throw new Error("First request is invalid: " + requested);
 			}
-		}
-
-		/**
-		 * DEPRECATED, USE THE NATIVE ACCESSOR `get currentState()`
-		 */
-		public function getCurrentState() : NavigationState {
-			logger.warn("Using deprecated method getCurrentState(). Use currentState instead.");
-			return currentState;
 		}
 
 		public function get currentState() : NavigationState {

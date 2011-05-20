@@ -137,8 +137,8 @@ package com.epologee.navigator.integration.puremvc {
 		/**
 		 * DEPRECATED.
 		 */
-		public function requestNewState(stateOrPath : *) : void {
-			logger.warn("Using deprecated method requestNewState(). Use request() instead.");
+		public function request(stateOrPath : *) : void {
+			logger.warn("Using deprecated method request(). Use request() instead.");
 			request(stateOrPath);
 		}
 
@@ -147,7 +147,7 @@ package com.epologee.navigator.integration.puremvc {
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
 		public function request(stateOrPath : *) : void {
-			logger.warn("Using deprecated method requestNewState(). Use request() instead.");
+			logger.warn("Using deprecated method request(). Use request() instead.");
 			_navigator.request(stateOrPath);
 		}
 

@@ -22,10 +22,10 @@ package com.epologee.navigator {
 		//
 		// DEPRECATED METHODS:
 		//
-		/** DEPRECATED. use request() instead */
-		function requestNewState(stateOrPath : *) : void;
-
-		/** DEPRECATED. use currentState accessor instead */
-		function getCurrentState() : NavigationState;
+		// use request() instead:
+		// function requestNewState(stateOrPath : *) : void;
+		//
+		// use .currentState accessor instead:
+		// function getCurrentState() : NavigationState;
 	}
 }

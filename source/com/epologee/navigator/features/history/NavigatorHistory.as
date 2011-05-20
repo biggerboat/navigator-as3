@@ -176,7 +176,7 @@ package com.epologee.navigator.features.history {
 		 */
 		private function navigateToCurrentHistoryPosition() : void {
 			var newState : NavigationState = _history[_historyPosition];
-			_navigator.requestNewState(newState);
+			_navigator.request(newState);
 		}
 
 		/**

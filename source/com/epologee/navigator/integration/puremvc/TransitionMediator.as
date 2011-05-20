@@ -45,7 +45,7 @@ package com.epologee.navigator.integration.puremvc {
 		 * Dispatch NavigationEvents within timeline components to trigger a (bubbled) navigation request.
 		 */
 		protected function handleNavigationEvent(event : NavigationEvent) : void {
-			NavigationProxy(facade.retrieveProxy(NavigationProxy.NAME)).requestNewState(event.state);
+			NavigationProxy(facade.retrieveProxy(NavigationProxy.NAME)).request(event.state);
 		}
 	}
 }

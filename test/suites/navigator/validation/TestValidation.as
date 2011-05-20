@@ -59,39 +59,39 @@ package suites.navigator.validation {
 		[Test(order=10)]
 		public function implicitValidation() : void {
 			var request : NavigationState = NavigationState.make("segment1a");
-			navigator.requestNewState(request);
+			navigator.request(request);
 			assertThat(navigator.currentState.path, equalTo(request.path));
 		}
 
 		[Test(order=20)]
 		public function implicitInvalidation() : void {
 			var request : NavigationState = NavigationState.make("segment1x");
-			navigator.requestNewState(request);
+			navigator.request(request);
 			assertThat(navigator.currentState.path, not(request.path));
 		}
 
 		[Test(order=21)]
 		public function implicitWildcardValidation() : void {
 			var request : NavigationState = new NavigationState("segment1h/segment2a/segment3a/segment4a");
-			navigator.requestNewState(request);
+			navigator.request(request);
 			assertThat(navigator.currentState.path, equalTo(request.path));
 
 			request = new NavigationState("*/*/*/segment4b");
-			navigator.requestNewState(request);
+			navigator.request(request);
 			assertThat(navigator.currentState.path, equalTo(NavigationState.make("segment1h/segment2a/segment3a/segment4b").path));
 		}
 
 		[Test(order=30)]
 		public function explicitValidation() : void {
 			var request : NavigationState = new NavigationState("segment1c", "segment2a");
-			navigator.requestNewState(request);
+			navigator.request(request);
 			assertThat(navigator.currentState.path, equalTo(request.path));
 		}
 
 		[Test(order=40)]
 		public function explicitInvalidation() : void {
 			var request : NavigationState = new NavigationState("segment1c", "segment2b");
-			navigator.requestNewState(request);
+			navigator.request(request);
 			assertThat(navigator.currentState.path, not(request.path));
 		}
 
@@ -100,7 +100,7 @@ package suites.navigator.validation {
 			var start : NavigationState = navigator.currentState;
 			var request : NavigationState = new NavigationState("segment1d", "segment2d");
 			assertAfterDelay(responderAsyncIV.durationMS + 100, thatAsyncValidationWorks, request);
-			navigator.requestNewState(request);
+			navigator.request(request);
 
 			// Path should still be unchanged.
 			assertThat(navigator.currentState.path, equalTo(start.path));
@@ -116,7 +116,7 @@ package suites.navigator.validation {
 			var request : NavigationState = new NavigationState("segment1d", "segment2e");
 			assertAfterDelay(responderAsyncIV.durationMS + 100, thatAsyncInvalidationWorks, request);
 
-			navigator.requestNewState(request);
+			navigator.request(request);
 
 			// Path should still be unchanged.
 			assertThat(navigator.currentState.path, equalTo(start.path));
@@ -130,7 +130,7 @@ package suites.navigator.validation {
 		public function instantAsyncValidation() : void {
 			var request : NavigationState = new NavigationState("segment1d", "segment2d");
 			responderAsyncIV.instantPreparation = true;
-			navigator.requestNewState(request);
+			navigator.request(request);
 
 			assertThat(navigator.currentState.path, equalTo(request.path));
 		}
@@ -140,7 +140,7 @@ package suites.navigator.validation {
 			var start : NavigationState = navigator.currentState;
 			var request : NavigationState = new NavigationState("segment1d", "segment2e");
 			responderAsyncIV.instantPreparation = true;
-			navigator.requestNewState(request);
+			navigator.request(request);
 
 			assertThat(navigator.currentState.path, equalTo(start.path));
 		}
@@ -148,11 +148,11 @@ package suites.navigator.validation {
 		[Test(order=90)]
 		public function optionalValidation() : void {
 			var request : NavigationState = new NavigationState("segment1e", "segment2f", "segment3a");
-			navigator.requestNewState(request);
+			navigator.request(request);
 			assertThat(navigator.currentState.path, equalTo(request.path));
 
 			request = new NavigationState("segment1e", "segment2g", "segment3a");
-			navigator.requestNewState(request);
+			navigator.request(request);
 			assertThat(navigator.currentState.path, equalTo(request.path));
 		}
 
@@ -162,11 +162,11 @@ package suites.navigator.validation {
 			responderAsyncIVO2.instantPreparation = true;
 
 			var request : NavigationState = new NavigationState("segment1f", "segment2f", "segment3a");
-			navigator.requestNewState(request);
+			navigator.request(request);
 			assertThat(navigator.currentState.path, equalTo(request.path));
 
 			request = new NavigationState("segment1f", "segment2g", "segment3a");
-			navigator.requestNewState(request);
+			navigator.request(request);
 			assertThat(navigator.currentState.path, equalTo(request.path));
 		}
 	}

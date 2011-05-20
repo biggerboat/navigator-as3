@@ -64,7 +64,7 @@ package com.epologee.navigator.features.display {
 
 		private function handleInputKeystroke(event : KeyboardEvent) : void {
 			if (event.keyCode == Keyboard.ENTER) {
-				_navigator.requestNewState(_boxHeader.text);
+				_navigator.request(_boxHeader.text);
 			}
 		}
 
@@ -211,7 +211,7 @@ class ContextMenuHandler {
 	}
 
 	public function handleEvent(event : ContextMenuEvent) : void {
-		_navigator.requestNewState(_path);
+		_navigator.request(_path);
 
 		// and clean up.
 		_path = null;

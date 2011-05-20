@@ -68,7 +68,7 @@ package {
 			// States that make no sense to the Navigator are denied, but if you stick to the states we added
 			// responders to, we'll be perfectly fine.
 
-			navigator.requestNewState(event.text);
+			navigator.request(event.text);
 
 			// You can influence the validation of states by adding components that implement IHasStateValidation*** interfaces.
 		}
