@@ -7,8 +7,11 @@ package com.epologee.navigator.behaviors {
 		/**
 		 * When added to the Navigator with the update behavior, this method will be fired
 		 * on each change of the path below the registered state.
-		 * The first parameter is the remainder of the substraction/truncation of the @param inState and the registered state.
-		 * You will probably want to use the inTruncated.firstSegment parameter for you update logic.
+		 * 
+		 * @param full is the full state being processed by the navigator.
+		 * @param truncated is the remainder of the substraction/truncation of the full state and the state this responder is registered to.
+		 * 
+		 * You will probably want to start with truncated.firstSegment parameter for you update logic.
 		 * 
 		 * Pseudo code example:
 		 * 		
@@ -19,8 +22,8 @@ package com.epologee.navigator.behaviors {
 		 * 		
 		 * 		updateState("/categoryA/244/", "/gallery/categoryA/244/");
 		 * 		
-		 * 	and inTruncated.firstSegment will render you with "categoryA",
-		 * 	inTruncated.lastSegment will give you "244".
+		 * 	and truncated.firstSegment will render you with "categoryA",
+		 * 	truncated.lastSegment will give you "244".
 		 */
 		function updateState(truncated:NavigationState, full : NavigationState) : void;
 	}

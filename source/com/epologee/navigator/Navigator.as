@@ -50,8 +50,7 @@ package com.epologee.navigator {
 	[Event(name="TRANSITION_FINISHED", type="com.epologee.navigator.NavigatorEvent")]
 	//
 	public class Navigator extends EventDispatcher implements INavigator {
-		public static var MAX_HISTORY_LENGTH : Number = 50;
-		public static var INSTANCE_COUNT : int = 0;
+		private static var INSTANCE_COUNT : int = 0;
 		//
 		protected var _current : NavigationState;
 		protected var _previous : NavigationState;
@@ -79,109 +78,31 @@ package com.epologee.navigator {
 			_statusByResponder = new Dictionary();
 		}
 
-		public function add(responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : void {
-			modify(true, responder, pathsOrStates, behaviors);
+		/**
+		 * @inheritDoc
+		 */
+		public function add(responder : INavigationResponder, pathsOrStates : *, behavior : String = null) : void {
+			modify(true, responder, pathsOrStates, behavior);
 		}
 
-		public function remove(responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : void {
-			modify(false, responder, pathsOrStates, behaviors);
+		/**
+		 * @inheritDoc
+		 */
+		public function remove(responder : INavigationResponder, pathsOrStates : *, behavior : String = null) : void {
+			modify(false, responder, pathsOrStates, behavior);
 		}
 
-		public function modify(addition : Boolean, responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : void {
-			if (relayModification(addition, responder, pathsOrStates, behaviors)) return;
-
-			// Using the path variable as dictionary key to break instance referencing.
-			var path : String = NavigationState.make(pathsOrStates).path;
-			var list : Array;
-			var matchingInterface : Class;
-
-			// Create, store and retrieve the list that matches the desired behavior.
-			switch(behaviors) {
-				case NavigationBehaviors.SHOW:
-					matchingInterface = IHasStateTransition;
-					list = _responders.showByPath[path] ||= [];
-					break;
-				case NavigationBehaviors.HIDE:
-					matchingInterface = IHasStateTransition;
-					list = _responders.hideByPath[path] ||= [];
-					break;
-				case NavigationBehaviors.VALIDATE:
-					matchingInterface = IHasStateValidation;
-					list = _responders.validateByPath[path] ||= [];
-					break;
-				case NavigationBehaviors.UPDATE:
-					matchingInterface = IHasStateUpdate;
-					list = _responders.updateByPath[path] ||= [];
-					break;
-				case NavigationBehaviors.SWAP:
-					matchingInterface = IHasStateSwap;
-					list = _responders.swapByPath[path] ||= [];
-					break;
-				default:
-					throw new Error("Unknown behavior: " + behaviors);
-			}
-
-			if (!(responder is matchingInterface)) {
-				throw new Error("Responder " + responder + " should implement " + matchingInterface + " to respond to " + behaviors);
-			}
-
-			if (addition) {
-				// add
-				if (list.indexOf(responder) < 0) {
-					list.push(responder);
-
-					// If the responder has no status yet, initialize it to UNINITIALIZED:
-					_statusByResponder[responder] ||= TransitionStatus.UNINITIALIZED;
-				} else return;
-			} else {
-				// remove
-				var index : int = list.indexOf(responder);
-				if (index >= 0) {
-					list.splice(index, 1);
-
-					delete _statusByResponder[responder];
-				} else return;
-
-				if (matchingInterface == IHasStateSwap && _responders.swappedBefore[responder]) {
-					// cleanup after the special swap case
-					delete _responders.swappedBefore[responder];
-				}
-			}
-
-			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
-		}
-
-		public function relayModification(addition : Boolean, responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : Boolean {
-			if (!responder)
-				throw new Error("add: responder is null");
-
-			if (pathsOrStates is Array) {
-				for each (var pathOrState : * in pathsOrStates) {
-					modify(addition, responder, pathOrState, behaviors);
-				}
-				return true;
-			}
-
-			behaviors ||= NavigationBehaviors.AUTO;
-			if (behaviors == NavigationBehaviors.AUTO) {
-				for each (var behavior : String in NavigationBehaviors.ALL_AUTO) {
-					try {
-						modify(addition, responder, pathsOrStates, behavior);
-					} catch(e : Error) {
-						// ignore 'should implement xyz' errors
-					}
-				}
-				return true;
-			}
-
-			return false;
-		}
-
+		/**
+		 * @inheritDoc
+		 */
 		public function registerRedirect(fromStateOrPath : *, toStateOrPath : *) : void {
 			_redirects ||= new Dictionary();
 			_redirects[NavigationState.make(fromStateOrPath).path] = NavigationState.make(toStateOrPath);
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public function start(defaultStateOrPath : * = "", startStateOrPath : * = null) : void {
 			_defaultState = NavigationState.make(defaultStateOrPath);
 
@@ -189,8 +110,7 @@ package com.epologee.navigator {
 		}
 
 		/**
-		 * Request a new state by providing a #NavigationState instance.
-		 * If the new state is different from the current, it will be validated and granted.
+		 * @inheritDoc
 		 */
 		public function request(stateOrPath : *) : void {
 			if (stateOrPath == null) {
@@ -234,8 +154,117 @@ package com.epologee.navigator {
 			performRequestCascade(requested);
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public function get currentState() : NavigationState {
+			// not returning the _current instance to prevent possible reference conflicts.
+			if (!_current) {
+				if (_defaultState)
+					return _defaultState.clone();
+
+				return null;
+			}
+
+			return _current.clone();
+		}
+
+		/**
+		 * This method is currently not exposed through the INavigator interface, because you shouldn't rely on it too heavily.
+		 * Implement your behaviors correctly and you should be fine.
+		 */
 		public function get isTransitioning() : Boolean {
 			return _isTransitioning;
+		}
+
+		private function modify(addition : Boolean, responder : INavigationResponder, pathsOrStates : *, behavior : String = null) : void {
+			if (relayModification(addition, responder, pathsOrStates, behavior)) return;
+
+			// Using the path variable as dictionary key to break instance referencing.
+			var path : String = NavigationState.make(pathsOrStates).path;
+			var list : Array;
+			var matchingInterface : Class;
+
+			// Create, store and retrieve the list that matches the desired behavior.
+			switch(behavior) {
+				case NavigationBehaviors.SHOW:
+					matchingInterface = IHasStateTransition;
+					list = _responders.showByPath[path] ||= [];
+					break;
+				case NavigationBehaviors.HIDE:
+					matchingInterface = IHasStateTransition;
+					list = _responders.hideByPath[path] ||= [];
+					break;
+				case NavigationBehaviors.VALIDATE:
+					matchingInterface = IHasStateValidation;
+					list = _responders.validateByPath[path] ||= [];
+					break;
+				case NavigationBehaviors.UPDATE:
+					matchingInterface = IHasStateUpdate;
+					list = _responders.updateByPath[path] ||= [];
+					break;
+				case NavigationBehaviors.SWAP:
+					matchingInterface = IHasStateSwap;
+					list = _responders.swapByPath[path] ||= [];
+					break;
+				default:
+					throw new Error("Unknown behavior: " + behavior);
+			}
+
+			if (!(responder is matchingInterface)) {
+				throw new Error("Responder " + responder + " should implement " + matchingInterface + " to respond to " + behavior);
+			}
+
+			if (addition) {
+				// add
+				if (list.indexOf(responder) < 0) {
+					list.push(responder);
+
+					// If the responder has no status yet, initialize it to UNINITIALIZED:
+					_statusByResponder[responder] ||= TransitionStatus.UNINITIALIZED;
+				} else return;
+			} else {
+				// remove
+				var index : int = list.indexOf(responder);
+				if (index >= 0) {
+					list.splice(index, 1);
+
+					delete _statusByResponder[responder];
+				} else return;
+
+				if (matchingInterface == IHasStateSwap && _responders.swappedBefore[responder]) {
+					// cleanup after the special swap case
+					delete _responders.swappedBefore[responder];
+				}
+			}
+
+			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STATUS_UPDATED, _statusByResponder));
+		}
+
+		private function relayModification(addition : Boolean, responder : INavigationResponder, pathsOrStates : *, behaviors : String = null) : Boolean {
+			if (!responder)
+				throw new Error("add: responder is null");
+
+			if (pathsOrStates is Array) {
+				for each (var pathOrState : * in pathsOrStates) {
+					modify(addition, responder, pathOrState, behaviors);
+				}
+				return true;
+			}
+
+			behaviors ||= NavigationBehaviors.AUTO;
+			if (behaviors == NavigationBehaviors.AUTO) {
+				for each (var behavior : String in NavigationBehaviors.ALL_AUTO) {
+					try {
+						modify(addition, responder, pathsOrStates, behavior);
+					} catch(e : Error) {
+						// ignore 'should implement xyz' errors
+					}
+				}
+				return true;
+			}
+
+			return false;
 		}
 
 		private function performRequestCascade(requested : NavigationState, startAsyncValidation : Boolean = true) : void {
@@ -275,18 +304,6 @@ package com.epologee.navigator {
 				// If you don't provide a default state, at least make sure your first request makes sense!
 				throw new Error("First request is invalid: " + requested);
 			}
-		}
-
-		public function get currentState() : NavigationState {
-			// not returning the _current instance to prevent possible reference conflicts.
-			if (!_current) {
-				if (_defaultState)
-					return _defaultState.clone();
-
-				return null;
-			}
-
-			return _current.clone();
 		}
 
 		transition function notifyComplete(responder : INavigationResponder, status : int, behavior : String) : void {
