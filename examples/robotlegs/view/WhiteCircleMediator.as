@@ -1,7 +1,7 @@
 package view {
 	import model.constants.Positions;
 
-	import view.components.BlackCircle;
+	import view.components.WhiteCircle;
 
 	import com.epologee.navigator.behaviors.IHasStateInitialization;
 	import com.epologee.navigator.behaviors.IHasStateTransition;
@@ -12,9 +12,9 @@ package view {
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
-	public class BlackCircleMediator extends Mediator implements IHasStateInitialization, IHasStateTransition {
+	public class WhiteCircleMediator extends Mediator implements IHasStateInitialization, IHasStateTransition {
 		[Inject]
-		public var circle : BlackCircle;
+		public var circle : WhiteCircle;
 
 		/**
 		 * @inheritDoc

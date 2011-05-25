@@ -9,7 +9,7 @@ package {
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
-	[SWF(backgroundColor="#FFFFFF", frameRate="31", width="640", height="480")]
+	[SWF(backgroundColor="#000000", frameRate="31", width="640", height="480")]
 	public class RobotLegsNavigatorExample extends Sprite {
 		private var context : ExampleContext;
 

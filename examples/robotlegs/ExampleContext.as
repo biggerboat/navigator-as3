@@ -7,12 +7,12 @@ package {
 	import view.components.NestedSquare;
 	import controller.HelloWorldCommand;
 
-	import view.BlackCircleMediator;
+	import view.WhiteCircleMediator;
 	import view.BlueSquareMediator;
 	import view.ContainerSquareMediator;
 	import view.GreenSquareMediator;
 	import view.RedSquareMediator;
-	import view.components.BlackCircle;
+	import view.components.WhiteCircle;
 	import view.components.BlueSquare;
 	import view.components.ContainerSquare;
 	import view.components.ExampleTextBox;
@@ -41,22 +41,21 @@ package {
 			
 			// But if a component and mediator form a pair, we use this syntax 
 			stateViewMap.mapViewMediator("red", RedSquare, RedSquareMediator);
-			stateViewMap.mapViewMediator("green", GreenSquare, GreenSquareMediator);
-			stateViewMap.mapViewMediator("blue", BlueSquare, BlueSquareMediator);
-			
+
+			// By calling mapView on existing mappings, we can add extra states 			
+			stateViewMap.mapView("*/red", RedSquare);
+
 			// You can add states one by one, or as an array
-			stateViewMap.mapViewMediator(["black", "*/black"], BlackCircle, BlackCircleMediator);
+			// Wildcard '*' segments in states will match any segment in a requested state. 
+			stateViewMap.mapViewMediator(["green", "*/green"], GreenSquare, GreenSquareMediator);
+			stateViewMap.mapViewMediator(["blue", "*/blue"], BlueSquare, BlueSquareMediator);
+			stateViewMap.mapViewMediator(["white", "*/white"], WhiteCircle, WhiteCircleMediator);
 
 			// By using a mapping's parent property, you can setup nested view components
 			var container : ViewRecipe = stateViewMap.mapViewMediator("move", ContainerSquare, ContainerSquareMediator);
 			var nested : ViewRecipe = stateViewMap.mapViewMediator("move/nested", NestedSquare, NestedSquareMediator);
 			nested.parent = container;
 			stateViewMap.mapViewMediator("move/nested/deep", DeepNestedSquare, DeepNestedSquareMediator).parent = nested;
-
-			// By calling mapView on existing mappings, we can add extra states 			
-			stateViewMap.mapView("*/red", RedSquare);
-			stateViewMap.mapView("*/green", GreenSquare);
-			stateViewMap.mapView("*/blue", BlueSquare);
 			
 			// Navigator debug console, very nice for development. Toggle with the tilde key, "~". You can type in new states by hand!
 			stateViewMap.mapView("/", DebugConsole, navigator);
