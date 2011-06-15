@@ -1,4 +1,6 @@
 package com.epologee.navigator.integration.robotlegs.mapping {
+	import flash.utils.getDefinitionByName;
+	import flash.display.DisplayObject;
 	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.NavigatorEvent;
@@ -15,6 +17,17 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
 	public class StateViewMap implements IStateViewMap, IHasStateValidationOptional {
+		
+		/**
+		 * Flex framework work-around part #1
+		 */
+		protected static var UIComponentClass:Class;
+
+		/**
+		 * Flex framework work-around part #2
+		 */
+		protected static const flexAvailable:Boolean = checkFlex();
+		
 		private var _navigator : INavigator;
 		private var _orderedRecipes : Array;
 		private var _uniquePaths : Array;
@@ -155,16 +168,37 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 					// add the product right below the current test's product.
 					var index : int = container.getChildIndex(testRecipe.displayObject);
 					// logger.debug("Adding " + recipe.displayObject + " to " + container + " @ " + index);
-					container.addChildAt(recipe.displayObject, index);
+					addToContainerAt(container, recipe.displayObject, index);
 					return;
 				}
 			}
 
 			// otherwise add on top
 			// logger.debug("Adding " + recipe.displayObject + " to " + container + " @ top");
-			container.addChild(recipe.object);
+			addToContainer(container, recipe.object);
 		}
 
+		private function addToContainer(container : DisplayObjectContainer, child : DisplayObject) : DisplayObject {
+			if(isFlexContainer(container))
+				return container["addElement"](child);
+			else
+				return container.addChild(child);
+		}
+
+		private function addToContainerAt(container : DisplayObjectContainer, child : DisplayObject, index:int) : DisplayObject {
+			if(isFlexContainer(container))
+				return container["addElementAt"](child, index);
+			else
+				return container.addChildAt(child, index);
+		}
+		
+		private function isFlexContainer(container:DisplayObjectContainer) : Boolean {
+			if(!flexAvailable)
+				return false;
+			
+			return container is UIComponentClass;
+		}
+		
 		private function recipeExistsOf(viewComponentClass : Class) : Boolean {
 			for each (var recipe : ViewRecipe in _orderedRecipes) {
 				if (recipe.ObjectClass == viewComponentClass) return true;
@@ -180,6 +214,24 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 
 			var newRecipe : ViewRecipe = new ViewRecipe(_injector, viewComponentClass, constructorParams);
 			return newRecipe;
+		}
+		
+		/**
+		 * Flex framework work-around part #3
+		 *
+		 * <p>Checks for availability of the Flex framework by trying to get the class for UIComponent.</p>
+		 */
+		private static function checkFlex():Boolean
+		{
+			try
+			{
+				UIComponentClass = getDefinitionByName('mx.core::UIComponent') as Class;
+			}
+			catch (error:Error)
+			{
+				// do nothing
+			}
+			return UIComponentClass != null;
 		}
 	}
 }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:RichEditableText xmlns:fx="http://ns.adobe.com/mxml/2009"
+        	xmlns:s="library://ns.adobe.com/flex/spark"
+        	xmlns:mx="library://ns.adobe.com/flex/mx" 
+        	maxWidth="620" height="{Positions.TEXT_BOX_HEIGHT}"
+        	paddingLeft="{Positions.MARGIN_LEFT}" paddingTop="{Positions.MARGIN_TOP}" 
+        	selectable="false" editable="false">
+	<fx:Script>
+		<![CDATA[
+			import model.constants.Positions;
+			import com.epologee.navigator.INavigator;
+			
+			[Inject]
+			public var navigator:INavigator;
+			
+			private function onClick(path : String) : void {
+				notice(navigator);
+				navigator.request(path);
+			}
+		]]>
+	</fx:Script>
+	<s:content>
+		<s:p color="0xFFFFFF" fontWeight="bold">Navigator integration example for RobotLegs and Flex<s:br /></s:p>
+		<s:p color="0x999999" paddingBottom="10">Added to this example are 4 view components with corresponding mediators; 
+							  a red, green and blue square, and a white circle. By clicking the menu, you can change the navigation state.
+							  You can also type in a path in the debug console.
+							  The view components are added to the stage automatically, in the order you added the mappings.<s:br />
+		</s:p>
+		<s:p color="0xFFFFFF" fontWeight="bold">
+			<s:a click="onClick('red')">Red Square</s:a> |
+			<s:a click="onClick('green')">Green Square</s:a> |
+			<s:a click="onClick('blue')">Blue Square</s:a> |
+			<s:a click="onClick('white')">White Circle</s:a><s:br />
+		</s:p>
+		<s:p color="0x999999">But what you can also do is show two shapes at the same time, by using state cascading:<s:br /></s:p>
+		<s:p color="0xFFFFFF" fontWeight="bold" styleName="links">
+			<s:a click="onClick('green/white')">Green and White</s:a> |
+			<s:a click="onClick('red/blue')">Red and Blue</s:a> |
+			<s:a click="onClick('*/white')">Current and White</s:a><s:br />
+		</s:p>
+		<s:p color="0x999999">Lastly, if you want view components to be nested, you can, by using a mapped view recipe's parent property:<s:br /></s:p>
+		<s:p styleName="links">
+			<s:a click="onClick('move')">Moving Container</s:a> |
+			<s:a click="onClick('move/nested')">Nested Square</s:a> |
+			<s:a click="onClick('move/nested/deep')">Deeply Nested Square</s:a><s:br />
+		</s:p>
+	</s:content>
+</s:RichEditableText>
