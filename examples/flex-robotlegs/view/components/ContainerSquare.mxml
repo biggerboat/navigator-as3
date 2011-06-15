@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+        xmlns:mx="library://ns.adobe.com/flex/mx" 
+        width="{Positions.SHAPE_SIZE + Positions.MARGIN_LEFT * 2}"
+		height="{width}">
+	<fx:Script>
+		<![CDATA[
+			import model.constants.Positions;
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor color="0xCCCCCC"/>
+		</s:fill>
+	</s:Rect>
+</s:Group>
