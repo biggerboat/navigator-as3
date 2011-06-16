@@ -306,6 +306,10 @@ package com.epologee.navigator {
 			}
 		}
 
+		/**
+		 * FIXME: The notifyComplete logic is incorrect when two parallel transitions (e.g. both 'in') of the same responder report back with a non-chronological order. 
+		 * This will not happen in regular use, but brute-force testing reveals it. The result is elements being visible when they shouldn't and vice versa.
+		 */
 		transition function notifyComplete(responder : INavigationResponder, status : int, behavior : String) : void {
 			if (_statusByResponder[responder]) {
 				_statusByResponder[responder] = status;
@@ -336,10 +340,11 @@ package com.epologee.navigator {
 			if (asynch.isBusy()) {
 				asynch.takeOutResponder(responder);
 
+				// isBusy counts the number of responders, so it might have changed after takeOutResponder().
 				if (!asynch.isBusy()) {
 					method();
 				} else {
-					logger.notice("waiting for " + asynch.responders.length + " responders to " + behavior);
+					logger.notice("waiting for " + asynch.length + " responders to " + behavior);
 				}
 			}
 		}
@@ -422,7 +427,7 @@ package com.epologee.navigator {
 				if (!_validating.isBusy()) {
 					performRequestCascade(full, false);
 				} else {
-					logger.notice("Waiting for " + _validating.responders.length + " validators to prepare");
+					logger.notice("Waiting for " + _validating.length + " validators to prepare");
 				}
 			} else {
 				// ignore async preparations of former requests.
@@ -491,8 +496,8 @@ package com.epologee.navigator {
 
 							if (asyncValidator) {
 								_asyncValidationOccurred = true;
-								_validating.responders.push(asyncValidator);
-								logger.notice("Preparing validation (total of " + _validating.responders.length + ")");
+								_validating.addResponder(asyncValidator);
+								logger.notice("Preparing validation (total of " + _validating.length + ")");
 
 								use namespace validation;
 								asyncValidator.prepareValidation(remainder, unvalidatedState, new ValidationPreparedDelegate(asyncValidator, remainder, unvalidatedState, this).call);
@@ -573,7 +578,7 @@ package com.epologee.navigator {
 			dispatchEvent(new NavigatorEvent(NavigatorEvent.TRANSITION_STARTED));
 
 			_disappearing = new AsynchResponders();
-			_disappearing.responders = flow::transitionOut();
+			_disappearing.addResponders(flow::transitionOut());
 
 			if (!_disappearing.isBusy()) {
 				flow::performUpdates();
@@ -645,7 +650,7 @@ package com.epologee.navigator {
 
 		flow function startTransitionIn() : void {
 			_appearing = new AsynchResponders();
-			_appearing.responders = flow::transitionIn();
+			_appearing.addResponders(flow::transitionIn());
 
 			if (!_appearing.isBusy()) {
 				flow::startSwapOut();
@@ -688,7 +693,7 @@ package com.epologee.navigator {
 
 		flow function startSwapOut() : void {
 			_swapping = new AsynchResponders();
-			_swapping.responders = flow::swapOut();
+			_swapping.addResponders(flow::swapOut());
 
 			if (!_swapping.isBusy()) {
 				flow::swapIn();
@@ -850,14 +855,28 @@ class ResponderLists {
 	}
 }
 class AsynchResponders {
-	public var responders : Array = [];
+	private var responders : Array = [];
+
+	public function get length() : int {
+		return responders.length;
+	}
 
 	public function isBusy() : Boolean {
-		return responders && responders.length;
+		return length > 0;
 	}
 
 	public function hasResponder(responder : INavigationResponder) : Boolean {
 		return responders.indexOf(responder) >= 0;
+	}
+
+	public function addResponder(responder : INavigationResponder) : void {
+		responders.push(responder);
+	}
+
+	public function addResponders(additionalResponders : Array) : void {
+		if (additionalResponders && additionalResponders.length) {
+			responders = responders.concat(additionalResponders);
+		}
 	}
 
 	public function takeOutResponder(responder : INavigationResponder) : Boolean {
@@ -871,8 +890,9 @@ class AsynchResponders {
 	}
 
 	public function reset() : void {
-		if (responders && responders.length)
+		if (responders.length)
 			logger.warn("Resetting too early? Still have responders marked for asynchronous tasks");
-		responders = null;
+			
+		responders = [];
 	}
 }
