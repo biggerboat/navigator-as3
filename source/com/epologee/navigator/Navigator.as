@@ -121,7 +121,7 @@ package com.epologee.navigator {
 			// Store and possibly mask the requested state
 			var requested : NavigationState = NavigationState.make(stateOrPath);
 			if (requested.hasWildcard()) {
-				requested = requested.mask(_current);
+				requested = requested.mask(_current || _defaultState);
 			}
 
 			// Check for exact match of the requested and the current state
@@ -280,7 +280,7 @@ package com.epologee.navigator {
 			} else if (validate(requested, true, startAsyncValidation)) {
 				// Any other state needs to be validated.
 				grantRequest(requested);
-			} else if (_validating.isBusy()) {
+			} else if (_validating && _validating.isBusy()) {
 				// Waiting for async validation.
 				// FIXME: What do we do in the mean time, dispatch an event or sth?
 				logger.notice("waiting for async validation to complete");
