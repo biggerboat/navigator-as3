@@ -271,7 +271,7 @@ package com.epologee.navigator {
 			if (!_defaultState) throw new Error("No default state set. Call start() before the first request!");
 			// Request cascade starts here.
 			//
-			if (requested.path == _defaultState.path) {
+			if (requested.path == _defaultState.path && !_defaultState.hasWildcard()) {
 				// Exact match on default state bypasses validation.
 				grantRequest(_defaultState);
 			} else if (_asyncValidationOccurred && (_asyncValidated && !_asyncInvalidated)) {
