@@ -3,6 +3,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.behaviors.IHasStateUpdate;
+	import com.epologee.navigator.behaviors.IHasStateValidationOptional;
 
 	import org.robotlegs.base.ContextError;
 	import org.robotlegs.core.IInjector;
@@ -14,7 +15,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
-	public class StateControllerMap implements IStateControllerMap, IHasStateUpdate {
+	public class StateControllerMap implements IStateControllerMap, IHasStateValidationOptional, IHasStateUpdate {
 		private var _navigator : INavigator;
 		private var _injector : IInjector;
 		private var _commandsByState : Dictionary;
@@ -57,6 +58,30 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 			}
 		}
 
+		public function willValidate(truncated : NavigationState, full : NavigationState) : Boolean {
+			// will only validate if the state matches a command.
+			return validate(truncated, full);
+		}
+
+		public function validate(truncated : NavigationState, full : NavigationState) : Boolean {
+			for (var path : String in _commandsByState) {
+				var mappedState : NavigationState = NavigationState.make(path);
+				if (full.contains(mappedState)) {
+					var commands : Array = _commandsByState[path];
+					var exact : Boolean = full.equals(mappedState);
+
+					// reverse loop to accomodate for oneshot removal
+					for (var i : int = commands.length; --i >= 0; ) {
+						var wrapper : CommandWrapper = CommandWrapper(commands[i]);
+						if (!exact && wrapper.exactMatch) continue;
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
 		public function updateState(truncated : NavigationState, full : NavigationState) : void {
 			for (var path : String in _commandsByState) {
 				var mappedState : NavigationState = NavigationState.make(path);
@@ -71,7 +96,7 @@ package com.epologee.navigator.integration.robotlegs.mapping {
 
 						_injector.mapValue(NavigationState, full);
 						_injector.mapValue(NavigationState, full.subtract(wrapper.state), "truncated");
-						
+
 						var command : Command = Command(_injector.instantiate(wrapper.CommandClass));
 						command.execute();
 
