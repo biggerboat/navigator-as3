@@ -10,6 +10,12 @@ package com.epologee.navigator.integration.swfaddress {
 	 * 
 	 * This class extends the Navigator to add SWFAddress capabilities.
 	 * 
+	 * Side note: in your HTML, make sure you declare the swfaddress.js import *after* the swfobject.js import, like so:
+	 * 		<script type="text/javascript" src="swfobject.js"></script>
+     *		<script type="text/javascript" src="swfaddress.js"></script>
+     *		
+     * This is to prevent issues like https://github.com/epologee/navigator-as3/issues/25
+	 * 
 	 * Example:
 	 * var navigator:Navigator = new SWFAddressNavigator();
 	 */
