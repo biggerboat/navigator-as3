@@ -1,11 +1,9 @@
 package util {
-	import logmeister.connectors.TrazzleConnector;
-	import logmeister.LogMeister;
-	import flash.display.StageScaleMode;
-	import flash.display.StageAlign;
-	import flash.events.Event;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
+	import flash.events.Event;
 	import flash.geom.Point;
 
 	/**
@@ -31,7 +29,6 @@ package util {
 		}
 
 		private function setupStage(...ignoreParameters) : void {
-			LogMeister.addLogger(new TrazzleConnector(stage, "Example"));
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 		}
