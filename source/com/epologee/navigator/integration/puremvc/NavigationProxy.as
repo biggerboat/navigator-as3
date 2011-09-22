@@ -14,8 +14,6 @@ package com.epologee.navigator.integration.puremvc {
 
 	import flash.utils.getQualifiedClassName;
 
-
-
 	/**
 	 * @author Eric-Paul Lecluse (c) epologee.com
 	 */
@@ -135,14 +133,6 @@ package com.epologee.navigator.integration.puremvc {
 		}
 
 		/**
-		 * DEPRECATED.
-		 */
-		public function request(stateOrPath : *) : void {
-			logger.warn("Using deprecated method request(). Use request() instead.");
-			request(stateOrPath);
-		}
-
-		/**
 		 * Request a new state by providing a #NavigationState instance.
 		 * If the new state is different from the current, it will be validated and granted.
 		 */
@@ -152,7 +142,7 @@ package com.epologee.navigator.integration.puremvc {
 		}
 
 		public function getStatus(responder : IHasStateTransition) : int {
-			return _navigator.hidden::getStatus(responder);
+			return Navigator(_navigator).hidden::getStatus(responder);
 		}
 
 		public function getCurrentState() : NavigationState {
@@ -169,7 +159,7 @@ package com.epologee.navigator.integration.puremvc {
 		}
 
 		private function handleStateChanged(event : NavigatorEvent) : void {
-			sendNotification(STATE_CHANGED, _navigator.getCurrentState());
+			sendNotification(STATE_CHANGED, _navigator.currentState);
 		}
 
 		/**
