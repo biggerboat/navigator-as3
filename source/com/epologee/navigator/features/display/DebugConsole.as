@@ -1,4 +1,5 @@
 package com.epologee.navigator.features.display {
+	import com.epologee.development.logging.logger;
 	import com.epologee.navigator.INavigator;
 	import com.epologee.navigator.NavigationState;
 	import com.epologee.navigator.NavigatorEvent;
@@ -7,7 +8,6 @@ package com.epologee.navigator.features.display {
 	import com.epologee.navigator.behaviors.INavigationResponder;
 	import com.epologee.navigator.namespaces.hidden;
 	import com.epologee.navigator.transition.TransitionStatus;
-	import com.nesium.log;
 
 	import flash.display.Sprite;
 	import flash.events.ContextMenuEvent;
@@ -129,11 +129,10 @@ package com.epologee.navigator.features.display {
 			_boxRight.height = _boxLeft.height;
 
 			try {
-			updateContextMenu();
-			} catch (ei:Error) {
-				log.error("[i]: "+ei.message);
+				updateContextMenu();
+			} catch (ei : Error) {
+				logger.error("[i]: " + ei.message);
 			}
-			
 		}
 
 		private function getColorByStatus(status : int) : String {
