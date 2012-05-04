@@ -6,15 +6,17 @@
 				horizontalScrollPolicy="off" verticalScrollPolicy="off">
 	<mx:Script>
 		<![CDATA[
-			import com.epologee.development.logging.logger;
-			import com.epologee.navigator.integration.logmeister.LogMeisterLogger;
 			import logmeister.LogMeister;
 			import logmeister.connectors.TrazzleConnector;
+			import suites.navigator.NavigatorTestSuite;
+
+			import com.epologee.development.logging.logger;
+			import com.epologee.navigator.integration.logmeister.LogMeisterLogger;
+
 			import org.flexunit.internals.TraceListener;
 			import org.flexunit.listeners.LogMeisterListener;
 			import org.flexunit.listeners.UIListener;
 			import org.flexunit.runner.FlexUnitCore;
-			import suites.navigator.NavigatorTestSuite;
 
 
 

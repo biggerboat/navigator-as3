@@ -14,6 +14,10 @@ This library was created to take away your pains when it comes to navigating you
 
 [Check out the Wiki pages](https://github.com/epologee/navigator-as3/wiki) if you want to read some more or if you want to see some examples.
 
+# Forks & Ports
+
+*	[@lbineau](http://twitter.com/lbineau) has ported the library to Haxe: https://github.com/lbineau/HaxeNavigator
+
 # Feedback
 
 I'd love to hear your opinion on this library and the scenarios you're using it in. Drop me a line or file an issue here on GitHub if you need more information. Enjoy the Navigator!
