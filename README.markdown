@@ -16,8 +16,5 @@ This library was created to take away your pains when it comes to navigating you
 
 # Forks & Ports
 
+* The ever awesome Bigger Boat group ported the library to Javascript: https://github.com/biggerboat/navigator.js
 *	[@lbineau](http://twitter.com/lbineau) has ported the library to Haxe: https://github.com/lbineau/HaxeNavigator
-
-# Feedback
-
-I'd love to hear your opinion on this library and the scenarios you're using it in. Drop me a line or file an issue here on GitHub if you need more information. Enjoy the Navigator!
